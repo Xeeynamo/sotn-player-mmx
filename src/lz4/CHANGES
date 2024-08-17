@@ -1,0 +1,10 @@
+2024-08-16 Luciano Ciccariello
+Removed all the compressed and streaming related functions I could think of.
+This is mainly done to reduce the final binary size and reduce the dependency
+to calloc/free. Deleting deprecated API and removing LZ4_FORCE_INLINE from
+LZ4_decompress_generic slashed the binary size by more than seven times.
+As for GCC 12.2.0 with -O2, LZ4 will occupy just 2.2KB.
+`cat build/*.map | grep text | grep lz4` to know how much space it takes
+original files downloaded from:
+<https://raw.githubusercontent.com/lz4/lz4/c537f782c44a0ced71bcf2713/lib/lz4.h>
+<https://raw.githubusercontent.com/lz4/lz4/c537f782c44a0ced71bcf2713/lib/lz4.c>
