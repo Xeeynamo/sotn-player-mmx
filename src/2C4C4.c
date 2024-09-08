@@ -40,7 +40,7 @@ void RicEntitySubwpnHolyWater(Entity* self) {
         trigtemp = trigresult * 16;
         self->velocityY = -((trigresult * 32 + trigtemp) << 9) >> 8;
 
-        self->ext.holywater.subweaponId = PL_W_HOLYWATER;
+        self->ext.holywater.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxWidth = 4;
         self->hitboxHeight = 4;
@@ -219,7 +219,7 @@ void RicEntitySubwpnHolyWaterFlame(Entity* self) {
         break;
     case 1:
         if (--self->ext.holywater.timer == 0) {
-            self->ext.holywater.subweaponId = PL_W_HOLYWATER_FLAMES;
+            self->ext.holywater.subweaponId = W_DUMMY;
             RicSetSubweaponParams(self);
             self->hitboxWidth = 4;
             self->ext.holywater.hitboxState = self->hitboxState;
@@ -343,7 +343,7 @@ void RicEntitySubwpnCrashCross(Entity* self) {
         self->flags = FLAG_UNK_04000000 | FLAG_HAS_PRIMS | FLAG_UNK_20000;
         self->ext.crashcross.unk80 = 1;
         self->zPriority = 0xC2;
-        self->ext.crashcross.subweaponId = PL_W_CRASH_CROSS;
+        self->ext.crashcross.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         LoadImage(&crash_cross_img_vram, crash_cross_img_data);
         g_api.PlaySfx(0x6DF);
@@ -539,7 +539,7 @@ void RicEntitySubwpnCross(Entity* self) {
         RicSetSpeedX(FIX(3.5625));
         self->drawFlags = 4;
         self->rotZ = 0xC00;
-        self->ext.crossBoomerang.subweaponId = PL_W_CROSS;
+        self->ext.crossBoomerang.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxHeight = self->hitboxWidth = 8;
         self->posY.i.hi -= 8;
@@ -926,7 +926,7 @@ void RicEntitySubwpnAxe(Entity* self) {
             prim = prim->next;
             sp10++;
         }
-        self->ext.factory.unkB0 = PL_W_AXE;
+        self->ext.factory.unkB0 = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxWidth = 12;
         self->hitboxHeight = 12;
@@ -1142,7 +1142,7 @@ void RicEntityCrashAxe(Entity* self) {
                 sp10++;
             } while (prim != NULL);
         }
-        self->ext.axeCrash.subweaponId = PL_W_AXE;
+        self->ext.axeCrash.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxWidth = 12;
         self->hitboxHeight = 12;
@@ -1324,7 +1324,7 @@ void RicEntitySubwpnDagger(Entity* self) {
         // Not sure what this unkB0 does, but it seems to be
         // a standard part of the Ext, and may not be entity specific.
         // This line is not in the DRA version of dagger.
-        self->ext.subweapon.subweaponId = PL_W_DAGGER;
+        self->ext.subweapon.subweaponId = W_DUMMY;
 
         RicSetSubweaponParams(self);
         self->hitboxWidth = 4;
@@ -1576,7 +1576,7 @@ void RicEntitySubwpnReboundStone(Entity* self) {
         self->ext.reboundStone.stoneAngle += (rand() & 0x7F) - 0x40;
 
         self->ext.reboundStone.lifeTimer = 0x40;
-        self->ext.reboundStone.subweaponId = PL_W_REBNDSTONE;
+        self->ext.reboundStone.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxWidth = 4;
         self->hitboxHeight = 4;
@@ -1827,7 +1827,7 @@ void RicEntitySubwpnThrownVibhuti(Entity* self) {
             return;
         }
         self->flags = FLAG_UNK_08000000 | FLAG_HAS_PRIMS;
-        self->ext.subweapon.subweaponId = PL_W_VIBHUTI;
+        self->ext.subweapon.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxWidth = self->hitboxHeight = 4;
         self->posY.i.hi -= 15;
@@ -1998,7 +1998,7 @@ void RicEntitySubwpnAgunea(Entity* self) {
             self->flags =
                 FLAG_UNK_08000000 | FLAG_UNK_04000000 | FLAG_HAS_PRIMS;
             self->facingLeft = PLAYER.facingLeft;
-            self->ext.agunea.subweaponId = PL_W_AGUNEA;
+            self->ext.agunea.subweaponId = W_DUMMY;
             RicSetSubweaponParams(self);
             self->hitboxHeight = 4;
             self->hitboxWidth = 4;
@@ -2332,7 +2332,7 @@ void RicEntityVibhutiCrashCloud(Entity* entity) {
                 entity->ext.vibCrashCloud.parent->ext.vibhutiCrash.unk88;
             entity->facingLeft =
                 entity->ext.vibCrashCloud.parent->ext.vibhutiCrash.unk8C;
-            entity->ext.factory.unkB0 = PL_W_CRASH_VIBHUTI;
+            entity->ext.factory.unkB0 = W_DUMMY;
             RicSetSubweaponParams(entity);
             entity->unk5A = 0x79;
             entity->animSet = ANIMSET_DRA(14);
@@ -2462,7 +2462,7 @@ void RicEntityCrashReboundStoneParticles(Entity* entity) {
     switch (entity->step) {
     case 0:
         entity->flags = FLAG_UNK_04000000;
-        entity->ext.subweapon.subweaponId = PL_W_CRASH_REBOUND_STONE;
+        entity->ext.subweapon.subweaponId = W_DUMMY;
         RicSetSubweaponParams(entity);
         entity->hitboxWidth = 4;
         entity->hitboxHeight = 4;

@@ -1,8 +1,13 @@
 
 set(SOURCE_FILES_MMX
     src/pl_header.c
+    src/pl.c
     src/pl_sprites.c
+    src/pl_assets.c
     src/pl_anims.c
+    src/pl_settings.c
+    src/pl_hud.c
+    src/pl_entities.c
     src/1AC60.c
     src/24788.c
     src/2A060.c

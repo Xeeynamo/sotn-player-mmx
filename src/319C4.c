@@ -201,7 +201,7 @@ void RicEntityCrashReboundStoneExplosion(Entity* self) {
         self->ext.reboundStoneCrashExplosion.unk84 += 0x20;
         if (self->ext.reboundStoneCrashExplosion.unk84 > 0x120) {
             self->ext.reboundStoneCrashExplosion.subweaponId =
-                PL_W_CRASH_REBOUND_EXPLOSION;
+                W_DUMMY;
             RicSetSubweaponParams(self);
             self->posX.val = FIX(128.0);
             self->posY.val = FIX(128.0);
@@ -358,7 +358,7 @@ void RicEntityCrashBibleBeam(Entity* self) {
         break;
     case 1:
         if (++self->ext.bibleBeam.unk80 >= 0x3C) {
-            self->ext.bibleBeam.subweaponId = PL_W_BIBLE_BEAM;
+            self->ext.bibleBeam.subweaponId = W_DUMMY;
             RicSetSubweaponParams(self);
             g_api.PlaySfx(SFX_WEAPON_APPEAR);
             g_api.PlaySfx(SFX_TELEPORT_BANG_A);
@@ -1359,7 +1359,7 @@ void RicEntityAguneaCircle(Entity* self) {
             prim->drawMode = 0x200 | DRAW_HIDE;
             prim = prim->next;
         }
-        self->ext.aguneaCrash.subweaponId = PL_W_CRASH_AGUNEA;
+        self->ext.aguneaCrash.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->step++;
         break;
@@ -1604,7 +1604,7 @@ void RicEntitySubwpnStopwatch(Entity* self) {
             RicCreateEntFactoryFromEntity(self, BP_STOPWATCH_RIPPLE, 0);
             self->ext.et_801719A4.unk94 = 0;
         }
-        self->ext.et_801719A4.subweaponId = PL_W_STOPWATCH;
+        self->ext.et_801719A4.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         g_api.PlaySfx(0x6AD);
         if (self->ext.et_801719A4.unk94 < 2) {
@@ -1996,7 +1996,7 @@ void RicEntitySubpwnBibleTrail(Entity* entity) {
             entity->ext.et_BibleSubwpn.unk7E;
 }
 
-void RicEntitySubpwnBible(Entity* self) {
+void RicEntitySubwpnBible(Entity* self) {
     Primitive* prim;
     s16 left;
     s16 top;
@@ -2038,7 +2038,7 @@ void RicEntitySubpwnBible(Entity* self) {
         prim->priority = PLAYER.zPriority + 1;
         prim->drawMode = DRAW_UNK_100 | DRAW_HIDE;
         self->ext.et_BibleSubwpn.unk84 = self->facingLeft ? 0x20 : -0x20;
-        self->ext.et_BibleSubwpn.subweaponId = PL_W_BIBLE;
+        self->ext.et_BibleSubwpn.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxWidth = 6;
         self->hitboxHeight = 6;

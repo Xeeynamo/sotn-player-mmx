@@ -1,6 +1,7 @@
 VERSION	  ?= us
 PL_NAME   := mmx
-FILES     := pl_header pl_sprites pl_anims
+FILES     := pl_header pl_sprites pl pl_assets pl_anims pl_settings
+FILES     += pl_hud pl_entities
 FILES     += lz4/lz4
 FILES     += d_18568 spriteparts
 FILES     += 1AC60 21250 24788 26C84 2A060 2C4C4 319C4 bss

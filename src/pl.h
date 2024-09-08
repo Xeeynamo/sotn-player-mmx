@@ -2,13 +2,32 @@
 #include <game.h>
 #include <sfx.h>
 
+#define COLOR16(r, g, b, a) (r) + ((g) << 5) + ((b) << 10) + ((a) << 15)
+#define COLOR32(r, g, b) COLOR16(r >> 3, g >> 3, b >> 3, 1)
+
+// MMX stuff
+#define MMX_WALK_SPEED FIX(1.5)
+#define MMX_DASH_SPEED FIX(3.5)
+#define MMX_JUMP_SPEED FIX(4.5) // maybe 5?
+#define MMX_FALL_SPEED FIX(5.75)
+#define MMX_WALL_SPEED FIX(1.0)
+#define MMX_WALL_JUMP_FORCE FIX(8)
+#define MMX_FALL_MAX_VELOCITY FIX(5.75)
+#define MMX_MAX_HEALTH 320
+
+#define PAD_DASH (PAD_CIRCLE | PAD_L1)
+#define IS_DASHING 0x8000
+
+#define JUMP_WITH_DASH 1
+#define JUMP_FROM_WALL 2
+
 #define GAME_OVER 0x80000
 
 #define CHECK_GROUND 1
 #define CHECK_FALL 4
 #define CHECK_FACING 8
 #define CHECK_JUMP 0x10
-#define CHECK_CRASH 0x40
+// #define CHECK_CRASH 0x40
 #define CHECK_80 0x80
 #define CHECK_GRAVITY_HIT 0x200
 #define CHECK_ATTACK 0x1000
@@ -18,10 +37,7 @@
 #define CHECK_GROUND_AFTER_HIT 0x20000
 #define CHECK_SLIDE 0x40000
 
-// Richter mostly uses the same steps as Alucard, or uses unused Alucard steps.
-// There are a couple steps that mean one thing for Alucard, and another for
-// Richter. This enum handles Richter's version of the ones that overlap.
-enum RicSteps {
+enum MmxSteps {
     PL_S_STAND,
     PL_S_WALK,
     PL_S_CROUCH,
@@ -50,9 +66,9 @@ enum RicSteps {
     PL_S_RUN,
     PL_S_SLIDE_KICK,
     PL_S_SUBWPN_CRASH,
-    PL_S_28, // unused
-    PL_S_29, // unused
-    PL_S_30, // unused
+    PL_S_WALL,
+    PL_S_DASH,
+    PL_S_DASH_AIR,
     PL_S_31, // unused
     PL_S_INIT,
     PL_S_DEBUG = 0xF0,
@@ -67,29 +83,35 @@ enum RicSfxs {
     SFX_CROSS_CRASH,
 };
 
-enum RicTimers {
+typedef enum {
+    PL_JUMP_NONE,
+    PL_JUMP_ASCENDING,
+    PL_JUMP_DESCENDING,
+} MmxJumpState;
+
+enum MmxTimers {
     PL_T_POISON,
     PL_T_CURSE,
     PL_T_2,
     PL_T_3,
     PL_T_4,
     PL_T_5,
-    PL_T_6,
+    PL_T_FALL,
     PL_T_7,
     PL_T_8,
-    PL_T_9,
+    PL_T_ATTACK,
     PL_T_10,
     PL_T_RUN,
     PL_T_12,
     PL_T_INVINCIBLE_SCENE, // "dying" in the prologue
     PL_T_INVINCIBLE,
-    PL_T_15,
+    PL_T_AFTERIMAGE_DISABLE,
 };
 
-enum RicEntities {
+enum MmxEntities {
     E_NONE,
     E_FACTORY,                       // RicEntityFactory
-    E_SMOKE_PUFF,                    // RicEntitySmokePuff
+    E_SMOKE_PUFF,                    // RicRicEntitySmokePuff
     E_SUBWPN_CROSS,                  // RicEntitySubwpnCross
     E_80169C10,                      // func_80169C10
     E_HIT_BY_CUT_BLOOD,              // RicEntityHitByCutBlood
@@ -110,7 +132,7 @@ enum RicEntities {
     E_NOT_IMPLEMENTED_3,             // RicEntityNotImplemented3
     E_REVIVAL_COLUMN,                // RicEntityRevivalColumn
     E_APPLY_MARIA_POWER_ANIM,        // RicEntityApplyMariaPowerAnim
-    E_80160C38,                      // func_80160C38
+    E_80160C38,                      // RicEntitySlideKick
     E_BLADE_DASH,                    // RicEntityBladeDash
     E_801623E0,                      // func_801623E0
     E_80162604,                      // func_80162604
@@ -121,7 +143,7 @@ enum RicEntities {
     E_BLINK_WHITE,                   // RicEntityPlayerBlinkWhite
     E_SUBWPN_CRASH_CROSS_PARTICLES,  // RicEntitySubwpnCrashCrossParticles
     E_801641A0,                      // func_801641A0
-    E_SHRINKING_POWERUP_RING,        // RicEntityShrinkingPowerUpRing
+    E_SHRINKING_POWERUP_RING,        // RicRicEntityShrinkingPowerUpRing
     E_80167A70,                      // func_80167A70
     E_SUBWPN_AXE,                    // RicEntitySubwpnAxe
     E_CRASH_AXE,                     // RicEntityCrashAxe
@@ -155,6 +177,28 @@ enum RicEntities {
     E_80170548,                      // func_80170548
     E_TELEPORT,                      // RicEntityTeleport
     E_DUMMY_66,                      // RicEntityDummy
+    NUM_RIC_ENTITIES,
+    E_SMOKE_PUFF_WHEN_SLIDING = 68,
+    E_W_LEMON,
+    E_W_CUCUMBER,
+    E_W_CHARJELLY,
+    E_W_SHOTGUN_ICE,
+    E_W_ELECTRIC_SPARK,
+    E_W_ROLLING_SHIELD,
+    E_W_HOMING_TORPEDO,
+    E_W_BOOMERANG_CUTTER,
+    E_W_CHAMELEON_STING,
+    E_W_STORM_TORNADO,
+    E_W_FIRE_WAVE,
+    E_W_HADOUKEN,
+    E_MMX_PRIZE_DROP,
+    E_POWER_CAPSULE_SMALL,
+    E_POWER_CAPSULE_BIG,
+    E_ENERGY_CAPSULE_SMALL,
+    E_ENERGY_CAPSULE_BIG,
+    E_LIFE_UP,
+    E_HEART_TANK,
+    E_ENERGY_TANK,
     NUM_ENTITIES,
 };
 
@@ -237,61 +281,121 @@ enum RicBlueprints {
     BP_SKID_SMOKE_2,
     BP_SKID_SMOKE_3,
     BP_TELEPORT,
+
+    // ==============================
+    B_DUMMY,  // begin of MMX blueprints
+    B_P_DASH, // particles used when dashing
+    B_P_WALL, // particle used when sliding to a wall
+    B_P_JUMP_FROM_WALL,
+    B_W_LEMON,
+    B_W_CUCUMBER,
+    B_W_CHARJELLY,
+    B_W_SHOTGUN_ICE,
+    B_W_ELECTRIC_SPARK,
+    B_W_ROLLING_SHIELD,
+    B_W_HOMING_TORPEDO,
+    B_W_BOOMERANG_CUTTER,
+    B_W_CHAMELEON_STING,
+    B_W_STORM_TORNADO,
+    B_W_FIRE_WAVE,
+    B_W_HADOUKEN,
+    B_MMX_PRIZE_DROP,
+    B_POWER_CAPSULE_SMALL,
+    B_POWER_CAPSULE_BIG,
+    B_ENERGY_CAPSULE_SMALL,
+    B_ENERGY_CAPSULE_BIG,
+    B_LIFE_UP,
+    B_HEART_TANK,
+    B_ENERGY_TANK,
     NUM_BLUEPRINTS,
 };
 
-enum RicSubweapons {
-    PL_W_NONE,
-    PL_W_DAGGER,
-    PL_W_AXE,
-    PL_W_HOLYWATER,
-    PL_W_CROSS,
-    PL_W_BIBLE,
-    PL_W_STOPWATCH,
-    PL_W_REBNDSTONE,
-    PL_W_VIBHUTI,
-    PL_W_AGUNEA,
-    PL_W_10,
-    PL_W_HOLYWATER_FLAMES,
-    PL_W_CRASH_CROSS,
-    PL_W_CRASH_CROSS_BEAM,
-    PL_W_WHIP,
-    PL_W_15,
-    PL_W_HYDROSTORM,
-    PL_W_BIBLE_BEAM,
-    PL_W_KICK,
-    PL_W_19,
-    PL_W_20,
-    PL_W_21,
-    PL_W_22,
-    PL_W_23,
-    PL_W_CRASH_VIBHUTI,
-    PL_W_CRASH_REBOUND_STONE,
-    PL_W_CRASH_AGUNEA,
-    PL_W_27,
-    PL_W_28,
-    PL_W_CRASH_REBOUND_EXPLOSION,
-    PL_W_30,
+enum MmxWeapons {
+    W_DUMMY,
+    W_LEMON,
+    W_CUCUMBER,
+    W_CHARJELLY,
+    W_SHOTGUN_ICE,
+    W_ELECTRIC_SPARK,
+    W_ROLLING_SHIELD,
+    W_HOMING_TORPEDO,
+    W_BOOMERANG_CUTTER,
+    W_CHAMELEON_STING,
+    W_STORM_TORNADO,
+    W_FIRE_WAVE,
+    W_HADOUKEN,
     NUM_WEAPONS,
 };
 
-extern s16* D_801530AC[];
-extern SpriteParts* D_80153AA0[];
-extern SpriteParts* D_80153D24[];
+enum MmxPalettes {
+    PAL_PLAYER = 0x120,
+    PAL_HUD,
+    PAL_PARTICLES,
+    PAL_HEART,
+};
+
+enum MmxAnims {
+    PL_A_DUMMY,
+    PL_A_STAND,
+    PL_A_WALK,
+    PL_A_FALL,
+    PL_A_JUMP,
+    PL_A_LAND,
+    PL_A_DASH,
+    PL_A_WALL,
+    PL_A_STAND_W,
+    PL_A_WALK_W,
+    PL_A_FALL_W,
+    PL_A_JUMP_W,
+    PL_A_LAND_W,
+    PL_A_DASH_W,
+    PL_A_WALL_W,
+    PL_A_HIT_STUN,
+    PL_A_HIT_SMALL,
+    PL_A_END,
+};
+
+extern unsigned char* pl_sprites[197];
+extern AnimationFrame* mmx_anims[];
+extern u32 g_PadReleased;
+extern u32 g_ChargeTimer;
+extern u32 g_WallSlideTimer;
+extern u32 g_DashTimer;
+extern u32 g_DashAirUsed;
+
+// END OF MMX STUFF
+
+// Richter mostly uses the same steps as Alucard, or uses unused Alucard
+// steps. There are a couple steps that mean one thing for Alucard, and
+// another for Richter. This enum handles Richter's version of the ones that
+// overlap.
+typedef enum {
+    Player_RichterCrouch = 2,
+} Richter_PlayerSteps;
+
+extern MmxJumpState g_JumpState;
+
+extern s16* g_MmxPlSprites[];
+extern SpriteParts* g_SpritesWeapons[];
+extern SpriteParts* g_SpritesItems[];
 extern SpriteParts* D_801541A8[];
 extern void func_80159C04(void);
 extern void DestroyEntity(Entity* entity);
 extern void func_8015BB80(void);
 extern void RicHandleBladeDash(void);
-extern void RicSetStep(int step);
-void RicSetAnimation(AnimationFrame* anim);
+extern void RicSetStep(PlayerSteps step);
+void MmxSetAnimation(enum MmxAnims anim);
+void RicSetAnimation(AnimationFrame* unk0);
 extern void RicDecelerateX(s32 speed);
 extern s32 RicCheckFacing(void);
 extern void RicSetSpeedX(s32 speed);
 extern void RicSetCrouch(s32 arg0, s32 velocityX);
+extern void RicSetWalkFromJump(s32 arg0, s32 velocityX);
 extern void RicSetStand(s32 velocityX);
+extern void MmxPrepareStandFromJump(s32 velocityX);
 extern void RicSetWalk(s32);
 extern void RicSetRun(void);
+extern bool MmxPerformAttack(void);
 extern void RicSetFall(void);
 extern bool RicCheckInput(s32 checks);
 extern void RicSetSubweaponParams(Entity*);
@@ -299,6 +403,7 @@ extern s32 func_8015FDB0(Primitive* poly, s16 posX, s16 posY);
 extern Entity* RicCreateEntFactoryFromEntity(
     Entity* entity, u32 arg1, s32 arg2);
 
+void func_8015E800();
 extern s32 func_8016840C(s16 x, s16 y);
 
 extern s16 D_80154568[];
@@ -341,7 +446,6 @@ extern s32 D_80175958[32];
 extern s32 D_801759D8[32];
 
 // pl_anims.c
-extern AnimationFrame* D_8015538C[];
 extern AnimationFrame ric_anim_press_up[];
 extern AnimationFrame ric_anim_stop_run[];
 extern AnimationFrame ric_anim_stand[];
@@ -388,4 +492,3 @@ extern AnimationFrame D_801558E4[];
 extern AnimationFrame D_801558DC[];
 extern AnimationFrame D_8015591C[];
 extern AnimationFrame D_80155950[];
-extern FrameProperty D_80155964[];

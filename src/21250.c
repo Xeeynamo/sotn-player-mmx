@@ -35,18 +35,19 @@ s32 func_8015D250(s32 unused_arg) {
     case PL_S_RUN:
         PLAYER.step = PL_S_STAND;
         RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_SKID_SMOKE, 0);
-        RicSetAnimation(D_801555E8);
+        MmxSetAnimation(PL_A_DUMMY);
         break;
     case PL_S_STAND:
     case PL_S_WALK:
     case PL_S_CROUCH:
+    case PL_S_DASH:
         PLAYER.step = PL_S_STAND;
-        RicSetAnimation(D_801555E8);
+        MmxSetAnimation(PL_A_DUMMY);
         break;
     case PL_S_FALL:
     case PL_S_JUMP:
         PLAYER.step = PL_S_JUMP;
-        RicSetAnimation(D_80155638);
+        MmxSetAnimation(PL_A_DUMMY);
         break;
     }
     g_Player.unk46 = 3;
@@ -55,179 +56,20 @@ s32 func_8015D250(s32 unused_arg) {
     return 0;
 }
 
-bool RicDoAttack(void) {
-    s32 i;
-    s16 poisoned;
-    s32 temp_rand = rand();
-    s16 sfxGrunt = temp_rand % 6;
-
-    if (func_8015D250(temp_rand / 6) == 0) {
-        if (sfxGrunt == 0) {
-            g_api.PlaySfx(SFX_GRUNT_A);
-        }
-        if (sfxGrunt == 1) {
-            g_api.PlaySfx(SFX_GRUNT_B);
-        }
-        if (sfxGrunt == 2) {
-            g_api.PlaySfx(SFX_GRUNT_C);
-        }
-        return true;
-    }
-    poisoned = g_Player.timers[PL_T_POISON] != 0;
-    for (i = 16; i < 31; i++) {
-        DestroyEntity(&g_Entities[i]);
-    }
-    if (RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_WHIP, poisoned), 0)) {
-        if (poisoned) {
-            g_api.PlaySfx(0x6B5);
-        } else {
-            g_api.PlaySfx(0x706);
-        }
-        if (sfxGrunt == 0) {
-            g_api.PlaySfx(SFX_GRUNT_A);
-        }
-        if (sfxGrunt == 1) {
-            g_api.PlaySfx(SFX_GRUNT_B);
-        }
-        if (sfxGrunt == 2) {
-            g_api.PlaySfx(SFX_GRUNT_C);
-        }
-        switch (PLAYER.step) {
-        default:
-            return false;
-        case Player_Stand:
-        case Player_Walk:
-            PLAYER.step = PL_S_STAND;
-            RicSetAnimation(D_80155588);
-            g_CurrentEntity->velocityX = 0;
-            break;
-        case PL_S_RUN:
-            PLAYER.step = PL_S_STAND;
-            RicSetAnimation(D_80155588);
-            RicCreateEntFactoryFromEntity(g_CurrentEntity, BP_SKID_SMOKE, 0);
-            break;
-        case Player_Crouch:
-            RicSetAnimation(D_801555A8);
-            g_CurrentEntity->velocityX = 0;
-            break;
-        case Player_Fall:
-        case Player_Jump:
-            PLAYER.step = PL_S_JUMP;
-            RicSetAnimation(D_801555C8);
-            break;
-        }
-        g_Player.unk46 = 1;
-        PLAYER.step_s = 0x40;
-        g_Player.timers[PL_T_9] = 4;
-        return true;
-    }
-    return false;
+void MmxSetDash(void) {
+    g_Player.unk44 |= IS_DASHING;
+    RicSetStep(PL_S_DASH);
+    MmxSetAnimation(PL_A_DASH);
+    RicSetSpeedX(MMX_DASH_SPEED);
+    g_DashTimer = 0;
 }
-
-bool RicDoCrash(void) {
-    SubweaponDef subWpn;
-    Entity* subWpnEnt;
-    s16 subWpnID;
-
-    subWpnID = func_8015FB84(&subWpn, true, false);
-    if (subWpnID < 0) {
-        return 0;
-    }
-    if (subWpnID == PL_W_HOLYWATER && g_Player.timers[PL_T_3]) {
-        return 0;
-    }
-    if (subWpnID == PL_W_STOPWATCH && g_unkGraphicsStruct.D_800973FC) {
-        return 0;
-    }
-    if (subWpn.blueprintNum) {
-        if (subWpnID == 1) {
-            subWpnEnt = RicCreateEntFactoryFromEntity(
-                g_CurrentEntity, FACTORY(subWpn.blueprintNum, 1), 0);
-        } else {
-            subWpnEnt = RicCreateEntFactoryFromEntity(
-                g_CurrentEntity, FACTORY(subWpn.blueprintNum, 0), 0);
-        }
-    }
-    if (subWpnEnt == NULL) {
-        return 0;
-    }
-    subWpnID = func_8015FB84(&subWpn, true, true);
-    g_Player.unk46 = 4;
-    g_Player.unk4E = 0;
-    PLAYER.velocityY = 0;
-    PLAYER.velocityX = 0;
-    switch (subWpnID) {
-    case SUBWPN_NONE:
-        RicSetStep(PL_S_FLAME_WHIP);
-        RicSetAnimation(ric_anim_flame_whip);
-        RicCreateEntFactoryFromEntity(g_CurrentEntity, FACTORY(BP_36, 1), 0);
-        g_api.PlaySfx(SFX_GRUNT_SUBWPN_A);
-        break;
-    case SUBWPN_DAGGER:
-        RicSetStep(PL_S_THROW_DAGGERS);
-        RicSetAnimation(ric_anim_throw_daggers);
-        g_api.PlaySfx(SFX_GRUNT_SUBWPN_A);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 2), 0);
-        break;
-    case SUBWPN_AXE:
-        RicSetStep(PL_S_STAND_IN_AIR);
-        RicSetAnimation(ric_ric_anim_stand_in_air);
-        PLAYER.velocityY = FIX(-4.6875);
-        if (g_Player.unk72) {
-            PLAYER.velocityY = 0;
-        }
-        func_8015CC28();
-        g_api.PlaySfx(SFX_GRUNT_SUBWPN_A);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 2), 0);
-        break;
-    case SUBWPN_HOLYWATER:
-        RicSetStep(PL_S_HYDROSTORM);
-        RicSetAnimation(ric_anim_point_finger_up);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x40), 0);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x47), 0);
-        g_api.PlaySfx(SFX_HYDROSTORM);
-        break;
-    case SUBWPN_REBNDSTONE:
-    case SUBWPN_VIBHUTI:
-    case SUBWPN_AGUNEA:
-        RicSetStep(PL_S_SUBWPN_CRASH);
-        RicSetAnimation(ric_anim_point_finger_up);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x40), 0);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x47), 0);
-        g_api.PlaySfx(SFX_GRUNT_SUBWPN_A);
-        break;
-    case SUBWPN_BIBLE:
-    case SUBWPN_STOPWATCH:
-        RicSetStep(PL_S_SUBWPN_CRASH);
-        RicSetAnimation(D_801558E4);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x40), 0);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 0x47), 0);
-        g_api.PlaySfx(SFX_GRUNT_SUBWPN_A);
-        break;
-    case SUBWPN_CROSS:
-        RicSetStep(PL_S_STAND_IN_AIR);
-        RicSetAnimation(ric_ric_anim_stand_in_air);
-        PLAYER.velocityY = FIX(-4.6875);
-        if (g_Player.unk72) {
-            PLAYER.velocityY = 0;
-        }
-        func_8015CC28();
-        g_api.PlaySfx(SFX_CROSS_CRASH);
-        RicCreateEntFactoryFromEntity(
-            g_CurrentEntity, FACTORY(BP_RIC_BLINK, 2), 0);
-        break;
-    }
-    g_Player.timers[PL_T_12] = 4;
-    return 1;
+void MmxSetDashAir(void) {
+    g_Player.unk44 |= IS_DASHING;
+    RicSetStep(PL_S_DASH_AIR);
+    MmxSetAnimation(PL_A_DASH);
+    RicSetSpeedX(MMX_DASH_SPEED);
+    PLAYER.velocityY = 0; // comment this for a wild run :)))
+    g_DashTimer = 0;
 }
 
 void RicSetDeadPrologue() { RicSetStep(PL_S_DEAD_PROLOGUE); }
@@ -235,7 +77,7 @@ void RicSetDeadPrologue() { RicSetStep(PL_S_DEAD_PROLOGUE); }
 void RicSetSlide(void) {
     RicCheckFacing();
     RicSetStep(PL_S_SLIDE);
-    RicSetAnimation(D_80155750);
+    MmxSetAnimation(PL_A_DUMMY);
     g_CurrentEntity->velocityY = 0;
     RicSetSpeedX(FIX(5.5));
     func_8015CC28();
@@ -247,7 +89,7 @@ void RicSetSlide(void) {
 void RicSetSlideKick(void) {
     g_Player.unk44 = 0;
     RicSetStep(PL_S_SLIDE_KICK);
-    RicSetAnimation(D_8015577C);
+    MmxSetAnimation(PL_A_DUMMY);
     g_CurrentEntity->velocityY = FIX(-2);
     RicSetSpeedX(FIX(5.5));
     func_8015CC28();
@@ -259,7 +101,7 @@ void RicSetSlideKick(void) {
 
 void RicSetBladeDash(void) {
     RicSetStep(PL_S_BLADEDASH);
-    RicSetAnimation(ric_anim_blade_dash);
+    MmxSetAnimation(PL_A_DUMMY);
     g_CurrentEntity->velocityY = 0;
     RicSetSpeedX(FIX(5.5));
     g_Player.unk46 = 5;
@@ -311,41 +153,40 @@ bool RicCheckInput(s32 checks) {
     }
     if (PLAYER.velocityY >= 0) {
         if ((checks & CHECK_GROUND) && (g_Player.pl_vram_flag & 1)) {
+            g_JumpState = PL_JUMP_NONE;
+            // 👇 maybe not needed any more
+            // g_Player.unk46 = 0; // xeeynamo: forces to go to case 0
             switch (g_Player.unk46) {
             case 0:
             default:
                 if (g_Player.unk44 & 8) {
-                    RicSetCrouch(3, PLAYER.velocityX);
+                    RicSetWalkFromJump(3, PLAYER.velocityX);
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
                     RicCreateEntFactoryFromEntity(
                         g_CurrentEntity, BP_SKID_SMOKE, 0);
                     return true;
                 }
                 if (PLAYER.velocityY > FIX(6.875)) {
-                    RicSetCrouch(1, 0);
+                    RicSetWalkFromJump(1, 0);
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
                     RicCreateEntFactoryFromEntity(
                         g_CurrentEntity, BP_SKID_SMOKE, 0);
                 } else if (g_Player.padPressed & (PAD_LEFT | PAD_RIGHT)) {
-                    if ((g_Player.unk44 & 0x10) && (g_Player.unk7A == 0)) {
-                        RicSetRun();
-                    } else {
-                        RicSetWalk(0);
-                    }
+                    RicSetWalk(0);
                 } else {
-                    RicSetStand(0);
+                    MmxPrepareStandFromJump(0);
                 }
                 return true;
-            case 1:
+            case 1: // this seems to be related when landing while attacking?
                 if (PLAYER.velocityY > FIX(6.875)) {
                     PLAYER.step = PL_S_CROUCH;
-                    PLAYER.anim = D_801555A8;
+                    MmxSetAnimation(PL_A_DUMMY);
                     g_api.PlaySfx(SFX_STOMP_HARD_B);
                     RicCreateEntFactoryFromEntity(
                         g_CurrentEntity, BP_SKID_SMOKE, 0);
                 } else {
                     PLAYER.step = PL_S_STAND;
-                    PLAYER.anim = D_80155588;
+                    MmxSetAnimation(PL_A_DUMMY);
                     if (g_Player.unk44 & 8) {
                         RicCreateEntFactoryFromEntity(
                             g_CurrentEntity, BP_SKID_SMOKE, 0);
@@ -360,13 +201,14 @@ bool RicCheckInput(s32 checks) {
             case 2:
                 if (PLAYER.velocityY > FIX(6.875)) {
                     PLAYER.step = PL_S_CROUCH;
-                    PLAYER.anim = D_80155738;
+                    MmxSetAnimation(PL_A_DUMMY);
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
                     RicCreateEntFactoryFromEntity(
                         g_CurrentEntity, BP_SKID_SMOKE, 0);
                 } else {
                     PLAYER.step = PL_S_STAND;
-                    PLAYER.anim = ric_anim_brandish_whip;
+                    MmxSetAnimation(PL_A_DUMMY);
+                    MmxSetAnimation(PL_A_DUMMY);
                     if (!(g_Player.unk44 & 8)) {
                         PLAYER.velocityX = 0;
                     } else {
@@ -389,13 +231,13 @@ bool RicCheckInput(s32 checks) {
                     PLAYER.velocityX = 0;
                 }
                 PLAYER.step = PL_S_STAND;
-                PLAYER.anim = D_801555E8;
+                MmxSetAnimation(PL_A_DUMMY);
                 g_Player.unk44 = 0;
                 return true;
             }
         } else if (
             checks & CHECK_GROUND_AFTER_HIT && (g_Player.pl_vram_flag & 1)) {
-            RicSetCrouch(1, PLAYER.velocityX);
+            RicSetWalkFromJump(1, PLAYER.velocityX);
             g_api.PlaySfx(SFX_STOMP_SOFT_A);
             if (g_Player.unk5C && (g_Status.hp < 2)) {
                 RicSetDeadPrologue();
@@ -412,19 +254,19 @@ bool RicCheckInput(s32 checks) {
             if (g_Player.unk46 == 1) {
                 PLAYER.step_s = 0x40;
                 PLAYER.step = PL_S_JUMP;
-                PLAYER.anim = D_801555C8;
+                MmxSetAnimation(PL_A_DUMMY);
                 return true;
             }
             if (g_Player.unk46 == 2) {
                 PLAYER.step_s = 0x41;
                 PLAYER.step = PL_S_JUMP;
-                PLAYER.anim = D_801555C8;
+                MmxSetAnimation(PL_A_DUMMY);
                 return true;
             }
             if (g_Player.unk46 == 3) {
                 PLAYER.step_s = 0x42;
                 PLAYER.step = PL_S_JUMP;
-                PLAYER.anim = D_80155638;
+                MmxSetAnimation(PL_A_DUMMY);
                 return true;
             }
         } else {
@@ -435,36 +277,68 @@ bool RicCheckInput(s32 checks) {
     if (g_Player.unk46 != 0) {
         return false;
     }
-    if (checks & CHECK_CRASH && (g_Player.padTapped & PAD_TRIANGLE) &&
-        RicDoCrash()) {
-        return true;
-    }
     if (checks & CHECK_SLIDE) {
         if (!PLAYER.facingLeft) {
             effects = g_Player.colliders[2].effects & EFFECT_UNK_8000;
         } else {
             effects = g_Player.colliders[3].effects & EFFECT_UNK_8000;
         }
-        if (!effects) {
-            if (((PLAYER.posX.i.hi <= (u8)-5) || PLAYER.facingLeft) &&
-                ((PLAYER.posX.i.hi >= 5) || !PLAYER.facingLeft) &&
-                (g_Player.padPressed & PAD_DOWN) &&
-                (g_Player.padTapped & PAD_CROSS)) {
-                RicSetSlide();
+        if (!effects && g_Player.padTapped & PAD_DASH) {
+            if (PLAYER.step == PL_S_JUMP || PLAYER.step == PL_S_FALL) {
+                // check for air-dash
+                if (!g_DashAirUsed) {
+                    g_DashAirUsed = true;
+                    MmxSetDashAir();
+                    return true;
+                }
+            } else {
+                MmxSetDash();
                 return true;
             }
         }
     }
-    if (checks & CHECK_JUMP && (g_Player.padTapped & PAD_CROSS)) {
-        RicSetJump();
-        return true;
+    if (checks & CHECK_JUMP) {
+        bool isDashing = PLAYER.step == PL_S_DASH;
+        if (g_Player.padTapped & PAD_CROSS) {
+            MmxSetJump(isDashing ? JUMP_WITH_DASH : 0);
+            return true;
+        }
     }
-    if (checks & CHECK_ATTACK && (g_Player.padTapped & PAD_SQUARE) &&
-        RicDoAttack()) {
-        return true;
+    if (checks & CHECK_ATTACK && (g_Player.padTapped & PAD_SQUARE)) {
+        bool result;
+        s32 originalPosX;
+        s32 originalPosY;
+        switch (PLAYER.step) {
+        case PL_S_DASH:
+            // when dashing, the projectile is emitted on different XY coords
+            originalPosX = PLAYER.posX.val;
+            originalPosY = PLAYER.posX.val;
+            if (PLAYER.facingLeft) {
+                PLAYER.posX.i.hi -= 24;
+            } else {
+                PLAYER.posX.i.hi += 24;
+            }
+            PLAYER.posY.i.hi += 4;
+            result = MmxPerformAttack();
+            PLAYER.posX.val = originalPosX;
+            PLAYER.posX.val = originalPosY;
+            break;
+        case PL_S_WALL:
+            // the animation is flipped when sliding to the wall
+            PLAYER.facingLeft = !PLAYER.facingLeft;
+            result = MmxPerformAttack();
+            PLAYER.facingLeft = !PLAYER.facingLeft;
+            break;
+        default:
+            result = MmxPerformAttack();
+            break;
+        }
+        if (result) {
+            return true;
+        }
     }
     if (checks & CHECK_CROUCH && (g_Player.padPressed & PAD_DOWN)) {
-        RicSetCrouch(2, 0);
+        RicSetWalkFromJump(2, 0);
         return true;
     }
     return false;
@@ -1057,65 +931,7 @@ void func_8015F680(void) {
     }
 }
 
-Entity* RicGetFreeEntity(s16 start, s16 end) {
-    Entity* entity = &g_Entities[start];
-    s16 i;
-
-    for (i = start; i < end; i++, entity++) {
-        if (entity->entityId == E_NONE) {
-            return entity;
-        }
-    }
-    return NULL;
-}
-
-Entity* RicGetFreeEntityReverse(s16 start, s16 end) {
-    Entity* entity = &g_Entities[end - 1];
-    s16 i;
-    for (i = end - 1; i >= start; i--, entity--) {
-        if (entity->entityId == E_NONE) {
-            return entity;
-        }
-    }
-    return NULL;
-}
-
-static s32 D_80174F80[11];
-static void func_8015F9F0(Entity* entity) {
-    s32 i;
-    s32 enemyId;
-
-    if (entity < &g_Entities[32]) {
-        entity->enemyId = 1;
-        return;
-    }
-
-    for (i = 0;; i++) {
-        for (enemyId = 2; enemyId < LEN(D_80174F80); ++enemyId) {
-            if (D_80174F80[enemyId] == i) {
-                ++D_80174F80[enemyId];
-                entity->enemyId = enemyId;
-                return;
-            }
-        }
-    }
-}
-
-static u8 D_80174FAC;
-STATIC_PAD_BSS(3);
-static u8 D_80174FB0;
-STATIC_PAD_BSS(3);
-static u8 D_80174FB4;
-STATIC_PAD_BSS(3);
-static u8 D_80174FB8;
-STATIC_PAD_BSS(3);
-void func_8015FA5C(s32 arg0) {
-    D_80174FAC = D_80154674[arg0][0];
-    D_80174FB0 = D_80154674[arg0][1];
-    D_80174FB4 = D_80154674[arg0][2];
-    D_80174FB8 = D_80154674[arg0][3];
-}
-
+void func_8015F9F0(Entity* entity);
 void RicSetSubweaponParams(Entity* entity) {
     u16 attack;
     SubweaponDef* subwpn = &D_80154688[entity->ext.subweapon.subweaponId];
@@ -1350,332 +1166,4 @@ void RicEntityHitByDark(Entity* entity) {
         }
         break;
     }
-}
-
-static void RicEntityDummy(Entity* self) {}
-
-static void func_801603BC(void) {}
-
-void RicEntityFactory(Entity* self);
-void RicEntitySmokePuff(Entity* self);
-void RicEntitySubwpnCross(Entity* self);
-void func_80169C10(Entity* self);
-void RicEntityHitByCutBlood(Entity* self);
-void RicEntitySubwpnCrossTrail(Entity* self);
-void RicEntitySubwpnHolyWater(Entity* self);
-void RicEntitySubwpnHolyWaterFlame(Entity* self);
-void func_80161C2C(Entity* self);
-void RicEntityWhip(Entity* self);
-void RicEntityCrashHydroStorm(Entity* self);
-void RicEntitySubwpnCrashCross(Entity* self);
-void RicEntityNotImplemented1(Entity* self);
-void RicEntityNotImplemented2(Entity* self);
-void RicEntityArmBrandishWhip(Entity* self);
-void func_80167964(Entity* self);
-void RicEntityDummy(Entity* self);
-void func_80161EF8(Entity* self);
-void RicEntityNotImplemented3(Entity* self);
-void RicEntityRevivalColumn(Entity* self);
-void RicEntityApplyMariaPowerAnim(Entity* self);
-void func_80160C38(Entity* self);
-void RicEntityBladeDash(Entity* self);
-void func_801623E0(Entity* self);
-void func_80162604(Entity* self);
-void RicEntityMaria(Entity* self);
-void RicEntityMariaPowers(Entity* self);
-void func_80160F0C(Entity* self);
-void RicEntityNotImplemented4(Entity* self);
-void RicEntityPlayerBlinkWhite(Entity* self);
-void RicEntitySubwpnCrashCrossParticles(Entity* self);
-void func_801641A0(Entity* self);
-void RicEntityShrinkingPowerUpRing(Entity* self);
-void func_80167A70(Entity* self);
-void RicEntitySubwpnAxe(Entity* self);
-void RicEntityCrashAxe(Entity* self);
-void RicEntitySubwpnDagger(Entity* self);
-void func_80160D2C(Entity* self);
-void RicEntityHitByIce(Entity* self);
-void RicEntityHitByLightning(Entity* self);
-void RicEntitySubwpnReboundStone(Entity* self);
-void RicEntitySubwpnThrownVibhuti(Entity* self);
-void RicEntitySubwpnAgunea(Entity* self);
-void RicEntityAguneaHitEnemy(Entity* self);
-void RicEntityCrashVibhuti(Entity* self);
-void RicEntityVibhutiCrashCloud(Entity* self);
-void RicEntityCrashReboundStone(Entity* self);
-void func_8016D9C4(Entity* self);
-void RicEntityCrashReboundStoneExplosion(Entity* self);
-void RicEntityCrashBible(Entity* self);
-void RicEntityCrashBibleBeam(Entity* self);
-void RicEntitySubpwnBible(Entity* self);
-void RicEntitySubpwnBibleTrail(Entity* self);
-void RicEntitySubwpnStopwatch(Entity* self);
-void RicEntitySubwpnStopwatchCircle(Entity* self);
-void func_801705EC(Entity* self);
-void func_8016F198(Entity* self);
-void RicEntityAguneaCircle(Entity* self);
-void RicEntityAguneaLightning(Entity* self);
-void RicEntityCrashReboundStoneParticles(Entity* self);
-void RicEntityHitByDark(Entity* self);
-void RicEntityHitByHoly(Entity* self);
-void RicEntityCrashStopwatchDoneSparkle(Entity* self);
-void func_80170548(Entity* self);
-void RicEntityTeleport(Entity* self);
-void RicEntityDummy(Entity* self);
-static PfnEntityUpdate entity_functions[] = {
-    RicEntityDummy,
-    RicEntityFactory,
-    RicEntitySmokePuff,
-    RicEntitySubwpnCross,
-    func_80169C10,
-    RicEntityHitByCutBlood,
-    RicEntitySubwpnCrossTrail,
-    RicEntitySubwpnHolyWater,
-    RicEntitySubwpnHolyWaterFlame,
-    func_80161C2C,
-    RicEntityWhip,
-    RicEntityCrashHydroStorm,
-    RicEntityDummy,
-    RicEntitySubwpnCrashCross,
-    RicEntityNotImplemented1,
-    RicEntityNotImplemented2,
-    RicEntityArmBrandishWhip,
-    func_80167964,
-    RicEntityDummy,
-    func_80161EF8,
-    RicEntityNotImplemented3,
-    RicEntityRevivalColumn,
-    RicEntityApplyMariaPowerAnim,
-    func_80160C38,
-    RicEntityBladeDash,
-    func_801623E0,
-    func_80162604,
-    RicEntityMaria,
-    RicEntityMariaPowers,
-    func_80160F0C,
-    RicEntityNotImplemented4,
-    RicEntityPlayerBlinkWhite,
-    RicEntitySubwpnCrashCrossParticles,
-    func_801641A0,
-    RicEntityShrinkingPowerUpRing,
-    func_80167A70,
-    RicEntitySubwpnAxe,
-    RicEntityCrashAxe,
-    RicEntitySubwpnDagger,
-    func_80160D2C,
-    RicEntityHitByIce,
-    RicEntityHitByLightning,
-    RicEntitySubwpnReboundStone,
-    RicEntitySubwpnThrownVibhuti,
-    RicEntitySubwpnAgunea,
-    RicEntityAguneaHitEnemy,
-    RicEntityCrashVibhuti,
-    RicEntityVibhutiCrashCloud,
-    RicEntityCrashReboundStone,
-    func_8016D9C4,
-    RicEntityCrashReboundStoneExplosion,
-    RicEntityCrashBible,
-    RicEntityCrashBibleBeam,
-    RicEntitySubpwnBible,
-    RicEntitySubpwnBibleTrail,
-    RicEntitySubwpnStopwatch,
-    RicEntitySubwpnStopwatchCircle,
-    func_801705EC,
-    func_8016F198,
-    RicEntityAguneaCircle,
-    RicEntityAguneaLightning,
-    RicEntityCrashReboundStoneParticles,
-    RicEntityHitByDark,
-    RicEntityHitByHoly,
-    RicEntityCrashStopwatchDoneSparkle,
-    func_80170548,
-    RicEntityTeleport,
-    RicEntityDummy};
-STATIC_ASSERT(LEN(entity_functions) == NUM_ENTITIES, "entity array wrong size");
-
-// Corresponding DRA function is UpdatePlayerEntities
-void RicUpdatePlayerEntities(void) {
-    SubweaponDef subwpn;
-    Entity* entity;
-    s32 i;
-    s32 i2;
-    s32 i3;
-    s32 isPrologueTimeStopped;
-    s32 enemy;
-    s32 enemy2;
-
-    isPrologueTimeStopped = g_unkGraphicsStruct.unk20;
-    entity = g_CurrentEntity = &g_Entities[4];
-    for (i = 4; i < 0x40; i++, g_CurrentEntity++, entity++) {
-        if (entity->entityId) {
-            if (entity->step == 0) {
-                entity->pfnUpdate = entity_functions[entity->entityId];
-            }
-            if (!isPrologueTimeStopped || (entity->flags & FLAG_UNK_10000)) {
-                entity->pfnUpdate(entity);
-                entity = g_CurrentEntity;
-                if (entity->entityId) {
-                    if (!(entity->flags & FLAG_UNK_04000000) &&
-                        (entity->posX.i.hi < -32 || entity->posX.i.hi > 288 ||
-                         entity->posY.i.hi < -16 || entity->posY.i.hi > 256)) {
-                        DestroyEntity(entity);
-                    } else if (entity->flags & FLAG_UNK_100000) {
-                        g_api.UpdateAnim(0, D_80154674);
-                    }
-                }
-            }
-        }
-    }
-
-    if (D_80174FAC != 0) {
-        if (--D_80174FAC & 1) {
-            g_api.g_pfn_800EA5AC(1, D_80174FB0, D_80174FB4, D_80174FB8);
-        }
-    }
-
-    D_80174F80[1] = D_80174F80[2] = 0;
-    enemy = g_Entities[16].enemyId;
-    if (enemy == 1) {
-        D_80174F80[1] = 1;
-    } else if (enemy == 2) {
-        D_80174F80[2] = 1;
-    }
-
-    for (i2 = 3; i2 < 11; i2++) {
-        D_80174F80[i2] = 0;
-    }
-
-    entity = &g_Entities[17];
-    for (i3 = 17; i3 < 48; entity++, i3++) {
-        enemy2 = entity->enemyId;
-        if (enemy2 >= 3) {
-            D_80174F80[entity->enemyId]++;
-        }
-    }
-    // This IF will fire if we have enough hearts to use a subweapon crash.
-    // No idea what it's doing here.
-    if (func_8015FB84(&subwpn, true, false) >= 0) {
-        g_Player.unk0C |= PLAYER_STATUS_UNK200000;
-    }
-    if (g_Player.unk0C & (PLAYER_STATUS_UNK40000 | PLAYER_STATUS_UNK80000)) {
-        FntPrint("dead player\n");
-        entity = &g_Entities[17]; // Weird code here. Set entity to #17 but...
-        entity -= 13; // then change to #4 before the for-loop starting with 4?
-        for (i = 4; i < 64; i++, entity++) {
-            entity->hitboxState = 0;
-        }
-    }
-}
-
-FactoryBlueprint g_RicFactoryBlueprints[] = {
-    B_MAKE(E_SMOKE_PUFF, 5, 1, true, true, 2, B_DECOR, 0, 0),
-    B_MAKE(E_SMOKE_PUFF, 3, 1, true, true, 4, B_DECOR, 2, 0),
-    B_MAKE(E_SUBWPN_CROSS, 1, 1, true, true, 0, B_KIND_9, 1, 8),
-    B_MAKE(E_80169C10, 3, 1, true, true, 2, B_DECOR, 0, 0),
-    B_MAKE(E_HIT_BY_CUT_BLOOD, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_SUBWPN_CROSS_TRAIL, 4, 1, true, true, 4, B_DECOR, 0, 4),
-    B_MAKE(E_SUBWPN_HOLY_WATER, 1, 1, true, true, 0, B_KIND_9, 1, 8),
-    B_MAKE(E_SUBWPN_HOLY_WATER_FLAME, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_80161C2C, 6, 1, true, true, 12, B_KIND_8, 3, 0),
-    B_MAKE(E_80161C2C, 128, 1, true, true, 3, B_KIND_8, 3, 8),
-    B_MAKE(E_WHIP, 15, 15, false, true, 0, B_KIND_10, 1, 0),
-    B_MAKE(E_HIT_BY_CUT_BLOOD, 72, 1, true, true, 2, B_KIND_3, 1, 0),
-    B_MAKE(E_CRASH_HYDROSTORM, 48, 1, false, true, 6, B_WPN, 1, 48),
-    B_MAKE(E_CRASH_CROSS_ROTATING, 1, 1, false, true, 0, B_KIND_9, 0, 0),
-    B_MAKE(E_CRASH_CROSS_BEAM, 6, 1, true, true, 24, B_KIND_9, 0, 0),
-    B_MAKE(E_NOT_IMPLEMENTED_1, 16, 16, false, true, 0, B_KIND_8, 1, 0),
-    B_MAKE(E_NOT_IMPLEMENTED_2, 15, 15, true, true, 0, B_KIND_8, 1, 0),
-    B_MAKE(E_ARM_BRANDISH_WHIP, 1, 1, false, true, 0, B_KIND_12, 1, 0),
-    B_MAKE(E_80167964, 1, 1, true, true, 0, B_KIND_8, 0, 0),
-    B_MAKE(E_SUBWPN_AXE, 1, 1, true, true, 0, B_KIND_9, 1, 8),
-    B_MAKE(E_80161EF8, 1, 1, true, true, 0, B_DECOR, 4, 0),
-    B_MAKE(E_NOT_IMPLEMENTED_3, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_REVIVAL_COLUMN, 1, 1, false, true, 0, B_KIND_3, 0, 0),
-    B_MAKE(E_APPLY_MARIA_POWER_ANIM, 4, 1, false, true, 24, B_KIND_3, 0, 0),
-    B_MAKE(E_SMOKE_PUFF, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_80160C38, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_BLADE_DASH, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_801623E0, 1, 1, true, true, 0, B_KIND_3, 0, 0),
-    B_MAKE(E_80162604, 1, 1, true, true, 0, B_KIND_3, 0, 0),
-    B_MAKE(E_MARIA, 1, 1, false, true, 0, B_KIND_5, 0, 0),
-    B_MAKE(E_MARIA_POWERS, 4, 1, true, true, 4, B_KIND_3, 0, 0),
-    B_MAKE(E_80160D2C, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_NOT_IMPLEMENTED_4, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_BLINK_WHITE, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_SUBWPN_CRASH_CROSS_PARTICLES, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_801641A0, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_SHRINKING_POWERUP_RING, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_SHRINKING_POWERUP_RING, 1, 1, true, true, 0, B_DECOR, 0, 4),
-    B_MAKE(E_SHRINKING_POWERUP_RING, 1, 1, true, true, 0, B_DECOR, 0, 8),
-    B_MAKE(E_SHRINKING_POWERUP_RING, 1, 1, true, true, 0, B_DECOR, 0, 12),
-    B_MAKE(E_80167A70, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_CRASH_AXE, 8, 8, false, true, 0, B_WPN, 1, 32),
-    B_MAKE(E_HIT_BY_CUT_BLOOD, 3, 1, true, true, 3, B_DECOR, 0, 0),
-    B_MAKE(E_SUBWPN_DAGGER, 1, 1, true, true, 0, B_KIND_9, 1, 8),
-    B_MAKE(E_SUBWPN_DAGGER, 128, 1, false, true, 4, B_KIND_14, 4, 8),
-    B_MAKE(E_80160F0C, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_HIT_BY_CUT_BLOOD, 12, 1, true, true, 2, B_KIND_8, 3, 0),
-    B_MAKE(E_HIT_BY_ICE, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_HIT_BY_LIGHTNING, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_SUBWPN_VIBHUTI, 1, 1, true, true, 0, B_WPN, 1, 8),
-    B_MAKE(E_SUBWPN_REBOUND_STONE, 1, 1, true, true, 0, B_WPN, 1, 4),
-    B_MAKE(E_SUBWPN_AGUNEA, 1, 1, true, true, 0, B_WPN, 1, 4),
-    B_MAKE(E_SUBWPN_AGUNEA_HIT_ENEMY, 1, 1, true, true, 0, B_DECOR, 1, 0),
-    B_MAKE(E_80161C2C, 72, 1, true, true, 2, B_KIND_3, 1, 16),
-    B_MAKE(E_CRASH_VIBHUTI, 1, 1, false, true, 0, B_DECOR, 0, 18),
-    B_MAKE(E_CRASH_VIBHUTI_CLOUD, 1, 1, true, true, 0, B_KIND_6, 0, 0),
-    B_MAKE(E_CRASH_REBOUND_STONE, 1, 1, false, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_8016D9C4, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_CRASH_REBOUND_STONE_EXPLOSION, 1, 1, false, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_CRASH_BIBLE, 1, 1, false, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_CRASH_BIBLE_BEAM, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_SUBWPN_BIBLE, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_SUBWPN_BIBLE_TRAIL, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_SUBWPN_STOPWATCH, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_SUBWPN_STOPWATCH_CIRCLE, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_801705EC, 1, 1, false, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_8016F198, 2, 1, true, true, 2, B_DECOR, 0, 0),
-    B_MAKE(E_AGUNEA_CIRCLE, 1, 1, false, true, 0, B_WPN, 0, 20),
-    B_MAKE(E_AGUNEA_LIGHTNING, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(
-        E_CRASH_REBOUND_STONE_PARTICLES, 1, 1, true, true, 0, B_KIND_3, 0, 0),
-    B_MAKE(E_HIT_BY_DARK, 96, 1, true, true, 4, B_KIND_8, 1, 0),
-    B_MAKE(E_HIT_BY_HOLY, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_CRASH_STOPWATCH_DONE_PARTICLE, 1, 1, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_80170548, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_SMOKE_PUFF, 1, 1, true, true, 0, B_WPN, 0, 0),
-    B_MAKE(E_SMOKE_PUFF, 4, 1, true, true, 2, B_DECOR, 3, 0),
-    B_MAKE(E_SMOKE_PUFF, 6, 6, true, true, 0, B_DECOR, 0, 0),
-    B_MAKE(E_TELEPORT, 1, 1, false, true, 0, B_KIND_3, 0, 0),
-};
-STATIC_ASSERT(
-    LEN(g_RicFactoryBlueprints) == NUM_BLUEPRINTS, "bp array wrong size");
-
-// Similar to the version in DRA but with some logic removed
-Entity* RicCreateEntFactoryFromEntity(
-    Entity* source, u32 factoryParams, s32 arg2) {
-    /**
-     * arg2 is unused, but needed to match other functions that call
-     * this function, probably part of the code for a debug build
-     */
-    Entity* entity = RicGetFreeEntity(8, 16);
-
-    if (entity != NULL) {
-        DestroyEntity(entity);
-        entity->entityId = E_FACTORY;
-        // the parent pointer must align for anything the factory creates
-        entity->ext.factory.parent = source;
-        entity->posX.val = source->posX.val;
-        entity->posY.val = source->posY.val;
-        entity->facingLeft = source->facingLeft;
-        entity->zPriority = source->zPriority;
-        entity->params = factoryParams & 0xFFF;
-        entity->ext.factory.unkA0 = (factoryParams >> 8) & 0xFF00;
-        if (source->flags & FLAG_UNK_10000) {
-            entity->flags |= FLAG_UNK_10000;
-        }
-    } else {
-        return NULL;
-    }
-    return entity;
 }

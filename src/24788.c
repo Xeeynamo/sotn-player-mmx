@@ -1,222 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "pl.h"
 
-Entity* RicGetFreeEntity(s16 start, s16 end);
-Entity* RicGetFreeEntityReverse(s16 start, s16 end);
-
-// Similar to same function in DRA
-static u8 entity_ranges[][2] = {
-    {0x30, 0x3F}, {0x20, 0x2F}, {0x10, 0x1E}, {0x10, 0x3F},
-    {0x1F, 0x1F}, {0x30, 0x30}, {0x10, 0x2F}, {0x00, 0x00}};
-void RicEntityFactory(Entity* self) {
-    Entity* newEntity;
-    s16 unk96Copy;
-    s16 i;
-    u8 endIndex;
-    s16 startIndex;
-    u8* data_idx;
-
-    if (self->step == 0) {
-        data_idx = &g_RicFactoryBlueprints[self->params];
-        self->ext.factory.childId = *data_idx++;
-        self->ext.factory.unk94 = *data_idx++;          // index 1
-        self->ext.factory.unk96 = *data_idx & 0x3F;     // index 2, lower 6 bits
-        self->ext.factory.unk9E = *data_idx >> 7;       // index 2, top bit
-        self->ext.factory.unkA2 = *data_idx++ >> 6 & 1; // index 2, 2nd-top bit
-        self->ext.factory.unk98 = *data_idx++;          // index 3
-        self->ext.factory.unk9C = *data_idx & 0x7;      // index 4, lower 4 bits
-        self->ext.factory.unkA4 = *data_idx++ >> 3;     // index 4, upper 4 bits
-        self->ext.factory.unk9A = *data_idx;            // index 5
-        self->flags |= FLAG_UNK_04000000;
-
-        self->step++;
-        switch (self->ext.factory.unkA4) {
-        case 0:
-            self->flags |= FLAG_UNK_08000000;
-            break;
-        case 4:
-            self->flags |= FLAG_UNK_20000;
-        case 2:
-        case 9:
-            self->flags |= FLAG_UNK_40000;
-        case 3:
-        case 7:
-            self->posX.val = PLAYER.posX.val;
-            self->posY.val = PLAYER.posY.val;
-            break;
-        case 8:
-            self->flags |= FLAG_UNK_40000;
-            self->posX.val = self->ext.factory.parent->posX.val;
-            self->posY.val = self->ext.factory.parent->posY.val;
-            break;
-        }
-    } else {
-        switch (self->ext.factory.unkA4) {
-        case 0:
-            break;
-        case 9:
-            if (g_Player.unk4E != 0) {
-                DestroyEntity(self);
-                return;
-            }
-        case 2:
-            self->posX.val = g_Entities->posX.val;
-            self->posY.val = PLAYER.posY.val;
-            break;
-        case 4:
-            self->posX.val = g_Entities->posX.val;
-            self->posY.val = PLAYER.posY.val;
-            if (PLAYER.step != PL_S_RUN) {
-                self->entityId = 0;
-                return;
-            }
-            break;
-        case 3:
-            self->posX.val = g_Entities->posX.val;
-            self->posY.val = PLAYER.posY.val;
-            if (PLAYER.step == PL_S_HIT) {
-                self->entityId = 0;
-                return;
-            }
-            break;
-        case 7:
-            self->posX.val = g_Entities->posX.val;
-            self->posY.val = PLAYER.posY.val;
-            if (PLAYER.step != PL_S_HIT) {
-            setIdZeroAndReturn:
-                self->entityId = 0;
-                return;
-            }
-            break;
-        case 8:
-            self->posX.val = self->ext.factory.parent->posX.val;
-            self->posY.val = self->ext.factory.parent->posY.val;
-            break;
-        }
-    }
-    if (self->ext.factory.unk9A != 0) {
-        self->ext.factory.unk9A--;
-        if (self->ext.factory.unk9A != 0) {
-            return;
-        }
-        self->ext.factory.unk9A = self->ext.factory.unk98;
-    }
-    // Save this value so we don't have to re-fetch on every for-loop cycle
-    unk96Copy = self->ext.factory.unk96;
-    for (i = 0; i < unk96Copy; i++) {
-        // !FAKE, this should probably be &entity_ranges[unk9C] or similar,
-        // instead of doing &entity_ranges followed by +=
-        data_idx = entity_ranges;
-        data_idx += self->ext.factory.unk9C * 2;
-
-        startIndex = *data_idx;
-        endIndex = *(data_idx + 1);
-
-        if (self->ext.factory.unk9C == 0) {
-            newEntity = RicGetFreeEntityReverse(startIndex, endIndex + 1);
-        } else if (self->ext.factory.unk9C == 4) {
-            newEntity = &g_Entities[31];
-        } else if (self->ext.factory.unk9C == 5) {
-            newEntity = &g_Entities[48];
-        } else {
-            newEntity = RicGetFreeEntity(startIndex, endIndex + 1);
-        }
-
-        if (newEntity == NULL) {
-            if (self->ext.factory.unk9E == 1) {
-                goto setIdZeroAndReturn;
-            }
-            break;
-        }
-        DestroyEntity(newEntity);
-        // unkA8 never gets set so is always zero
-        newEntity->entityId =
-            self->ext.factory.childId + self->ext.factory.unkA8;
-        newEntity->params = self->ext.factory.unkA0;
-        // The child  (newEntity) is not an ent factory, but because the
-        // factory creates many entities, we can't pick a particular extension.
-        // But we're not allowed to use generic, so i'll just reuse entFactory.
-        newEntity->ext.factory.parent = self->ext.factory.parent;
-        newEntity->posX.val = self->posX.val;
-        newEntity->posY.val = self->posY.val;
-        newEntity->facingLeft = self->facingLeft;
-        newEntity->zPriority = self->zPriority;
-        if (self->flags & FLAG_UNK_10000) {
-            newEntity->flags |= FLAG_UNK_10000;
-        }
-        if (self->ext.factory.unkA2 != 0) {
-            newEntity->params += self->ext.factory.unkA6;
-        } else {
-            newEntity->params += i;
-        }
-        if (++self->ext.factory.unkA6 == self->ext.factory.unk94) {
-            self->entityId = 0;
-            return;
-        }
-    }
-    self->ext.factory.unk9A = self->ext.factory.unk98;
-}
-
-void func_80160C38(Entity* entity) {
-    if (PLAYER.step != PL_S_SLIDE) {
-        DestroyEntity(entity);
-    } else {
-        entity->posX.i.hi = PLAYER.posX.i.hi;
-        entity->posY.i.hi = PLAYER.posY.i.hi;
-        entity->facingLeft = PLAYER.facingLeft;
-        if (entity->step == 0) {
-            entity->flags = FLAG_UNK_20000 | FLAG_UNK_40000 | FLAG_UNK_04000000;
-            entity->hitboxOffX = 0x14;
-            entity->hitboxOffY = 0xC;
-            entity->hitboxHeight = 9;
-            entity->hitboxWidth = 9;
-            entity->ext.subweapon.subweaponId = PL_W_KICK;
-            RicSetSubweaponParams(entity);
-            entity->ext.subweapon.timer = entity->hitboxState;
-            entity->step++;
-        }
-        entity->hitboxState = entity->ext.subweapon.timer;
-        if (PLAYER.animFrameIdx < 2) {
-            entity->hitboxState = 0;
-        }
-        if (PLAYER.animFrameIdx >= 8) {
-            DestroyEntity(entity);
-        }
-    }
-}
+void RicEntitySlideKick(Entity* entity) { }
 
 void func_80160D2C(Entity* self) {
-    if (PLAYER.step != PL_S_SLIDE_KICK) {
-        DestroyEntity(self);
-        return;
-    }
-    self->posX.i.hi = PLAYER.posX.i.hi;
-    self->posY.i.hi = PLAYER.posY.i.hi;
-    self->facingLeft = PLAYER.facingLeft;
-    if (self->step == 0) {
-        self->flags = FLAG_UNK_20000 | FLAG_UNK_40000 | FLAG_UNK_04000000;
-        self->hitboxOffX = 0x14;
-        self->hitboxHeight = 9;
-        self->hitboxWidth = 9;
-        self->ext.subweapon.subweaponId = PL_W_23;
-        RicSetSubweaponParams(self);
-        self->step++;
-    }
-
-    if (PLAYER.animCurFrame == 140) {
-        self->hitboxOffY = 0;
-    }
-
-    if (PLAYER.animCurFrame == 141) {
-        self->hitboxOffY = 12;
-    }
-
-    if (self->hitFlags) {
-        g_Player.unk44 |= 0x80;
-    } else {
-        g_Player.unk44 &= ~0x80;
-    }
-    self->hitFlags = 0;
 }
 
 // created from a blueprint, #24
@@ -263,9 +50,6 @@ void func_80160F0C(Entity* self) {
     }
 }
 
-// Entity ID #2. Created by 6 blueprints:
-// 0, 1, 24, 74, 75, 76.
-// Matches DRA func_8011B5A4
 static u16 pos_x_80154C50[] = {0, -4, -8, -12, -16, -20};
 static s32 velocity_x_80154C5C[] = {
     -0x3000, -0x4000, -0x6000, -0x8000, -0xA000, -0xC000};
@@ -414,6 +198,19 @@ void RicEntitySmokePuff(Entity* self) {
         break;
     }
 }
+
+void RicEntitySmokePuffWhenSliding(Entity* self) {
+    if (self->step == 0) {
+        if (!self->facingLeft) {
+            self->posX.i.hi += 8;
+        } else {
+            self->posX.i.hi -= 8;
+        }
+        self->posY.i.hi += 8;
+    }
+    RicEntitySmokePuff(self);
+}
+
 
 // Corresponding DRA function is func_8011E4BC
 static unkStr_8011E4BC D_80154D00 = {
@@ -1180,5 +977,3 @@ void RicEntityMaria(Entity* entity) {
         break;
     }
 }
-
-STATIC_PAD_RODATA(4);

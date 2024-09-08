@@ -80,7 +80,7 @@ void RicEntityPlayerBlinkWhite(Entity* self) {
     rotz = PLAYER.rotZ;
     selfY = self->posY.i.hi;
     selfX = self->posX.i.hi;
-    temp_v1 = D_801530AC[PLAYER.animCurFrame & 0x7FFF];
+    temp_v1 = g_MmxPlSprites[PLAYER.animCurFrame & 0x7FFF];
     // Don't miss the temp_v1++ here!
     plSprite = ((u8**)SPRITESHEET_PTR)[*temp_v1++ & 0x7FFF];
     xMargin = 4;
