@@ -109,7 +109,7 @@ void PlayerInit(s16 isPrologue) {
 
 #ifdef DEBUG
     g_DebugEnabled = 1;
-    //g_DebugHitboxViewMode = 1;
+    // g_DebugHitboxViewMode = 1;
 #endif
 }
 
@@ -155,7 +155,7 @@ static bool DebugFrameByFrame() {
 }
 #endif
 
-void AdjustHealthAndDamage() {
+static void AdjustHealthAndDamage() {
     unsigned int remainder;
 
     // ensures health is processed in multiple of 10 since this mod uses 10 hp
@@ -232,6 +232,28 @@ static void OverridePrizeDrop(Entity* e) {
     }
 }
 
+void EntityHeartTank(Entity* self);
+static void OverrideHeartDrop(Entity* self) {
+    // more complex than a normal override.
+    // we need the castleFlag to mark the item can only be obtained once.
+    // the flag is a 16-bit number but the factory param is only 8-bit, so
+    // we are forced to manually create the entity replacement
+    u16 castleFlag = self->ext.heartDrop.unkB4;
+    s16 posX = self->posX.i.hi;
+    s16 posY = self->posY.i.hi;
+    u16 zPriority = self->zPriority;
+    u32 flags = self->flags;
+    DestroyEntity(self);
+    self->posX.i.hi = posX;
+    self->posY.i.hi = posY;
+    self->zPriority = zPriority;
+    self->flags = flags;
+    self->entityId = E_HEART_TANK;
+    self->params = castleFlag;
+    self->pfnUpdate = EntityHeartTank;
+    self->step = 0;
+}
+
 static void OverrideStageEntities() {
     // as this character comes from a different game, we want to replace the
     // iconic SOTN entities with custom entities
@@ -261,8 +283,9 @@ static void OverrideStageEntities() {
             continue;
         case 10: // equip prize drop
         case 11: // relic orb
+            continue;
         case 12: // heart drop
-            // OverrideEntity(&g_Entities[i], B_MMX_PRIZE_DROP);
+            OverrideHeartDrop(&g_Entities[i]);
             continue;
         }
     }

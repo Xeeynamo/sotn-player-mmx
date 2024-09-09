@@ -338,79 +338,6 @@ SpriteParts* g_SpritesWeapons[] = {
     (SpriteParts*)D_80153CEC,
     (SpriteParts*)D_80153D08};
 
-static int D_80153DB8[] = {0x00000001, 0xFFF20000, 0x00100010, 0x00200000,
-                           0x00100070, 0x00200080, 0x00000000};
-static int D_80153DD4[] = {0x00200001, 0xFFEE0000, 0x00100010, 0x00200000,
-                           0x00000070, 0x00100080, 0x00000000};
-static int D_80153DF0[] = {0x00000001, 0xFFF0FFFD, 0x00100018, 0x00200000,
-                           0x00300040, 0x00400058, 0x00000000};
-static int D_80153E0C[] = {0x00000001, 0xFFF0FFFD, 0x00100018, 0x00200000,
-                           0x00300058, 0x00400070, 0x00000000};
-static int D_80153E28[] = {0x00000001, 0xFFF30000, 0x00100010, 0x00200000,
-                           0x00200050, 0x00300060, 0x00000000};
-static int D_80153E44[] = {0x00000001, 0xFFEFFFFE, 0x00180010, 0x00200000,
-                           0x00200070, 0x00380080, 0x00000000};
-static int D_80153E60[] = {0x00000001, 0xFFF2FFFE, 0x00100010, 0x00200000,
-                           0x00200060, 0x00300070, 0x00000000};
-static int D_80153E7C[] = {0x00000001, 0xFFF2FFFE, 0x00100010, 0x00200000,
-                           0x00100060, 0x00200070, 0x00000000};
-static int D_80153E98[] = {0x00200001, 0xFFF1FFFF, 0x00100010, 0x00200000,
-                           0x00000060, 0x00100070, 0x00000000};
-static int D_80153EB4[] = {0x00000001, 0xFFFF0001, 0x00100010, 0x00200000,
-                           0x00100070, 0x00200080, 0x00000000};
-static int D_80153ED0[] = {0x00200001, 0xFFFB0001, 0x00100010, 0x00200000,
-                           0x00000070, 0x00100080, 0x00000000};
-static int D_80153EEC[] = {0x00000001, 0xFFFDFFFE, 0x00100018, 0x00200000,
-                           0x00300040, 0x00400058, 0x00000000};
-static int D_80153F08[] = {0x00000001, 0xFFFDFFFE, 0x00100018, 0x00200000,
-                           0x00300058, 0x00400070, 0x00000000};
-static int D_80153F24[] = {0x00000001, 0x00000001, 0x00100010, 0x00200000,
-                           0x00200050, 0x00300060, 0x00000000};
-static int D_80153F40[] = {0x00000001, 0xFFFCFFFF, 0x00180010, 0x00200000,
-                           0x00200070, 0x00380080, 0x00000000};
-static int D_80153F5C[] = {0x00000001, 0xFFFFFFFF, 0x00100010, 0x00200000,
-                           0x00200060, 0x00300070, 0x00000000};
-static int D_80153F78[] = {0x00000001, 0xFFFFFFFF, 0x00100010, 0x00200000,
-                           0x00100060, 0x00200070, 0x00000000};
-static int D_80153F94[] = {0x00200001, 0xFFFE0000, 0x00100010, 0x00200000,
-                           0x00000060, 0x00100070, 0x00000000};
-static int D_80153FB0[] = {0x00000001, 0xFFF00000, 0x00100010, 0x00200000,
-                           0x00100070, 0x00200080, 0x00000000};
-static int D_80153FCC[] = {0x00200001, 0xFFEC0000, 0x00100010, 0x00200000,
-                           0x00000070, 0x00100080, 0x00000000};
-static int D_80153FE8[] = {0x00000001, 0xFFEEFFFD, 0x00100018, 0x00200000,
-                           0x00300040, 0x00400058, 0x00000000};
-static int D_80154004[] = {0x00000001, 0xFFEEFFFD, 0x00100018, 0x00200000,
-                           0x00300058, 0x00400070, 0x00000000};
-static int D_80154020[] = {0x00000001, 0xFFF10000, 0x00100010, 0x00200000,
-                           0x00200050, 0x00300060, 0x00000000};
-static int D_8015403C[] = {0x00000001, 0xFFEDFFFE, 0x00180010, 0x00200000,
-                           0x00200070, 0x00380080, 0x00000000};
-static int D_80154058[] = {0x00000001, 0xFFF0FFFE, 0x00100010, 0x00200000,
-                           0x00200060, 0x00300070, 0x00000000};
-static int D_80154074[] = {0x00000001, 0xFFF0FFFE, 0x00100010, 0x00200000,
-                           0x00100060, 0x00200070, 0x00000000};
-static int D_80154090[] = {0x00200001, 0xFFEFFFFF, 0x00100010, 0x00200000,
-                           0x00000060, 0x00100070, 0x00000000};
-static int D_801540AC[] = {0x00100001, 0xFFFDFFFD, 0x00080008, 0x00200018,
-                           0x00300000, 0x00380008, 0x00000000};
-static int D_801540C8[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00200018,
-                           0x00300008, 0x00380010, 0x00000000};
-static int D_801540E4[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00200018,
-                           0x00300010, 0x00380018, 0x00000000};
-static int D_80154100[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00200018,
-                           0x00300018, 0x00380020, 0x00000000};
-static int D_8015411C[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00200018,
-                           0x00300020, 0x00380028, 0x00000000};
-static int D_80154138[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00200018,
-                           0x00300028, 0x00380030, 0x00000000};
-static int D_80154154[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x002000B0,
-                           0x00180048, 0x00200050, 0x00000000};
-static int D_80154170[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x0020000F,
-                           0x00180050, 0x00200058, 0x00000000};
-static int D_8015418C[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00200011,
-                           0x00180058, 0x00200060, 0x00000000};
-
 static u16 sprt_item_power_capsule_small_closed[] = {
     1, // count
     0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 4, 8, 12, 16,
@@ -443,9 +370,53 @@ static u16 sprt_item_power_capsule_big_3[] = {
     1, // count
     0, -8, -12, 16, 12, PAL_HUD, PAGE(0x19, 1), 64, 4, 80, 16,
 };
-static u16 sprt_item_energy_capsule_1[] = {
+static u16 sprt_item_energy_capsule_small_1[] = {
     1, // count
     0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 4, 24, 12, 32,
+};
+static u16 sprt_item_energy_capsule_small_2[] = {
+    1, // count
+    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 20, 24, 28, 32,
+};
+static u16 sprt_item_energy_capsule_small_3[] = {
+    1, // count
+    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 36, 24, 44, 32,
+};
+static u16 sprt_item_energy_capsule_big_1[] = {
+    1, // count
+    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 1), 81, 17, 95, 31,
+};
+static u16 sprt_item_energy_capsule_big_2[] = {
+    1, // count
+    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 1), 97, 17, 111, 31,
+};
+static u16 sprt_item_energy_capsule_big_3[] = {
+    1, // count
+    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 1), 113, 17, 127, 31,
+};
+static u16 sprt_item_life_up_1[] = {
+    1, // count
+    0, -8, -16, 16, 16, PAL_PLAYER, PAGE(0x19, 1), 48, 16, 64, 32,
+};
+static u16 sprt_item_life_up_2[] = {
+    1, // count
+    0, -8, -16, 16, 16, PAL_PLAYER, PAGE(0x19, 1), 64, 16, 80, 32,
+};
+static u16 sprt_item_heart_tank_1[] = {
+    1, // count
+    0, -7, -15, 14, 15, PAL_HEART, PAGE(0x19, 1), 1, 33, 15, 48,
+};
+static u16 sprt_item_heart_tank_2[] = {
+    1, // count
+    0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 1), 18, 33, 30, 48,
+};
+static u16 sprt_item_heart_tank_3[] = {
+    1, // count
+    0, -5, -15, 10, 15, PAL_HEART, PAGE(0x19, 1), 35, 33, 45, 48,
+};
+static u16 sprt_item_heart_tank_4[] = {
+    1, // count
+    0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 1), 50, 33, 62, 48,
 };
 
 SpriteParts* g_SpritesItems[] = {
@@ -458,42 +429,18 @@ SpriteParts* g_SpritesItems[] = {
     sprt_item_power_capsule_big_1,
     sprt_item_power_capsule_big_2,
     sprt_item_power_capsule_big_3,
-    (SpriteParts*)D_80153DB8,
-    (SpriteParts*)D_80153DD4,
-    (SpriteParts*)D_80153DF0,
-    (SpriteParts*)D_80153E0C,
-    (SpriteParts*)D_80153E28,
-    (SpriteParts*)D_80153E44,
-    (SpriteParts*)D_80153E60,
-    (SpriteParts*)D_80153E7C,
-    (SpriteParts*)D_80153E98,
-    (SpriteParts*)D_80153EB4,
-    (SpriteParts*)D_80153ED0,
-    (SpriteParts*)D_80153EEC,
-    (SpriteParts*)D_80153F08,
-    (SpriteParts*)D_80153F24,
-    (SpriteParts*)D_80153F40,
-    (SpriteParts*)D_80153F5C,
-    (SpriteParts*)D_80153F78,
-    (SpriteParts*)D_80153F94,
-    (SpriteParts*)D_80153FB0,
-    (SpriteParts*)D_80153FCC,
-    (SpriteParts*)D_80153FE8,
-    (SpriteParts*)D_80154004,
-    (SpriteParts*)D_80154020,
-    (SpriteParts*)D_8015403C,
-    (SpriteParts*)D_80154058,
-    (SpriteParts*)D_80154074,
-    (SpriteParts*)D_80154090,
-    (SpriteParts*)D_801540AC,
-    (SpriteParts*)D_801540C8,
-    (SpriteParts*)D_801540E4,
-    (SpriteParts*)D_80154100,
-    (SpriteParts*)D_8015411C,
-    (SpriteParts*)D_80154138,
-    (SpriteParts*)D_80154154,
-    (SpriteParts*)D_80154170,
-    (SpriteParts*)D_8015418C};
+    sprt_item_energy_capsule_small_1,
+    sprt_item_energy_capsule_small_2,
+    sprt_item_energy_capsule_small_3,
+    sprt_item_energy_capsule_big_1,
+    sprt_item_energy_capsule_big_2,
+    sprt_item_energy_capsule_big_3,
+    sprt_item_life_up_1,
+    sprt_item_life_up_2,
+    sprt_item_heart_tank_1,
+    sprt_item_heart_tank_2,
+    sprt_item_heart_tank_3,
+    sprt_item_heart_tank_4};
 
 static int D_8015421C[] = {0x00300001, 0xFFEAFFF5, 0x00280018, 0x00010000,
                            0x00000000, 0x00280018, 0x00000000};

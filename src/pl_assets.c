@@ -17,8 +17,7 @@ static unsigned char img_particles[] = {
 #include "assets/particles.png.inc"
 };
 
-#define G_MAKE(x, y, data)                                                     \
-    { data, sizeof(data), x, y }
+#define G_MAKE(x, y, data) {data, sizeof(data), x, y}
 struct GraphicsInit {
     unsigned char* data;
     unsigned int len;

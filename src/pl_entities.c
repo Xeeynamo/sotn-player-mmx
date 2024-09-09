@@ -169,7 +169,8 @@ struct ExtPrizeDrop {
     s32 prevFrame;
 };
 // return true if the prize is collected
-static bool PrizeDropHelper(Entity* self, u8* hitboxes, AnimationFrame** anims) {
+static bool PrizeDropHelper(
+    Entity* self, u8* hitboxes, AnimationFrame** anims) {
     struct ExtPrizeDrop* ext = (struct ExtPrizeDrop*)&self->ext;
     Collider col;
 
@@ -236,11 +237,9 @@ static void IncreaseHealth(s32 amount) {
         g_Status.hp = g_Status.hpMax;
     }
 }
-static bool HasMaxHealth() {
-    return g_Status.hpMax >= 320;
-}
+static bool HasMaxHealth() { return g_Status.hpMax >= 320; }
 static void IncreaseMaxHealth(s32 amount) {
-    if (!HasMaxHealth()) {
+    if (HasMaxHealth()) {
         return;
     }
     g_Status.hpMax += amount;
@@ -268,15 +267,10 @@ static AnimationFrame* power_capsule_small_anims[] = {
     anim_power_capsule_small_open,
 };
 static u8 power_capsule_small_hitboxes[][4] = {
-    {0, 0, 0, 0},
-    {0, -4, 4, 4},
-    {0, -4, 5, 4},
-};
+    {0, 0, 0, 0}, {0, -4, 4, 4}, {0, -4, 5, 4}};
 void EntityPowerCapsuleSmall(Entity* self) {
-    if (!self->step) {
-        self->palette = PAL_HUD;
-    }
-    if (PrizeDropHelper(self, power_capsule_small_hitboxes, power_capsule_small_anims)) {
+    if (PrizeDropHelper(
+            self, power_capsule_small_hitboxes, power_capsule_small_anims)) {
         IncreaseHealth(20);
         DestroyEntity(self);
     }
@@ -291,46 +285,103 @@ static AnimationFrame* power_capsule_big_anims[] = {
     anim_power_capsule_big_fall,
     anim_power_capsule_big_open,
 };
-static u8 power_capsule_big_hitboxes[][4] = {
-    {0, 0, 0, 0},
-    {0, -6, 8, 6},
-};
+static u8 power_capsule_big_hitboxes[][4] = {{0, 0, 0, 0}, {0, -6, 8, 6}};
 void EntityPowerCapsuleBig(Entity* self) {
-    if (PrizeDropHelper(self, power_capsule_big_hitboxes, power_capsule_big_anims)) {
+    if (PrizeDropHelper(
+            self, power_capsule_big_hitboxes, power_capsule_big_anims)) {
         IncreaseHealth(80);
         DestroyEntity(self);
     }
 }
+
+static AnimationFrame anim_energy_capsule_small[] = {
+    {2, FRAME(9, 2)},
+    {2, FRAME(10, 2)},
+    {2, FRAME(11, 2)},
+    {2, FRAME(10, 2)},
+    A_LOOP_AT(0)};
+static AnimationFrame* energy_capsule_small_anims[] = {
+    anim_energy_capsule_small,
+    anim_energy_capsule_small,
+};
+static u8 energy_capsule_small_hitboxes[][4] = {{0, 0, 0, 0}, {0, -4, 4, 4}};
 void EntityEnergyCapsuleSmall(Entity* self) {
     if (PrizeDropHelper(
-            self, power_capsule_small_hitboxes, power_capsule_small_anims)) {
+            self, energy_capsule_small_hitboxes, energy_capsule_small_anims)) {
         IncreaseWeaponEnergy(20);
         DestroyEntity(self);
     }
 }
+
+static AnimationFrame anim_energy_capsule_big[] = {
+    {2, FRAME(12, 2)},
+    {2, FRAME(13, 2)},
+    {2, FRAME(14, 2)},
+    {2, FRAME(13, 2)},
+    A_LOOP_AT(0)};
+static AnimationFrame* energy_capsule_big_anims[] = {
+    anim_energy_capsule_big,
+    anim_energy_capsule_big,
+};
+static u8 energy_capsule_big_hitboxes[][4] = {{0, 0, 0, 0}, {0, -7, 7, 7}};
 void EntityEnergyCapsuleBig(Entity* self) {
     if (PrizeDropHelper(
-            self, power_capsule_small_hitboxes, power_capsule_small_anims)) {
+            self, energy_capsule_big_hitboxes, energy_capsule_big_anims)) {
         IncreaseWeaponEnergy(80);
         DestroyEntity(self);
     }
 }
+
+static AnimationFrame anim_life_up[] = {
+    {4, FRAME(15, 2)}, {4, FRAME(16, 2)}, A_LOOP_AT(0)};
+static AnimationFrame* life_up_anims[] = {
+    anim_life_up,
+    anim_life_up,
+};
+static u8 life_up_hitboxes[][4] = {{0, 0, 0, 0}, {0, -8, 8, 8}};
 void EntityLifeUp(Entity* self) {
-    if (PrizeDropHelper(self, power_capsule_big_hitboxes, power_capsule_big_anims)) {
+    if (PrizeDropHelper(self, life_up_hitboxes, life_up_anims)) {
         IncreaseHealth(g_Status.hpMax - g_Status.hp);
         DestroyEntity(self);
     }
 }
+
+static AnimationFrame anim_heart_tank[] = {
+    {4, FRAME(17, 2)},
+    {4, FRAME(18, 2)},
+    {4, FRAME(19, 2)},
+    {4, FRAME(20, 2)},
+    A_LOOP_AT(0)};
+static AnimationFrame* anim_heart_tank_anims[] = {
+    anim_heart_tank,
+    anim_heart_tank,
+};
+static u8 heart_tank_hitboxes[][4] = {{0, 0, 0, 0}, {0, -8, 8, 8}};
 void EntityHeartTank(Entity* self) {
     // life-up should not show if the health is already capped
     if (HasMaxHealth()) {
         EntityPowerCapsuleBig(self);
         return;
     }
-    if (PrizeDropHelper(
-            self, power_capsule_small_hitboxes, power_capsule_small_anims)) {
+
+    // like SOTN upgrades, they are unique
+    if (!self->step) {
+        s32 castleFlag =
+            g_CastleFlags[(self->params >> 3) + 0x100] >> (self->params & 7);
+        if (castleFlag & 1) {
+            DestroyEntity(self);
+            return;
+        }
+    }
+
+    // once spawned it should never disappear unless it is taken
+    ((struct ExtPrizeDrop*)&self->ext)->disposeTimer = 99;
+    if (PrizeDropHelper(self, heart_tank_hitboxes, anim_heart_tank_anims)) {
+        // once taken it will disappear for the rest of the playthrough
+        g_CastleFlags[(self->params >> 3) + 0x100] |= 1 << (self->params & 7);
         IncreaseMaxHealth(10);
         DestroyEntity(self);
     }
 }
+
 void EntityEnergyTank(Entity* self) { DestroyEntity(self); }
