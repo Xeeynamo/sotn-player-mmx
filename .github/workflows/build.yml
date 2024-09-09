@@ -1,0 +1,45 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        version: ["us", "hd"]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ matrix.version }}
+    steps:
+      - name: Clone main repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          submodules: true
+      - name: Install requirements
+        run: |
+            sudo apt-get install gcc-mipsel-linux-gnu liblz4-dev
+            pip3 install -r requirements.txt
+      - name: Build binaries
+        run: make -j
+      - name: Create files for distribution
+        run: |
+            mkdir build/dist
+            cp build/*.bin build/dist/
+            cp build/*.map build/dist/
+      - name: Export build folder
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_${{ matrix.version }}
+          path: build/dist

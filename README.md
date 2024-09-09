@@ -10,6 +10,8 @@ Developers are encouraged to use this repository, fork it, and iterate on the ex
 
 ## Build guide
 
+You will need to run `pip3 install -r requirements.txt` at least once to make the embedded Python tools to work. They are responsible in tasks such as generating the spritesheet or the palette for the custom character.
+
 ### Build guide via GCC
 
 This is the easiest way to build your custom character for the PlayStation 1 version of SOTN. Follow the [Build guide](https://github.com/Xeeynamo/sotn-decomp/wiki/Build) to ensure you can build sotn-decomp locally (this must be done at least once).

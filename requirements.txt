@@ -1,0 +1,3 @@
+PyYAML
+pypng
+pillow==10.4.0

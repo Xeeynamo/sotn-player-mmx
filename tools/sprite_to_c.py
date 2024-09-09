@@ -9,7 +9,6 @@ import sys
 from math import ceil
 from typing import Optional
 from pathlib import Path
-import n64img.image
 
 
 max_width = 256
@@ -192,10 +191,7 @@ def read_palette(file_name, offset):
 
 def decode_spritesheet(out_path, data: bytearray, start: int, palette) -> list:
     def extract_sprite(output_file_name, data, w, h, pal):
-        img: n64img.image.Image = n64img.image.CI4(data, w, h)
-        img.little_endian = True
-        img.palette = pal
-        img.write(output_file_name)
+        print("dummied out")
 
     # This is hardcoded based on where BIN/RIC.BIN and BIN/ARC_F.BIN are loaded
     vram_start = 0x8013C000

@@ -8,6 +8,7 @@ FILES     += 1AC60 21250 24788 26C84 2A060 2C4C4 319C4 bss
 ASSETS	  += hud.png items.png particles.png
 
 SOTN_DIR     := sotn-decomp
+SOTN_SDK	 := $(SOTN_DIR)/LICENSE
 CONFIG_DIR   := $(SOTN_DIR)/config
 INCLUDE_DIR  := $(SOTN_DIR)/include
 
@@ -39,7 +40,7 @@ build/$(PL_NAME).elf: $(OBJS)
 	$(LD) -o $@ -Map build/$(PL_NAME).map -T pl.ld \
 		-T $(CONFIG_DIR)/undefined_syms.$(VERSION).txt \
 		-T $(CONFIG_DIR)/symbols.$(VERSION).txt \$^
-build/%.o: src/%.c
+build/%.o: src/%.c $(SOTN_SDK)
 	mkdir -p $(dir $@)
 	$(CC) $(CC_FLAGS) -o $@ $<
 src/pl_assets.c: src/assets/pal.inc $(ASSETS_H)
