@@ -112,6 +112,34 @@ void RicSetBladeDash(void) {
     g_api.PlaySfx(0x707);
 }
 
+
+static bool MmxIsPressingBothLeftAndRight() {
+    return g_Player.padPressed &
+           (PAD_RIGHT | PAD_LEFT) == (PAD_RIGHT | PAD_LEFT);
+}
+
+static bool MmxIsHuggingWall() {
+    if (MmxIsPressingBothLeftAndRight()) {
+        return false;
+    }
+    if (!PLAYER.facingLeft) {
+        return PLAYER.velocityX >= 0 && g_Player.padPressed & PAD_RIGHT &&
+               g_Player.unk04 & 4;
+    } else {
+        return PLAYER.velocityX <= 0 && g_Player.padPressed & PAD_LEFT &&
+               g_Player.unk04 & 8;
+    }
+}
+
+static void MmxSetWall(void) {
+    MmxSetAnimation(PL_A_WALL);
+    g_api.PlaySfx(SFX_STOMP_SOFT_A);
+    RicSetStep(PL_S_WALL);
+    g_CurrentEntity->velocityY = MMX_WALL_SPEED;
+    g_WallSlideTimer = 0;
+    g_DashAirUsed = false;
+}
+
 bool RicCheckInput(s32 checks) {
     s32 velYChange;
     u32 effects;
@@ -272,6 +300,13 @@ bool RicCheckInput(s32 checks) {
         } else {
             RicSetFall();
             return true;
+        }
+    }
+    if (checks & CHECK_WALL) {
+        // check if the player is hugging the wall
+        // ignore when pressing both left and right, like the original game
+        if (MmxIsHuggingWall()) {
+            MmxSetWall();
         }
     }
     if (g_Player.unk46 != 0) {

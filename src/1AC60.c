@@ -1167,29 +1167,30 @@ static void MmxHandleJump(void) {
         PLAYER.velocityY = FIX(-0.25);
         g_Player.unk44 |= 0x20;
     }
-    if (RicCheckInput(CHECK_GROUND | CHECK_FACING | CHECK_ATTACK |
-                      CHECK_GRAVITY_JUMP | CHECK_SLIDE)) {
-        return;
-    }
 
     switch (g_JumpState) {
     case PL_JUMP_NONE:
+        if (RicCheckInput(CHECK_GROUND | CHECK_FACING | CHECK_ATTACK |
+                          CHECK_GRAVITY_JUMP | CHECK_SLIDE)) {
+            return;
+        }
         if (PLAYER.velocityY < 0) {
             g_JumpState = PL_JUMP_ASCENDING;
         }
         break;
     case PL_JUMP_ASCENDING:
+        if (RicCheckInput(CHECK_GROUND | CHECK_FACING | CHECK_ATTACK |
+                          CHECK_GRAVITY_JUMP | CHECK_SLIDE)) {
+            return;
+        }
         if (PLAYER.velocityY > FIX(0.25)) {
             MmxSetAnimation(PL_A_FALL);
             g_JumpState = PL_JUMP_DESCENDING;
         }
         break;
     case PL_JUMP_DESCENDING:
-        // check if the player is hugging the wall
-        // ignore when pressing both left and right, like the original game
-        if (MmxIsHuggingWall()) {
-            MmxSetWall();
-            g_JumpState = PL_JUMP_NONE;
+        if (RicCheckInput(CHECK_GROUND | CHECK_FACING | CHECK_ATTACK |
+                          CHECK_GRAVITY_JUMP | CHECK_SLIDE | CHECK_WALL)) {
             return;
         }
         break;
@@ -1209,7 +1210,7 @@ static void MmxHandleJump(void) {
 
 static void RicHandleFall(void) {
     if (RicCheckInput(
-            CHECK_GROUND | CHECK_FACING | CHECK_ATTACK | CHECK_GRAVITY_FALL)) {
+            CHECK_GROUND | CHECK_FACING | CHECK_ATTACK | CHECK_GRAVITY_FALL | CHECK_WALL)) {
         return;
     }
     RicDecelerateX(0x1000);
