@@ -113,7 +113,8 @@ static AnimationFrame anim_hit_stun[] = {
     {2, FRAME(63, 4)},
     {2, FRAME(59, 4)},
     {2, FRAME(63, 4)},
-    {80, FRAME(59, 4)},
+    {14, FRAME(59, 4)},
+    {2, FRAME(58, 4)},
     A_END};
 static AnimationFrame anim_hit_small[] = {
     {4, FRAME(61, 4)},
@@ -123,7 +124,8 @@ static AnimationFrame anim_hit_small[] = {
     {2, FRAME(64, 4)},
     {2, FRAME(62, 4)},
     {2, FRAME(64, 4)},
-    {80, FRAME(62, 4)},
+    {14, FRAME(62, 4)},
+    {2, FRAME(61, 4)},
     A_END};
 
 // Remember to update `MmxAnims` in `pl.h`
