@@ -113,7 +113,7 @@ void EntityLemon(Entity* self) {
         self->ext.player.anim = 1;
         g_CurrentEntity->animFrameDuration = 0;
         self->hitboxState = 0;
-        g_api.PlaySfx(REBOUND_STONE_BOUNCE);
+        g_api.PlaySfx(SFX_UI_TINK);
         ext->disposeTimer = 32;
         self->step++;
         break;

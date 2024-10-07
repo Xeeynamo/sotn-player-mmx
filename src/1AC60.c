@@ -211,7 +211,7 @@ static void func_801572A8(bool arg0) {
 
     g_Player.unk04 = *vram_ptr;
     *vram_ptr = 0;
-    unk0C = g_Player.unk0C;
+    unk0C = g_Player.status;
 
     if (arg0) {
         for (i = 0; i < LEN(D_801545E4); i++) {
@@ -677,7 +677,7 @@ block_48:
         func_8015BCD0();
         break;
     }
-    g_Player.unk08 = g_Player.unk0C;
+    g_Player.unk08 = g_Player.status;
     var_s4 = 0;
     switch (PLAYER.step) {
     case PL_S_STAND:
@@ -755,7 +755,7 @@ block_48:
         var_s4 |= PLAYER_STATUS_UNK20000;
     }
     var_s4 |= PLAYER_STATUS_UNK10000000;
-    g_Player.unk0C = var_s4;
+    g_Player.status = var_s4;
 
     // TODO move this stuff into the switch above
     var_s4 |= NO_AFTERIMAGE;
@@ -782,7 +782,7 @@ block_48:
     }
     if (g_Player.timers[PL_T_INVINCIBLE_SCENE] |
         g_Player.timers[PL_T_INVINCIBLE]) {
-        g_Player.unk0C |= 0x100;
+        g_Player.status |= 0x100;
     }
     g_api.UpdateAnim(D_80155964, D_8015538C);
     PLAYER.hitboxState = 1;
@@ -792,7 +792,7 @@ block_48:
     if ((PLAYER.step == PL_S_DEAD) && (PLAYER.animFrameDuration < 0)) {
         PLAYER.animCurFrame |= ANIM_FRAME_LOAD;
     }
-    if (g_Player.unk0C & 0x50) {
+    if (g_Player.status & 0x50) {
         return;
     }
     func_8015C4AC();
@@ -1372,7 +1372,7 @@ void func_80159BC8(void) {
 }
 
 void func_80159C04(void) {
-    Entity* entity = PLAYER.ext.player.unkB8;
+    Entity* entity = PLAYER.unkB8;
     s16 temp_v0;
     s32 var_a0;
     s32 var_a2;
@@ -2882,25 +2882,31 @@ void RicSetHighJump(void) {
     }
 }
 
-s32 func_8015D1D0(s16 subWpnId, s16 maxParticles) {
+s32 RicCheckSubwpnChainLimit(s16 subwpnId, s16 limit) {
     Entity* entity;
     s32 nFound;
     s32 nEmpty;
     s32 i;
-
+    // Iterate through entities 32-48 (which hold subweapons)
+    // Any that match the proposed ID increments the count.
+    // If at any point the count reaches the limit, return -1.
     entity = &g_Entities[32];
     for (i = 0, nFound = 0, nEmpty = 0; i < 16; i++, entity++) {
         if (entity->entityId == E_NONE) {
             nEmpty++;
         }
-        if (entity->ext.generic.unkB0 != 0 &&
-            entity->ext.generic.unkB0 == subWpnId) {
+        if (entity->ext.subweapon.subweaponId != 0 &&
+            entity->ext.subweapon.subweaponId == subwpnId) {
             nFound++;
         }
-        if (nFound >= maxParticles) {
+        if (nFound >= limit) {
             return -1;
         }
     }
+    // This will indicate that there is an available entity slot
+    // to hold the subweapon we're trying to spawn.
+    // At the end, if this is zero, there are none available so return
+    // -1 to indicate there is no room for the proposed subweapon.
     if (nEmpty == 0) {
         return -1;
     }

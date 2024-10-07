@@ -175,7 +175,7 @@ enum MmxEntities {
     E_HIT_BY_DARK,                   // RicEntityHitByDark
     E_HIT_BY_HOLY,                   // RicEntityHitByHoly
     E_CRASH_STOPWATCH_DONE_PARTICLE, // RicEntityCrashStopwatchDoneSparkle
-    E_80170548,                      // func_80170548
+    E_80170548,                      // RicEntityStopwatchCrashLightning
     E_TELEPORT,                      // RicEntityTeleport
     E_DUMMY_66,                      // RicEntityDummy
     NUM_RIC_ENTITIES,

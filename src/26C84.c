@@ -697,7 +697,7 @@ void RicEntityHitByIce(Entity* self) {
     self->posX.i.hi = PLAYER.posX.i.hi;
     self->posY.i.hi = PLAYER.posY.i.hi;
     // This is badly written but it checks if 0x10000 is unset.
-    sp18 = ((g_Player.unk0C & 0x10000) == sp18);
+    sp18 = ((g_Player.status & 0x10000) == sp18);
     switch (self->step) {
     case 0:
         self->primIndex = g_api.AllocPrimitives(PRIM_GT3, PrimCount);
@@ -977,10 +977,10 @@ void RicEntityHitByLightning(Entity* self) {
                    ((rand() % 8) + 8));
         yOffset = (-((rsin(self->ext.hitbylightning.unk7C) * temp_s2) >> 7) *
                    ((rand() % 8) + 0xA)) +
-                  self->ext.generic.unk98;
+                  self->ext.hitbylightning.unk98;
         self->posX.val = xOffset + PLAYER.posX.val;
         self->posY.val = yOffset + PLAYER.posY.val;
-        self->ext.generic.unk98 -= 0x8000;
+        self->ext.hitbylightning.unk98 -= 0x8000;
 
         break;
     }

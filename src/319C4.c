@@ -1076,19 +1076,19 @@ void RicEntityCrashStopwatchDoneSparkle(Entity* self) {
     }
 }
 
-void func_80170548(Entity* entity) {
-    switch (entity->step) {
+void RicEntityStopwatchCrashLightning(Entity* self) {
+    switch (self->step) {
     case 0:
-        entity->flags = FLAG_KEEP_ALIVE_OFFCAMERA;
-        entity->ext.generic.unkB0 = 0x1E;
-        RicSetSubweaponParams(entity);
-        entity->hitboxWidth = 8;
-        entity->hitboxHeight = 8;
-        entity->step++;
+        self->flags = FLAG_KEEP_ALIVE_OFFCAMERA;
+        self->ext.subweapon.subweaponId = 0x1E;
+        RicSetSubweaponParams(self);
+        self->hitboxWidth = 8;
+        self->hitboxHeight = 8;
+        self->step++;
         break;
     case 1:
-        if (++entity->ext.timer.t >= 5) {
-            DestroyEntity(entity);
+        if (++self->ext.timer.t >= 5) {
+            DestroyEntity(self);
         }
         break;
     }
@@ -1552,7 +1552,7 @@ void RicEntitySubwpnStopwatch(Entity* self) {
     s32 temp_a1_3;
     s32 temp_t0;
     s32 temp_v1_11;
-    if (g_unkGraphicsStruct.unk0) {
+    if (g_unkGraphicsStruct.pauseEnemies) {
         g_unkGraphicsStruct.D_800973FC = 0;
         if ((self->step > 0) && (self->step < 4)) {
             self->step = 4;

@@ -20,7 +20,7 @@ void RicEntityBladeDash(Entity* self) {
             self->hitboxWidth = 20;
             self->hitboxOffY = 0;
             self->hitboxOffX = 0;
-            self->ext.generic.unkB0 = 0x11;
+            self->ext.subweapon.subweaponId = 17;
             RicSetSubweaponParams(self);
             self->step++;
         }
@@ -45,7 +45,7 @@ void func_80160F0C(Entity* self) {
         self->hitboxOffY = -0x1A;
         self->hitboxWidth = 12;
         self->hitboxHeight = 12;
-        self->ext.generic.unkB0 = 0x16;
+        self->ext.subweapon.subweaponId = 22;
         RicSetSubweaponParams(self);
         self->step++;
     }
@@ -90,7 +90,7 @@ void RicEntitySmokePuff(Entity* self) {
     s16 paramsLo = self->params & 0xFF;
     s16 paramsHi = self->params >> 8;
 
-    if ((g_Player.unk0C & PLAYER_STATUS_UNK20000) && (paramsHi != 9)) {
+    if ((g_Player.status & PLAYER_STATUS_UNK20000) && (paramsHi != 9)) {
         DestroyEntity(self);
         return;
     }

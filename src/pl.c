@@ -301,7 +301,7 @@ void PlayerMain() {
 #endif
     if (g_pads[0].pressed & PAD_L2) {
         PLAYER.hitParams = 33;
-        PLAYER.ext.player.unkB8 = &g_Entities[128 + 17];
+        PLAYER.unkB8 = &g_Entities[128 + 17];
     }
     MmxHudHandler();
     AdjustHealthAndDamage();

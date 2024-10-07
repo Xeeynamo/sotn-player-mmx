@@ -17,7 +17,7 @@ s32 func_8015D250(s32 unused_arg) {
     if (subweapon.blueprintNum == 0) {
         return 4;
     }
-    if (func_8015D1D0(subweaponId, subweapon.unk6) < 0) {
+    if (RicCheckSubwpnChainLimit(subweaponId, subweapon.chainLimit) < 0) {
         return 2;
     }
     subweaponId = func_8015FB84(&subweapon, false, true);
@@ -1116,7 +1116,7 @@ void RicEntityHitByHoly(Entity* entity) {
         entity->step++;
         break;
     case 1:
-        if (!(g_Player.unk0C & 0x10000)) {
+        if (!(g_Player.status & 0x10000)) {
             DestroyEntity(entity);
             return;
         }
