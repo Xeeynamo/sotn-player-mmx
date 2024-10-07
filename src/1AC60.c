@@ -551,59 +551,59 @@ void MmxMain(void) {
     g_Player.unk72 = func_80156DE4();
     UpdateTimers();
     UpdateInput();
-    if (PLAYER.step == PL_S_DEAD) {
-        goto block_47;
-    }
-    // Reuse the i variable here even though we aren't iterating
-    i = GetTeleportToOtherCastle();
-    if (i != TELEPORT_CHECK_NONE) {
-        func_8015CC70(i);
-    }
-    // Richter must use step #32 for something else, look into it!
-    if (PLAYER.step == PL_S_INIT) {
-        goto block_48;
-    }
-    if (g_DebugPlayer && RicDebug()) {
-        return;
-    }
-    if (g_Player.unk60 >= 2) {
-        goto block_47;
-    }
-    if (g_Player.unk60 == 1) {
-        playerStep = PLAYER.step;
-        playerStepS = PLAYER.step_s;
-        RicSetStep(PL_S_BOSS_GRAB);
-        goto block_48;
-    }
-    if ((g_Player.timers[PL_T_INVINCIBLE_SCENE] |
-         g_Player.timers[PL_T_INVINCIBLE]) ||
-        !PLAYER.hitParams) {
-        goto block_47;
-    }
-    // handle received damage
-    playerStep = PLAYER.step;
-    playerStepS = PLAYER.step_s;
-    damage.effects = PLAYER.hitParams & ~0x1F;
-    damage.damageKind = PLAYER.hitParams & 0x1F;
-    damage.damageTaken = PLAYER.hitPoints;
-    isDamageTakenDeadly = g_api.CalcPlayerDamage(&damage);
-    damageKind = damage.damageKind;
-    damageEffects = damage.effects;
-    if (isDamageTakenDeadly) {
-        if (!g_Player.unk5C) {
-            RicSetStep(PL_S_DEAD);
-        } else {
-            g_Status.hp = 1;
-            RicSetStep(PL_S_HIT);
+    if (PLAYER.step != PL_S_DEAD) {
+        // Reuse the i variable here even though we aren't iterating
+        i = GetTeleportToOtherCastle();
+        if (i != TELEPORT_CHECK_NONE) {
+            func_8015CC70(i);
+        }
+        // Richter must use step #32 for something else, look into it!
+        if (PLAYER.step != PL_S_INIT) {
+            if (g_DebugPlayer && RicDebug()) {
+                return;
+            }
+            if (g_Player.unk60 >= 2) {
+                goto check_input_combo;
+            }
+            if (g_Player.unk60 == 1) {
+                playerStep = PLAYER.step;
+                playerStepS = PLAYER.step_s;
+                RicSetStep(PL_S_BOSS_GRAB);
+                goto skip_input_combo;
+            }
+            if ((g_Player.timers[PL_T_INVINCIBLE_SCENE] |
+                 g_Player.timers[PL_T_INVINCIBLE]) ||
+                !PLAYER.hitParams) {
+                goto check_input_combo;
+            }
+            // handle received damage
+            playerStep = PLAYER.step;
+            playerStepS = PLAYER.step_s;
+            damage.effects = PLAYER.hitParams & ~0x1F;
+            damage.damageKind = PLAYER.hitParams & 0x1F;
+            damage.damageTaken = PLAYER.hitPoints;
+            isDamageTakenDeadly = g_api.CalcPlayerDamage(&damage);
+            damageKind = damage.damageKind;
+            damageEffects = damage.effects;
+            g_Player.timers[PL_T_INVINCIBLE] = 106; // tested on MMX
+            if (isDamageTakenDeadly) {
+                if (!g_Player.unk5C) {
+                    RicSetStep(PL_S_DEAD);
+                } else {
+                    g_Status.hp = 1;
+                    RicSetStep(PL_S_HIT);
+                }
+            } else {
+                RicSetStep(PL_S_HIT);
+            }
         }
     } else {
-        RicSetStep(PL_S_HIT);
+check_input_combo:
+        // CheckBladeDashInput();
+        // CheckHighJumpInput();
+        CheckHadoukenInput();
     }
-block_47:
-    // CheckBladeDashInput();
-    // CheckHighJumpInput();
-    CheckHadoukenInput();
-block_48:
+skip_input_combo:
     g_Player.prev_step = PLAYER.step;
     g_Player.prev_step_s = PLAYER.step_s;
     switch (PLAYER.step) {
