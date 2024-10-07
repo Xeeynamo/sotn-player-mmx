@@ -598,7 +598,7 @@ void MmxMain(void) {
             }
         }
     } else {
-check_input_combo:
+    check_input_combo:
         // CheckBladeDashInput();
         // CheckHighJumpInput();
         CheckHadoukenInput();
@@ -1209,8 +1209,8 @@ static void MmxHandleJump(void) {
 }
 
 static void RicHandleFall(void) {
-    if (RicCheckInput(
-            CHECK_GROUND | CHECK_FACING | CHECK_ATTACK | CHECK_GRAVITY_FALL | CHECK_WALL)) {
+    if (RicCheckInput(CHECK_GROUND | CHECK_FACING | CHECK_ATTACK |
+                      CHECK_GRAVITY_FALL | CHECK_WALL)) {
         return;
     }
     RicDecelerateX(0x1000);
@@ -2933,20 +2933,6 @@ bool MmxPerformAttack(void) {
         return false;
     }
 
-    temp_rand = rand();
-    randOf6 = temp_rand % 6;
-    if (func_8015D250(rand() / 6) == 0) {
-        if (randOf6 == 0) {
-            g_api.PlaySfx(0x6F9);
-        }
-        if (randOf6 == 1) {
-            g_api.PlaySfx(0x6FA);
-        }
-        if (randOf6 == 2) {
-            g_api.PlaySfx(0x6FB);
-        }
-        return 1;
-    }
     poisoned = g_Player.timers[0] != 0;
     for (i = 16; i < 31; i++) {
         DestroyEntity(&g_Entities[i]);
