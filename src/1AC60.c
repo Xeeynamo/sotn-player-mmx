@@ -954,7 +954,7 @@ static void RicHandleStand(void) {
     }
 
     if (!RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_ATTACK |
-                       CHECK_CROUCH | CHECK_SLIDE)) {
+                       CHECK_SLIDE)) {
         RicDecelerateX(0x2000);
         switch (PLAYER.step_s) {
         case 0:
@@ -1026,7 +1026,7 @@ static void RicHandleWalk(void) {
         RicSetSpeedX(MMX_WALK_SPEED);
     }
     if (!RicCheckInput(CHECK_FALL | CHECK_FACING | CHECK_JUMP | CHECK_ATTACK |
-                       CHECK_CROUCH | CHECK_SLIDE)) {
+                       CHECK_SLIDE)) {
         RicDecelerateX(0x2000);
         if (!RicCheckFacing()) {
             RicSetStand(0);
