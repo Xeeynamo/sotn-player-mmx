@@ -632,6 +632,7 @@ skip_input_combo:
         RicHandleBossGrab();
         break;
     case PL_S_DEAD:
+        g_ChargeTimer = 0;
         RicHandleDead(damageEffects, damageKind, playerStep, playerStepS);
         break;
     case PL_S_STAND_IN_AIR:
@@ -650,6 +651,7 @@ skip_input_combo:
         RicHandleGenericSubwpnCrash();
         break;
     case PL_S_DEAD_PROLOGUE:
+        g_ChargeTimer = 0;
         RicHandleDeadPrologue();
         break;
     case PL_S_SLIDE:
@@ -761,6 +763,34 @@ skip_input_combo:
     var_s4 |= NO_AFTERIMAGE;
     if (g_Player.unk44 & IS_DASHING) {
         var_s4 &= ~NO_AFTERIMAGE;
+    }
+
+    // should be able to charge at any time, hence why not in RicCheckInput
+    if (g_Player.padHeld & PAD_SQUARE) {
+        u32 effectTimerStart = g_ChargeTimer - CHARGE_TIMER_LV1;
+        bool changePalette = (effectTimerStart & 3) >= 2;
+        g_ChargeTimer++;
+        if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
+            if (!(effectTimerStart & 31)) {
+                RicCreateEntFactoryFromEntity(
+                    g_CurrentEntity, B_P_CHARGE_WEAPON, 0);
+            }
+        }
+        if (g_ChargeTimer >= CHARGE_TIMER_LV3) {
+            g_ChargeLevel = CHARGE_MMX1_LV3;
+            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV3 : PAL_PLAYER;
+        } else if (g_ChargeTimer >= CHARGE_TIMER_LV2) {
+            g_ChargeLevel = CHARGE_MMX1_LV2;
+            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV2 : PAL_PLAYER;
+        } else if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
+            g_ChargeLevel = CHARGE_MMX1_LV1;
+            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV1 : PAL_PLAYER;
+        }
+    } else {
+        // do not reset the charge until the projectile is thrown
+        if (g_ChargeTimer < CHARGE_TIMER_LV1) {
+            MmxResetChargeWeapon();
+        }
     }
 
     if (g_Player.unk08 & PLAYER_STATUS_UNK10000) {
@@ -2786,25 +2816,50 @@ static int GetEntityCountByEntityID(enum MmxEntities id) {
     }
     return count;
 }
+void MmxResetChargeWeapon(void) {
+    g_ChargeTimer = 0;
+    g_ChargeLevel = CHARGE_NONE;
+    PLAYER.palette = PAL_PLAYER;
+}
 bool MmxPerformAttack(void) {
     s32 i;
     s16 poisoned;
     s32 temp_rand;
     s16 randOf6;
 
-    // we can spawn a maximum of 3 concurrent lemons
-    if (GetEntityCountByEntityID(E_W_LEMON) >= 3) {
-        return false;
-    }
-
-    poisoned = g_Player.timers[0] != 0;
     for (i = 16; i < 31; i++) {
         DestroyEntity(&g_Entities[i]);
     }
-    if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
-        return false;
+    switch (g_ChargeLevel) {
+    case CHARGE_NONE:
+        // we can spawn a maximum of 3 concurrent lemons
+        if (GetEntityCountByEntityID(E_W_LEMON) >= 3) {
+            return false;
+        }
+        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+            return false;
+        }
+        break;
+    case CHARGE_MMX1_LV1:
+        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+            return false;
+        }
+        MmxResetChargeWeapon();
+        break;
+    case CHARGE_MMX1_LV2:
+        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+            return false;
+        }
+        MmxResetChargeWeapon();
+        break;
+    case CHARGE_MMX1_LV3:
+        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+            return false;
+        }
+        MmxResetChargeWeapon();
+        break;
     }
-    if (poisoned) {
+    if (g_Player.timers[PL_T_POISON]) {
         g_api.PlaySfx(0x6B5);
     } else {
         g_api.PlaySfx(0x706);

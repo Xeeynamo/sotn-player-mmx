@@ -9,17 +9,19 @@ static FactoryBlueprint blueprints[] = {
     B_MAKE(E_SMOKE_PUFF_WHEN_SLIDING, 1, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF, 1, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_W_LEMON, 1, 1, false, true, 1, B_WPN, 0, 0),
-    {E_W_CUCUMBER, 0, 0, 0, 0, 0},
-    {E_W_CHARJELLY, 0, 0, 0, 0, 0},
-    {E_W_SHOTGUN_ICE, 0, 0, 0, 0, 0},
-    {E_W_ELECTRIC_SPARK, 0, 0, 0, 0, 0},
-    {E_W_ROLLING_SHIELD, 0, 0, 0, 0, 0},
-    {E_W_HOMING_TORPEDO, 0, 0, 0, 0, 0},
-    {E_W_BOOMERANG_CUTTER, 0, 0, 0, 0, 0},
-    {E_W_CHAMELEON_STING, 0, 0, 0, 0, 0},
-    {E_W_STORM_TORNADO, 0, 0, 0, 0, 0},
-    {E_W_FIRE_WAVE, 0, 0, 0, 0, 0},
-    {E_W_HADOUKEN, 0, 0, 0, 0},
+    B_MAKE(E_W_CUCUMBER, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_CHARJELLY, 1, 1, false, true, 1, B_WPN, 0, 0),
+    // TODO: add here lv3 projectile
+    B_MAKE(E_W_SHOTGUN_ICE, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_ELECTRIC_SPARK, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_ROLLING_SHIELD, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_HOMING_TORPEDO, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_BOOMERANG_CUTTER, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_CHAMELEON_STING, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_STORM_TORNADO, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_FIRE_WAVE, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_HADOUKEN, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_CHARGE_WEAPON_PARTICLE, 16, 2, true, true, 4, B_A_LOT, 0, 0),
     B_MAKE(E_MMX_PRIZE_DROP, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_POWER_CAPSULE_SMALL, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_POWER_CAPSULE_BIG, 1, 1, false, true, 1, B_STAGE, 0, 0),
@@ -118,6 +120,7 @@ void EntityChameleonSting(Entity* self);
 void EntityStormTornado(Entity* self);
 void EntityFireWave(Entity* self);
 void EntityHadouken(Entity* self);
+void EntityChargeWeaponParticle(Entity* self);
 void EntityMmxPrizeDrop(Entity* self);
 void EntityPowerCapsuleSmall(Entity* self);
 void EntityPowerCapsuleBig(Entity* self);
@@ -212,6 +215,7 @@ static PfnEntityUpdate entity_functions[] = {
     EntityStormTornado,
     EntityFireWave,
     EntityHadouken,
+    EntityChargeWeaponParticle,
     EntityMmxPrizeDrop,
     EntityPowerCapsuleSmall,
     EntityPowerCapsuleBig,

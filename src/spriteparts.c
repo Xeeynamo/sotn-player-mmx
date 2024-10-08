@@ -310,6 +310,46 @@ static u16 sprt_lemon_impact3[] = {
     1, // count
     0, -8, -8, 16, 16, PAL_HUD, PAGE(0x19, 2), 32, 0, 48, 16,
 };
+static u16 sprt_charge_mmx1_lv1_1[] = {
+    1, // count
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 6, 58, 8,
+};
+static u16 sprt_charge_mmx1_lv1_2[] = {
+    1, // count
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 4, 58, 6,
+};
+static u16 sprt_charge_mmx1_lv2_1[] = {
+    1, // count
+    0, -2, -2, 4, 4, PAL_HUD, PAGE(0x19, 2), 48, 8, 52, 12,
+};
+static u16 sprt_charge_mmx1_lv2_2[] = {
+    1, // count
+    0, -1, -1, 3, 3, PAL_HUD, PAGE(0x19, 2), 52, 8, 55, 11,
+};
+static u16 sprt_charge_mmx1_lv2_3[] = {
+    1, // count
+    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 2), 48, 14, 50, 16,
+};
+static u16 sprt_charge_mmx1_lv2_4[] = {
+    1, // count
+    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 2), 48, 12, 50, 14,
+};
+static u16 sprt_charge_mmx1_lv3_1[] = {
+    1, // count
+    0, -2, -2, 4, 4, PAL_PARTICLES, PAGE(0x19, 2), 56, 8, 60, 12,
+};
+static u16 sprt_charge_mmx1_lv3_2[] = {
+    1, // count
+    0, -1, -1, 3, 3, PAL_PARTICLES, PAGE(0x19, 2), 60, 8, 63, 11,
+};
+static u16 sprt_charge_mmx1_lv3_3[] = {
+    1, // count
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 14, 58, 16,
+};
+static u16 sprt_charge_mmx1_lv3_4[] = {
+    1, // count
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 12, 58, 14,
+};
 
 SpriteParts* g_SpritesWeapons[] = {
     NULL,
@@ -317,6 +357,16 @@ SpriteParts* g_SpritesWeapons[] = {
     sprt_lemon_impact1,
     sprt_lemon_impact2,
     sprt_lemon_impact3,
+    sprt_charge_mmx1_lv1_1,
+    sprt_charge_mmx1_lv1_2,
+    sprt_charge_mmx1_lv2_1,
+    sprt_charge_mmx1_lv2_2,
+    sprt_charge_mmx1_lv2_3,
+    sprt_charge_mmx1_lv2_4,
+    sprt_charge_mmx1_lv3_1,
+    sprt_charge_mmx1_lv3_2,
+    sprt_charge_mmx1_lv3_3,
+    sprt_charge_mmx1_lv3_4,
     (SpriteParts*)D_80153AF4,
     (SpriteParts*)D_80153B10,
     (SpriteParts*)D_80153B2C,
@@ -419,23 +469,23 @@ static u16 sprt_item_heart_tank_4[] = {
     0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 1), 50, 33, 62, 48,
 };
 static u16 sprt_death_particle_1[] = {
-    1,
-    0, -3, -3, 6, 6, PAL_PLAYER, PAGE(0x19, 1), 90,112, 96, 118,
+    1, // count
+    0, -3, -3, 6, 6, PAL_PLAYER, PAGE(0x19, 1), 90, 112, 96, 118,
 };
 static u16 sprt_death_particle_2[] = {
-    1,
+    1, // count
     0, -4, -4, 8, 8, PAL_PLAYER, PAGE(0x19, 1), 88, 119, 96, 127,
 };
 static u16 sprt_death_particle_3[] = {
-    1,
+    1, // count
     0, -5, -5, 9, 9, PAL_PLAYER, PAGE(0x19, 1), 80, 112, 89, 121,
 };
 static u16 sprt_death_particle_4[] = {
-    1,
+    1, // count
     0, -6, -6, 11, 11, PAL_PLAYER, PAGE(0x19, 1), 96, 112, 107, 123,
 };
 static u16 sprt_death_particle_5[] = {
-    1,
+    1, // count
     0, -8, -8, 15, 15, PAL_PLAYER, PAGE(0x19, 1), 112, 112, 127, 127,
 };
 

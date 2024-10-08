@@ -15,6 +15,10 @@
 #define MMX_FALL_MAX_VELOCITY FIX(5.75)
 #define MMX_MAX_HEALTH 320
 
+#define CHARGE_TIMER_LV1 32
+#define CHARGE_TIMER_LV2 (70 + CHARGE_TIMER_LV1)
+#define CHARGE_TIMER_LV3 (80 + CHARGE_TIMER_LV2)
+
 #define PAD_DASH (PAD_CIRCLE | PAD_L1)
 #define IS_DASHING 0x8000
 
@@ -192,6 +196,7 @@ enum MmxEntities {
     E_W_STORM_TORNADO,
     E_W_FIRE_WAVE,
     E_W_HADOUKEN,
+    E_CHARGE_WEAPON_PARTICLE,
     E_MMX_PRIZE_DROP,
     E_POWER_CAPSULE_SMALL,
     E_POWER_CAPSULE_BIG,
@@ -302,6 +307,7 @@ enum RicBlueprints {
     B_W_STORM_TORNADO,
     B_W_FIRE_WAVE,
     B_W_HADOUKEN,
+    B_P_CHARGE_WEAPON,
     B_MMX_PRIZE_DROP,
     B_POWER_CAPSULE_SMALL,
     B_POWER_CAPSULE_BIG,
@@ -337,6 +343,17 @@ enum MmxPalettes {
     PAL_HUD,
     PAL_PARTICLES,
     PAL_HEART,
+    PAL_MMX1_CHARGE_LV1,
+    PAL_MMX1_CHARGE_LV2,
+    PAL_MMX1_CHARGE_LV3,
+    PAL_MMX1_SHOTGUN_ICE,
+    PAL_MMX1_ELECTRIC_SPARK,
+    PAL_MMX1_ROLLING_SHIELD,
+    PAL_MMX1_HOMING_TORPEDO,
+    PAL_MMX1_BOOMERANG_CUTTER,
+    PAL_MMX1_CHAMELEON_STING,
+    PAL_MMX1_STORM_TORNADO,
+    PAL_MMX1_FIRE_WAVE,
 };
 
 enum MmxAnims {
@@ -361,6 +378,13 @@ enum MmxAnims {
     PL_A_END,
 };
 
+enum MmxChargeLevel {
+    CHARGE_NONE = -1,
+    CHARGE_MMX1_LV1,
+    CHARGE_MMX1_LV2,
+    CHARGE_MMX1_LV3,
+};
+
 extern unsigned char* pl_sprites[197];
 extern AnimationFrame* mmx_anims[];
 extern u32 g_PadReleased;
@@ -368,6 +392,7 @@ extern u32 g_ChargeTimer;
 extern u32 g_WallSlideTimer;
 extern u32 g_DashTimer;
 extern u32 g_DashAirUsed;
+extern enum MmxChargeLevel g_ChargeLevel;
 
 // END OF MMX STUFF
 
@@ -401,6 +426,7 @@ extern void RicSetStand(s32 velocityX);
 extern void MmxPrepareStandFromJump(s32 velocityX);
 extern void RicSetWalk(s32);
 extern void RicSetRun(void);
+extern void MmxResetChargeWeapon(void);
 extern bool MmxPerformAttack(void);
 extern void RicSetFall(void);
 extern bool RicCheckInput(s32 checks);

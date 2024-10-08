@@ -139,6 +139,81 @@ void EntityStormTornado(Entity* self) { DestroyEntity(self); }
 void EntityFireWave(Entity* self) { DestroyEntity(self); }
 void EntityHadouken(Entity* self) { DestroyEntity(self); }
 
+static AnimationFrame anim_charge_x1_lv1_particle[] = {
+    {8, FRAME(5, 0)}, {8, FRAME(6, 0)}, A_END};
+static AnimationFrame anim_charge_x1_lv2_particle[] = {
+    {4, FRAME(7, 0)},
+    {4, FRAME(8, 0)},
+    {4, FRAME(9, 0)},
+    {4, FRAME(10, 0)},
+    A_END};
+static AnimationFrame anim_charge_x1_lv3_particle[] = {
+    {4, FRAME(11, 0)},
+    {4, FRAME(12, 0)},
+    {4, FRAME(13, 0)},
+    {4, FRAME(14, 0)},
+    A_END};
+static AnimationFrame* anim_charge_weapon_particles[] = {
+    anim_charge_x1_lv1_particle,
+    anim_charge_x1_lv2_particle,
+    anim_charge_x1_lv3_particle,
+};
+static u8 anim_charge_weapon_hitboxes[][4] = {{0, 0, 0, 0}};
+struct ExtChargeWeapon {
+    s32 timer;
+    s32 startAngle;
+};
+void EntityChargeWeaponParticle(Entity* self) {
+    struct ExtChargeWeapon* ext = &self->ext;
+
+    // if the player dies, kill all the charging particles
+    switch (PLAYER.step) {
+    case PL_S_DEAD:
+    case PL_S_DEAD_PROLOGUE:
+        DestroyEntity(self);
+        return;
+    }
+
+    // if the attack button is released, kill all the charging particles
+    if (g_ChargeTimer < CHARGE_TIMER_LV1) {
+        DestroyEntity(self);
+        return;
+    }
+
+    switch (self->step) {
+    case 0:
+        self->animSet = ANIMSET_OVL(0x11);
+        self->ext.player.anim = (u8)g_ChargeLevel;
+        self->flags = FLAG_UNK_2000 | FLAG_UNK_00200000 | FLAG_NOT_AN_ENEMY |
+                      FLAG_POS_CAMERA_LOCKED;
+        self->zPriority++;
+        self->enemyId = 0;
+        self->hitboxState = 0;
+        ext->timer = 16;
+        ext->startAngle = (self->params & 0x1) * 0x800;
+        ext->startAngle |= ((self->params & 0x2) != 0) * 0x400;
+        ext->startAngle |= ((self->params & 0x4) != 0) * 0x200;
+        ext->startAngle |= ((self->params & 0x8) != 0) * 0x100;
+        self->step++;
+        break;
+    case 1:
+        self->posX.i.hi = PLAYER.posX.i.hi +
+                          ((rsin(ext->startAngle) * ext->timer * 0x3) >> 13);
+        self->posY.i.hi = PLAYER.posY.i.hi +
+                          ((rcos(ext->startAngle) * ext->timer * 0x3) >> 13);
+        self->posY.i.hi += 4;
+        if (!--ext->timer) {
+            self->step++;
+        }
+        break;
+    case 2:
+        DestroyEntity(self);
+        break;
+    }
+    g_api.PlayAnimation(
+        anim_charge_weapon_hitboxes, anim_charge_weapon_particles);
+}
+
 static bool FallUntilFloorIsTouched(Entity* self) {
     Collider col;
     if (self->velocityY < 0) {
@@ -387,12 +462,8 @@ void EntityHeartTank(Entity* self) {
 void EntityEnergyTank(Entity* self) { DestroyEntity(self); }
 
 static AnimationFrame anim_death_particle[] = {
-    {16, FRAME(21, 0)},
-    {16, FRAME(22, 0)},
-    {8, FRAME(23, 0)},
-    {8, FRAME(23, 0)},
-    {8, FRAME(24, 0)},
-    {8, FRAME(25, 0)},
+    {16, FRAME(21, 0)}, {16, FRAME(22, 0)}, {8, FRAME(23, 0)},
+    {8, FRAME(23, 0)},  {8, FRAME(24, 0)},  {8, FRAME(25, 0)},
     A_LOOP_AT(3)};
 static AnimationFrame* anim_death_particle_anims[] = {
     anim_death_particle,
@@ -403,7 +474,7 @@ struct ExtDeathParticle {
     s32 startAngle;
     s16 originX, originY;
 };
-void EntityDeathParticle(Entity *self) {
+void EntityDeathParticle(Entity* self) {
     struct ExtDeathParticle* ext = &self->ext;
     s32 angle;
     switch (self->step) {
@@ -430,7 +501,8 @@ void EntityDeathParticle(Entity *self) {
         self->posY.i.hi = ext->originY + ((rcos(angle) * ext->timer) >> 11);
         break;
     }
-    g_api.PlayAnimation(anim_death_particle_hitboxes, anim_death_particle_anims);
+    g_api.PlayAnimation(
+        anim_death_particle_hitboxes, anim_death_particle_anims);
 }
 
 void EntityDeathScreenHandler(Entity* self) {
@@ -448,9 +520,9 @@ void EntityDeathScreenHandler(Entity* self) {
             prim->y0 = prim->y1 = 0;
             prim->x1 = prim->x3 = DISP_STAGE_W;
             prim->y2 = prim->y3 = DISP_STAGE_H;
-            prim->r0 = prim->r1 = prim->r2 = prim->r3 = prim->g0 =
-                prim->g1 = prim->g2 = prim->g3 = prim->b0 = prim->b1 =
-                    prim->b2 = prim->b3 = 0;
+            prim->r0 = prim->r1 = prim->r2 = prim->r3 = prim->g0 = prim->g1 =
+                prim->g2 = prim->g3 = prim->b0 = prim->b1 = prim->b2 =
+                    prim->b3 = 0;
             prim->priority = self->zPriority++;
             prim->drawMode = DRAW_HIDE;
             prim = prim->next;

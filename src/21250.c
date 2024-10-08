@@ -336,37 +336,52 @@ bool RicCheckInput(s32 checks) {
         MmxSetJump(dash ? JUMP_WITH_DASH : 0);
         return true;
     }
-    if (checks & CHECK_ATTACK && (g_Player.padTapped & PAD_SQUARE)) {
+    if (checks & CHECK_ATTACK &&
+        ((g_Player.padTapped | g_PadReleased) & PAD_SQUARE)) {
         bool result;
         s32 originalPosX;
         s32 originalPosY;
-        switch (PLAYER.step) {
-        case PL_S_DASH:
-            // when dashing, the projectile is emitted on different XY coords
-            originalPosX = PLAYER.posX.val;
-            originalPosY = PLAYER.posX.val;
-            if (PLAYER.facingLeft) {
-                PLAYER.posX.i.hi -= 24;
-            } else {
-                PLAYER.posX.i.hi += 24;
-            }
-            PLAYER.posY.i.hi += 4;
-            result = MmxPerformAttack();
-            PLAYER.posX.val = originalPosX;
-            PLAYER.posX.val = originalPosY;
-            break;
-        case PL_S_WALL:
-            // the animation is flipped when sliding to the wall
-            PLAYER.facingLeft = !PLAYER.facingLeft;
-            result = MmxPerformAttack();
-            PLAYER.facingLeft = !PLAYER.facingLeft;
-            break;
-        default:
-            result = MmxPerformAttack();
-            break;
+        bool isAboutToAttack = false;
+
+        // if the attack button is tapped with no charge, then shoot
+        if (g_ChargeLevel == CHARGE_NONE && g_Player.padTapped & PAD_SQUARE) {
+            isAboutToAttack |= true;
         }
-        if (result) {
-            return true;
+
+        // if the attack button is release while charging, then shoot
+        if (g_ChargeLevel > CHARGE_NONE && (g_PadReleased & PAD_SQUARE)) {
+            isAboutToAttack = true;
+        }
+
+        if (isAboutToAttack) {
+            switch (PLAYER.step) {
+            case PL_S_DASH:
+                // when dashing, the projectile is emitted on different coords
+                originalPosX = PLAYER.posX.val;
+                originalPosY = PLAYER.posX.val;
+                if (PLAYER.facingLeft) {
+                    PLAYER.posX.i.hi -= 24;
+                } else {
+                    PLAYER.posX.i.hi += 24;
+                }
+                PLAYER.posY.i.hi += 4;
+                result = MmxPerformAttack();
+                PLAYER.posX.val = originalPosX;
+                PLAYER.posX.val = originalPosY;
+                break;
+            case PL_S_WALL:
+                // the animation is flipped when sliding to the wall
+                PLAYER.facingLeft = !PLAYER.facingLeft;
+                result = MmxPerformAttack();
+                PLAYER.facingLeft = !PLAYER.facingLeft;
+                break;
+            default:
+                result = MmxPerformAttack();
+                break;
+            }
+            if (result) {
+                return true;
+            }
         }
     }
     if (checks & CHECK_CROUCH && (g_Player.padPressed & PAD_DOWN)) {

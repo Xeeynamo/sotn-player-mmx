@@ -47,6 +47,7 @@ u32 g_ChargeTimer = 0;
 u32 g_WallSlideTimer = 0;
 u32 g_DashTimer = 0;
 u32 g_DashAirUsed = 0;
+enum MmxChargeLevel g_ChargeLevel = CHARGE_NONE;
 
 static void InitSpritesheet(u_long* ptr, size_t num) {
 #ifdef VERSION_PC
