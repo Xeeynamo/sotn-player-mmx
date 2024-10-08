@@ -112,7 +112,6 @@ void RicSetBladeDash(void) {
     g_api.PlaySfx(0x707);
 }
 
-
 static bool MmxIsPressingBothLeftAndRight() {
     return g_Player.padPressed &
            (PAD_RIGHT | PAD_LEFT) == (PAD_RIGHT | PAD_LEFT);
@@ -332,12 +331,10 @@ bool RicCheckInput(s32 checks) {
             }
         }
     }
-    if (checks & CHECK_JUMP) {
-        bool isDashing = PLAYER.step == PL_S_DASH;
-        if (g_Player.padTapped & PAD_CROSS) {
-            MmxSetJump(isDashing ? JUMP_WITH_DASH : 0);
-            return true;
-        }
+    if (checks & CHECK_JUMP && g_Player.padTapped & PAD_CROSS) {
+        bool dash = PLAYER.step == PL_S_DASH || g_Player.padHeld & PAD_DASH;
+        MmxSetJump(dash ? JUMP_WITH_DASH : 0);
+        return true;
     }
     if (checks & CHECK_ATTACK && (g_Player.padTapped & PAD_SQUARE)) {
         bool result;

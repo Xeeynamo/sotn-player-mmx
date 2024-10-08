@@ -1115,12 +1115,12 @@ static void MmxHandleWall(void) {
         RicSetStep(PL_S_FALL);
         return;
     }
-    if (RicCheckInput(CHECK_GROUND | CHECK_ATTACK | CHECK_GRAVITY_JUMP)) {
-        return;
-    }
-    if (g_Player.padTapped & PAD_CROSS) {
-        RicCreateEntFactoryFromEntity(g_CurrentEntity, B_P_JUMP_FROM_WALL, 0);
-        MmxSetJump(0);
+    if (RicCheckInput(
+            CHECK_JUMP | CHECK_GROUND | CHECK_ATTACK | CHECK_GRAVITY_JUMP)) {
+        if (PLAYER.step == PL_S_JUMP) {
+            RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_P_JUMP_FROM_WALL, 0);
+        }
         return;
     }
     if (++g_WallSlideTimer == 4) {
