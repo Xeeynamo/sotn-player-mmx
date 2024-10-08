@@ -1,5 +1,6 @@
 #include "pl.h"
 
+#define B_A_LOT 3 // can spawn a maximum of 48 concurrent entities!
 #define B_STAGE 7 // unique to the MMX mod, serves to replace stage entities
 
 static FactoryBlueprint blueprints[] = {
@@ -27,6 +28,8 @@ static FactoryBlueprint blueprints[] = {
     B_MAKE(E_LIFE_UP, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_HEART_TANK, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_ENERGY_TANK, 1, 1, false, true, 1, B_STAGE, 0, 0),
+    B_MAKE(E_DEATH_PARTICLE, 32, 8, true, true, 64, B_A_LOT, 0, 0),
+    B_MAKE(E_DEATH_SCREEN_HANDLER, 1, 1, false, true, 1, B_A_LOT, 0, 0),
 };
 STATIC_ASSERT(
     LEN(blueprints) == (NUM_BLUEPRINTS - B_DUMMY), "bp array wrong size");
@@ -123,6 +126,8 @@ void EntityEnergyCapsuleBig(Entity* self);
 void EntityLifeUp(Entity* self);
 void EntityHeartTank(Entity* self);
 void EntityEnergyTank(Entity* self);
+void EntityDeathParticle(Entity* self);
+void EntityDeathScreenHandler(Entity* self);
 
 static PfnEntityUpdate entity_functions[] = {
     RicEntityDummy,
@@ -214,7 +219,9 @@ static PfnEntityUpdate entity_functions[] = {
     EntityEnergyCapsuleBig,
     EntityLifeUp,
     EntityHeartTank,
-    EntityEnergyTank};
+    EntityEnergyTank,
+    EntityDeathParticle,
+    EntityDeathScreenHandler};
 STATIC_ASSERT(LEN(entity_functions) == NUM_ENTITIES, "entity array wrong size");
 
 void InitSettings() {
@@ -522,6 +529,11 @@ void RicUpdatePlayerEntities(void) {
 Entity* RicCreateEntFactoryFromEntity(
     Entity* source, u32 factoryParams, s32 arg2) {
     Entity* entity = RicGetFreeEntity(8, 0x10);
+
+    // circumnavigate a bug that can fill-up all the factory entities
+    if ((factoryParams & 0xFFF) < B_DUMMY) {
+        return NULL;
+    }
 
     if (entity != NULL) {
         DestroyEntity(entity);

@@ -200,6 +200,8 @@ enum MmxEntities {
     E_LIFE_UP,
     E_HEART_TANK,
     E_ENERGY_TANK,
+    E_DEATH_PARTICLE,
+    E_DEATH_SCREEN_HANDLER,
     NUM_ENTITIES,
 };
 
@@ -308,6 +310,8 @@ enum RicBlueprints {
     B_LIFE_UP,
     B_HEART_TANK,
     B_ENERGY_TANK,
+    B_P_DEATH_PARTICLES,
+    B_DEATH_SCREEN_HANDLER,
     NUM_BLUEPRINTS,
 };
 
@@ -353,6 +357,7 @@ enum MmxAnims {
     PL_A_WALL_W,
     PL_A_HIT_STUN,
     PL_A_HIT_SMALL,
+    PL_A_DEAD,
     PL_A_END,
 };
 

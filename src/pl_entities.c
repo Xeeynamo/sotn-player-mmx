@@ -385,3 +385,130 @@ void EntityHeartTank(Entity* self) {
 }
 
 void EntityEnergyTank(Entity* self) { DestroyEntity(self); }
+
+static AnimationFrame anim_death_particle[] = {
+    {16, FRAME(21, 0)},
+    {16, FRAME(22, 0)},
+    {8, FRAME(23, 0)},
+    {8, FRAME(23, 0)},
+    {8, FRAME(24, 0)},
+    {8, FRAME(25, 0)},
+    A_LOOP_AT(3)};
+static AnimationFrame* anim_death_particle_anims[] = {
+    anim_death_particle,
+};
+static u8 anim_death_particle_hitboxes[][4] = {{0, 0, 0, 0}};
+struct ExtDeathParticle {
+    s32 timer;
+    s32 startAngle;
+    s16 originX, originY;
+};
+void EntityDeathParticle(Entity *self) {
+    struct ExtDeathParticle* ext = &self->ext;
+    s32 angle;
+    switch (self->step) {
+    case 0:
+        self->animSet = ANIMSET_OVL(0x12);
+        self->ext.player.anim = 0;
+        self->flags = FLAG_UNK_2000 | FLAG_UNK_00200000 | FLAG_NOT_AN_ENEMY |
+                      FLAG_POS_CAMERA_LOCKED;
+        self->zPriority = PLAYER.zPriority;
+        self->enemyId = 1;
+        self->hitboxState = 1;
+        ext->timer = 0;
+        // a full angle is 0x1000; since there are 8 particles where each one
+        // populates a separate params, we divide 0x1000 by 8
+        ext->startAngle = self->params * 0x200;
+        ext->originX = PLAYER.posX.i.hi;
+        ext->originY = PLAYER.posY.i.hi;
+        self->step++;
+        break;
+    case 1:
+        ext->timer++;
+        angle = -ext->timer * 16 + 0x800 + ext->startAngle;
+        self->posX.i.hi = ext->originX + ((rsin(angle) * ext->timer) >> 11);
+        self->posY.i.hi = ext->originY + ((rcos(angle) * ext->timer) >> 11);
+        break;
+    }
+    g_api.PlayAnimation(anim_death_particle_hitboxes, anim_death_particle_anims);
+}
+
+void EntityDeathScreenHandler(Entity* self) {
+    Primitive* prim;
+    int i;
+
+    switch (self->step) {
+    case 0:
+        self->zPriority = 0x1F0;
+        self->primIndex = g_api.AllocPrimitives(PRIM_G4, 2);
+        self->flags = FLAG_HAS_PRIMS;
+        prim = &g_PrimBuf[self->primIndex];
+        while (prim) { // two prims, one for white and the other one for black
+            prim->x0 = prim->x2 = 0;
+            prim->y0 = prim->y1 = 0;
+            prim->x1 = prim->x3 = DISP_STAGE_W;
+            prim->y2 = prim->y3 = DISP_STAGE_H;
+            prim->r0 = prim->r1 = prim->r2 = prim->r3 = prim->g0 =
+                prim->g1 = prim->g2 = prim->g3 = prim->b0 = prim->b1 =
+                    prim->b2 = prim->b3 = 0;
+            prim->priority = self->zPriority++;
+            prim->drawMode = DRAW_HIDE;
+            prim = prim->next;
+        }
+        self->step++;
+        self->step_s = 60;
+        RicCreateEntFactoryFromEntity(g_CurrentEntity, B_P_DEATH_PARTICLES, 0);
+        break;
+    case 1: // wait before fading to white
+        if (!--self->step_s) {
+            self->step++;
+            self->step_s = 0;
+            g_PrimBuf[self->primIndex].drawMode =
+                DRAW_TPAGE2 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+        }
+        break;
+    case 2: // fade to white
+        prim = &g_PrimBuf[self->primIndex];
+        prim->r1 = prim->r2 = prim->r3 = prim->g0 = prim->g1 = prim->g2 =
+            prim->g3 = prim->b0 = prim->b1 = prim->b2 = prim->b3 = prim->r0 =
+                prim->b3 + 2;
+        if (prim->r0 >= 254) {
+            prim->drawMode = DRAW_DEFAULT;
+            prim = prim->next;
+            prim->drawMode =
+                DRAW_UNK_40 | DRAW_TPAGE | DRAW_COLORS | DRAW_TRANSP;
+            self->step++;
+        }
+        break;
+    case 3: // fade from white to black
+        prim = g_PrimBuf[self->primIndex].next;
+        prim->r1 = prim->r2 = prim->r3 = prim->g0 = prim->g1 = prim->g2 =
+            prim->g3 = prim->b0 = prim->b1 = prim->b2 = prim->b3 = prim->r0 =
+                prim->b3 + 4;
+        if (prim->r0 >= 252) {
+            self->step++;
+        }
+        break;
+    case 4: // return back to the title screen
+        // does the same stuff from HandleGameOver, it might not be as accurate
+        // but it can skip the original game over screen
+        for (i = 0; i < LEN(g_Entities); i++) {
+            DestroyEntity(&g_Entities[i]);
+        }
+        for (i = 0; i < LEN(g_PrimBuf); i++) {
+            g_api.FreePrimitives(i);
+        }
+        for (i = 0; i < LEN(g_GfxLoad); i++) {
+            g_GfxLoad[i].kind = GFX_BANK_NONE;
+        }
+        g_Tilemap.flags = 0;
+        for (i = 0; i < LEN(g_BgLayers); i++) {
+            g_BgLayers[i].flags = 0;
+        }
+        g_GameState = 1;
+        g_GameStep = 0;
+        g_backbufferX = 0;
+        g_backbufferY = 0;
+        break;
+    }
+}

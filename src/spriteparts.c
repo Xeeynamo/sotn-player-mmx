@@ -418,6 +418,26 @@ static u16 sprt_item_heart_tank_4[] = {
     1, // count
     0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 1), 50, 33, 62, 48,
 };
+static u16 sprt_death_particle_1[] = {
+    1,
+    0, -3, -3, 6, 6, PAL_PLAYER, PAGE(0x19, 1), 90,112, 96, 118,
+};
+static u16 sprt_death_particle_2[] = {
+    1,
+    0, -4, -4, 8, 8, PAL_PLAYER, PAGE(0x19, 1), 88, 119, 96, 127,
+};
+static u16 sprt_death_particle_3[] = {
+    1,
+    0, -5, -5, 9, 9, PAL_PLAYER, PAGE(0x19, 1), 80, 112, 89, 121,
+};
+static u16 sprt_death_particle_4[] = {
+    1,
+    0, -6, -6, 11, 11, PAL_PLAYER, PAGE(0x19, 1), 96, 112, 107, 123,
+};
+static u16 sprt_death_particle_5[] = {
+    1,
+    0, -8, -8, 15, 15, PAL_PLAYER, PAGE(0x19, 1), 112, 112, 127, 127,
+};
 
 SpriteParts* g_SpritesItems[] = {
     (SpriteParts*)NULL,
@@ -440,7 +460,12 @@ SpriteParts* g_SpritesItems[] = {
     sprt_item_heart_tank_1,
     sprt_item_heart_tank_2,
     sprt_item_heart_tank_3,
-    sprt_item_heart_tank_4};
+    sprt_item_heart_tank_4,
+    sprt_death_particle_1,
+    sprt_death_particle_2,
+    sprt_death_particle_3,
+    sprt_death_particle_4,
+    sprt_death_particle_5};
 
 static int D_8015421C[] = {0x00300001, 0xFFEAFFF5, 0x00280018, 0x00010000,
                            0x00000000, 0x00280018, 0x00000000};

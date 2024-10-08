@@ -127,6 +127,10 @@ static AnimationFrame anim_hit_small[] = {
     {14, FRAME(62, 4)},
     {2, FRAME(61, 4)},
     A_END};
+static AnimationFrame anim_dead[] = {
+    {64, FRAME(58, 4)},
+    {2, FRAME(0, 0)},
+    A_END};
 
 // Remember to update `MmxAnims` in `pl.h`
 AnimationFrame* mmx_anims[PL_A_END] = {
@@ -147,5 +151,6 @@ AnimationFrame* mmx_anims[PL_A_END] = {
     anim_wall_w,
     anim_hit_stun,
     anim_hit_small,
+    anim_dead,
 };
 STATIC_ASSERT(LEN(mmx_anims) == PL_A_END, "anims array wrong size");
