@@ -26,7 +26,8 @@ struct GraphicsInit {
 struct GraphicsInit gfx_init[] = {
     G_MAKE(512 + 64, 256, img_hud),
     G_MAKE(512 + 96, 256, img_items),
-    G_MAKE(512 + 64, 384, img_particles),
+    //G_MAKE(512 + 64, 384, RESERVED_FOR_FUTURE_USE),
+    G_MAKE(512 + 96, 384, img_particles),
 };
 
 static bool DecompressData(void* dst, void* src, size_t srcLen, size_t dstLen) {

@@ -60,7 +60,6 @@ static AnimationFrame anim_lemon_impact[] = {
     {2, FRAME(2, 0)},
     {2, FRAME(3, 0)},
     {2, FRAME(4, 0)},
-    {64, FRAME(0, 0)},
     A_END};
 static AnimationFrame* lemon_anims[] = {
     anim_lemon_shoot,
@@ -70,13 +69,8 @@ static u8 lemon_hitboxes[][4] = {
     {0, 0, 0, 0},
     {0, 0, 4, 3},
 };
-struct ExtLemon {
-    s32 disposeTimer;
-};
-
 void EntityLemon(Entity* self) {
     const int Width = 8;
-    struct ExtLemon* ext = (struct ExtLemon*)&self->ext;
     Collider col;
     s32 sensorX;
 
@@ -111,14 +105,14 @@ void EntityLemon(Entity* self) {
         break;
     dispose:
         self->ext.player.anim = 1;
-        g_CurrentEntity->animFrameDuration = 0;
+        self->animFrameDuration = 0;
+        self->animFrameIdx = 0;
         self->hitboxState = 0;
         g_api.PlaySfx(SFX_UI_TINK);
-        ext->disposeTimer = 32;
         self->step++;
         break;
     case 2:
-        if (!--ext->disposeTimer) {
+        if (self->animFrameDuration < 0) {
             DestroyEntity(self);
             return;
         }
@@ -127,7 +121,86 @@ void EntityLemon(Entity* self) {
     g_api.PlayAnimation(lemon_hitboxes, lemon_anims);
 }
 
-void EntityCucumber(Entity* self) { DestroyEntity(self); }
+static AnimationFrame anim_cucumber_shoot[] = {
+    {2, FRAME(15, 4)},
+    {2, FRAME(16, 6)},
+    {2, FRAME(17, 8)},
+    {4, FRAME(18, 10)},
+    {1, FRAME(19, 2)},
+    {1, FRAME(20, 2)},
+    {2, FRAME(21, 2)},
+    {1, FRAME(20, 2)},
+    {1, FRAME(19, 2)},
+    A_LOOP_AT(4)};
+static AnimationFrame anim_cucumber_impact[] = {
+    {2, FRAME(15, 0)},
+    {4, FRAME(16, 0)},
+    {4, FRAME(15, 0)},
+    A_END};
+static AnimationFrame* cucumber_anims[] = {
+    anim_cucumber_shoot,
+    anim_cucumber_impact,
+};
+static u8 cucumber_hitbox[][4] = {
+    {0, 0, 0, 0},
+    {28, 0, 6, 6},
+    {2, 0, 7, 7},
+    {6, 0, 11, 11},
+    {16, 0, 6, 6},
+    {20, 0, 6, 6},
+};
+void EntityCucumber(Entity* self) {
+    switch (self->step) {
+    case 0:
+        self->animSet = ANIMSET_OVL(0x11);
+        self->ext.player.anim = 0;
+        self->drawFlags = 0;
+        self->flags |= FLAG_POS_CAMERA_LOCKED;
+        self->posX.i.hi += self->facingLeft ? -16 : 16;
+        self->posY.i.hi += 5;
+        self->zPriority++;
+        SetWeaponParams(self, W_CUCUMBER);
+        g_api.PlaySfx(SFX_WEAPON_SWISH_C);
+        self->step++;
+        break;
+    case 1:
+        // in the first two anim frames, the projectile does not move
+        if (self->animFrameIdx == 4) {
+            RicSetSpeedX(FIX(5));
+            self->step++;
+        }
+        // fall back to case 2 as we still want to check for collisions
+    case 2:
+        self->posX.val += self->velocityX;
+        if (self->hitFlags == 1 |self->hitFlags == 2) {
+            // if hitting an enemy, and it's not dead yet, dissolve the bullet
+            if (self->unkB8 && self->unkB8->enemyId && self->unkB8->hitPoints > 0) {
+                if (self->facingLeft) {
+                    self->posX.i.hi -= 24;
+                } else {
+                    self->posX.i.hi += 24;
+                }
+                self->facingLeft = !self->facingLeft; // animation is flipped
+                self->ext.player.anim = 1;
+                self->animFrameDuration = 0;
+                self->animFrameIdx = 0;
+                self->hitboxState = 0;
+                self->step++;
+                g_api.PlaySfx(SFX_UI_TINK);
+            }
+            // otherwise the projectile will pass through
+        }
+        break;
+    case 3:
+        if (self->animFrameDuration < 0) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+    g_api.PlayAnimation(cucumber_hitbox, cucumber_anims);
+}
+
 void EntityCharjelly(Entity* self) { DestroyEntity(self); }
 void EntityShotgunIce(Entity* self) { DestroyEntity(self); }
 void EntityElectricSpark(Entity* self) { DestroyEntity(self); }

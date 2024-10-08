@@ -296,59 +296,89 @@ static int D_80153D08[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00190000,
 
 static u16 sprt_lemon[] = {
     1, // count
-    0, -4, -3, 8, 6, PAL_HUD, PAGE(0x19, 2), 48, 1, 56, 7,
+    0, -4, -3, 8, 6, PAL_HUD, PAGE(0x19, 3), 48, 1, 56, 7,
 };
 static u16 sprt_lemon_impact1[] = {
     1, // count
-    0, -6, -8, 12, 16, PAL_HUD, PAGE(0x19, 2), 2, 0, 14, 16,
+    0, -6, -8, 12, 16, PAL_HUD, PAGE(0x19, 3), 2, 0, 14, 16,
 };
 static u16 sprt_lemon_impact2[] = {
     1, // count
-    0, -8, -8, 16, 16, PAL_HUD, PAGE(0x19, 2), 16, 0, 32, 16,
+    0, -8, -8, 16, 16, PAL_HUD, PAGE(0x19, 3), 16, 0, 32, 16,
 };
 static u16 sprt_lemon_impact3[] = {
     1, // count
-    0, -8, -8, 16, 16, PAL_HUD, PAGE(0x19, 2), 32, 0, 48, 16,
+    0, -8, -8, 16, 16, PAL_HUD, PAGE(0x19, 3), 32, 0, 48, 16,
 };
 static u16 sprt_charge_mmx1_lv1_1[] = {
     1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 6, 58, 8,
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 6, 58, 8,
 };
 static u16 sprt_charge_mmx1_lv1_2[] = {
     1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 4, 58, 6,
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 4, 58, 6,
 };
 static u16 sprt_charge_mmx1_lv2_1[] = {
     1, // count
-    0, -2, -2, 4, 4, PAL_HUD, PAGE(0x19, 2), 48, 8, 52, 12,
+    0, -2, -2, 4, 4, PAL_HUD, PAGE(0x19, 3), 48, 8, 52, 12,
 };
 static u16 sprt_charge_mmx1_lv2_2[] = {
     1, // count
-    0, -1, -1, 3, 3, PAL_HUD, PAGE(0x19, 2), 52, 8, 55, 11,
+    0, -1, -1, 3, 3, PAL_HUD, PAGE(0x19, 3), 52, 8, 55, 11,
 };
 static u16 sprt_charge_mmx1_lv2_3[] = {
     1, // count
-    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 2), 48, 14, 50, 16,
+    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 3), 48, 14, 50, 16,
 };
 static u16 sprt_charge_mmx1_lv2_4[] = {
     1, // count
-    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 2), 48, 12, 50, 14,
+    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 3), 48, 12, 50, 14,
 };
 static u16 sprt_charge_mmx1_lv3_1[] = {
     1, // count
-    0, -2, -2, 4, 4, PAL_PARTICLES, PAGE(0x19, 2), 56, 8, 60, 12,
+    0, -2, -2, 4, 4, PAL_PARTICLES, PAGE(0x19, 3), 56, 8, 60, 12,
 };
 static u16 sprt_charge_mmx1_lv3_2[] = {
     1, // count
-    0, -1, -1, 3, 3, PAL_PARTICLES, PAGE(0x19, 2), 60, 8, 63, 11,
+    0, -1, -1, 3, 3, PAL_PARTICLES, PAGE(0x19, 3), 60, 8, 63, 11,
 };
 static u16 sprt_charge_mmx1_lv3_3[] = {
     1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 14, 58, 16,
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 14, 58, 16,
 };
 static u16 sprt_charge_mmx1_lv3_4[] = {
     1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 2), 56, 12, 58, 14,
+    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 12, 58, 14,
+};
+static u16 sprt_cucumber_1[] = {
+    1, // count
+    0, -4, -7, 16, 14, PAL_PARTICLES, PAGE(0x19, 3), 0, 17, 16, 31,
+};
+static u16 sprt_cucumber_2[] = {
+    1, // count
+    0, -4, -12, 24, 24, PAL_PARTICLES, PAGE(0x19, 3), 64, 0, 88, 24,
+};
+static u16 sprt_cucumber_3[] = {
+    1, // count
+    0, -4, -6, 28, 12, PAL_PARTICLES, PAGE(0x19, 3), 88, 2, 116, 14,
+};
+static u16 sprt_cucumber_4[] = {
+    1, // count
+    0, -4, -4, 32, 8, PAL_PARTICLES, PAGE(0x19, 3), 56, 24, 88, 32,
+};
+static u16 sprt_cucumber_5[] = {
+    2, // count at 0,37
+    0, -4, -11, 24, 20, PAL_PARTICLES, PAGE(0x19, 3), 0, 33, 24, 53,
+    0, 20, -7, 16, 14, PAL_PARTICLES, PAGE(0x19, 3), 24, 37, 40, 51,
+};
+static u16 sprt_cucumber_6[] = {
+    1, // count at 16,18
+    0, -2, -6, 38, 12, PAL_PARTICLES, PAGE(0x19, 3), 16, 18, 54, 30,
+};
+static u16 sprt_cucumber_7[] = {
+    2, // draw as two different small frames to avoid drawing transparent pixels
+    0, 23, -11, 13, 22, PAL_PARTICLES, PAGE(0x19, 3), 112, 16, 125, 38,
+    0, 0, -8, 23, 16, PAL_PARTICLES, PAGE(0x19, 3), 89, 19, 112, 35,
 };
 
 SpriteParts* g_SpritesWeapons[] = {
@@ -367,6 +397,13 @@ SpriteParts* g_SpritesWeapons[] = {
     sprt_charge_mmx1_lv3_2,
     sprt_charge_mmx1_lv3_3,
     sprt_charge_mmx1_lv3_4,
+    sprt_cucumber_1,
+    sprt_cucumber_2,
+    sprt_cucumber_3,
+    sprt_cucumber_4,
+    sprt_cucumber_5,
+    sprt_cucumber_6,
+    sprt_cucumber_7,
     (SpriteParts*)D_80153AF4,
     (SpriteParts*)D_80153B10,
     (SpriteParts*)D_80153B2C,

@@ -2841,7 +2841,7 @@ bool MmxPerformAttack(void) {
         }
         break;
     case CHARGE_MMX1_LV1:
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_CUCUMBER, 0)) {
             return false;
         }
         MmxResetChargeWeapon();
