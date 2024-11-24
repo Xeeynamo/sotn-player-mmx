@@ -44,14 +44,30 @@ static void SetWeaponParams(Entity* e, int weaponId) {
     e->attack = g_api.func_800FD664(w->attack);
 
     // multiply the base attack by a certain amount to not make it far too weak
-    e->attack <<= 2;
-
-    // exponentially increase damage to not make the game too hard
-    if (g_Player.timers[PL_T_INVINCIBLE]) {
-        e->attack <<= 1;
+    int attack;
+    if (e->attack > 0) {
+        attack = e->attack;
+    } else {
+        attack = 1;
     }
+    attack = (attack << 3) + attack;
+
+    // almost double the damage when attacked as revenge attack
+    if (g_Player.timers[PL_T_INVINCIBLE]) {
+        attack = (attack << 1) - (attack >> 1);
+    }
+
+    // exponentially increase damage on reverse castle, otherwise the game would
+    // be too hard
     if (g_StageId & STAGE_INVERTEDCASTLE_FLAG) {
-        e->attack <<= 1;
+        attack <<= 1;
+    }
+
+    // prevent 16-bit overflow
+    if (attack < 32767) {
+        e->attack = (s16)attack;
+    } else {
+        e->attack = 32767;
     }
 }
 
