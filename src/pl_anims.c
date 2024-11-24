@@ -1,5 +1,14 @@
 #include "pl.h"
 
+// Ensures the normal animation has the same amount of frames of the attack
+// equivalent animation. This is important for animations like walking, where
+// we want to have continuity between MMX walking and MMX shooting and similar
+// animations.
+// Not all the animations are synced. There are exceptions in the function
+// ChangeAnimToAttack, which uses this specific feature.
+#define SYNC_W_ANIM(normal_anim, weapon_anim) \
+    STATIC_ASSERT(LEN(normal_anim) == LEN(weapon_anim), "unsynced attack anim")
+
 // clang-format off
 static AnimationFrame anim_dummy[] = {
     {160, FRAME(3, 2)},
@@ -68,6 +77,8 @@ static AnimationFrame anim_stand_w[] = {
     {4, FRAME(34, 2)},
     A_END,
 };
+// anim_stand_w exception
+
 static AnimationFrame anim_walk_w[] = {
     {4, FRAME(35, 2)},
     {4, FRAME(38, 2)},
@@ -81,30 +92,42 @@ static AnimationFrame anim_walk_w[] = {
     {4, FRAME(36, 2)},
     {4, FRAME(37, 2)},
     A_LOOP_AT(1)};
+SYNC_W_ANIM(anim_walk, anim_walk_w);
+
 static AnimationFrame anim_jump_w[] = {
     {4, FRAME(46, 8)},
     {4, FRAME(47, 4)},
     {80, FRAME(48, 4)},
     A_END};
+SYNC_W_ANIM(anim_jump, anim_jump_w);
+
 static AnimationFrame anim_fall_w[] = {
     {8, FRAME(49, 4)},
     {80, FRAME(50, 4)},
     A_END};
+SYNC_W_ANIM(anim_jump, anim_jump_w);
+
 static AnimationFrame anim_land_w[] = {
     {4, FRAME(51, 2)},
     {4, FRAME(52, 2)},
     {4, FRAME(33, 2)},
     {4, FRAME(34, 2)},
     A_LOOP_AT(2)};
+// anim_land_w exception
+
 static AnimationFrame anim_dash_w[] = {
     {4, FRAME(53, 2)},
     {80, FRAME(54, 2)},
     A_END};
+SYNC_W_ANIM(anim_dash, anim_dash_w);
+
 static AnimationFrame anim_wall_w[] = {
     {4, FRAME(55, 4)},
     {4, FRAME(56, 4)},
     {80, FRAME(57, 4)},
     A_END};
+SYNC_W_ANIM(anim_wall, anim_wall_w);
+
 static AnimationFrame anim_hit_stun[] = {
     {4, FRAME(58, 4)},
     {2, FRAME(59, 4)},
@@ -116,6 +139,7 @@ static AnimationFrame anim_hit_stun[] = {
     {14, FRAME(59, 4)},
     {2, FRAME(58, 4)},
     A_END};
+
 static AnimationFrame anim_hit_small[] = {
     {4, FRAME(61, 4)},
     {2, FRAME(62, 4)},
@@ -127,6 +151,7 @@ static AnimationFrame anim_hit_small[] = {
     {14, FRAME(62, 4)},
     {2, FRAME(61, 4)},
     A_END};
+
 static AnimationFrame anim_dead[] = {
     {64, FRAME(58, 4)},
     {2, FRAME(0, 0)},

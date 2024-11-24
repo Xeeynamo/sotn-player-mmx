@@ -401,13 +401,31 @@ static void CheckHadoukenInput(void) { return; }
 static enum MmxAnims cur_anim = PL_A_STAND;
 static void ChangeAnimToAttack() {
     if (cur_anim >= PL_A_STAND && cur_anim <= PL_A_WALL) {
-        if (cur_anim == PL_A_STAND) {
+        // the attack animation will not reset the current frame index to create
+        // continuity between the previous animation and the immediate switch
+        // to the new attack animation.
+        switch (cur_anim) { // animation switch exceptions
+        case PL_A_STAND:
             // The stand animation is longer than the attack one, so we need to
             // reset the animation before switching. All the other animations
             // have the same length, so we can just flip PLAYER.anim
             PLAYER.animFrameDuration = 0;
             PLAYER.animFrameIdx = 0;
+            break;
+        case PL_A_LAND:
+            // anim_land has anim_stand incorporated in the animation
+            // the frame index might overflow anim_land_w so we need to adjust
+            // the animation accordingly.
+            // TODO can we move this fix in MmxMain?
+            if (PLAYER.animFrameIdx > 2) {
+                PLAYER.animFrameDuration = 0;
+                PLAYER.animFrameIdx = 0;
+                cur_anim = PL_A_STAND;
+            }
+            break;
         }
+        // switch to the equivalent attack animation. This expects each anim has
+        // an equivalent attack version
         cur_anim += (PL_A_STAND_W - PL_A_STAND);
         PLAYER.anim = mmx_anims[cur_anim];
     }
