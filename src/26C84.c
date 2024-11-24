@@ -381,8 +381,8 @@ void func_801641A0(Entity* entity) {
         primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
         entity->primIndex = primIndex;
         if (primIndex != -1) {
-            entity->ext.et_80161FF0.unk7C = 16;
-            entity->ext.et_80161FF0.unk7E = 12;
+            entity->ext.circleExpand.width = 16;
+            entity->ext.circleExpand.height = 12;
             prim = &g_PrimBuf[entity->primIndex];
             prim->u0 = prim->u2 = 64;
             prim->v0 = prim->v1 = 192;
@@ -406,9 +406,9 @@ void func_801641A0(Entity* entity) {
         }
 
     case 1:
-        entity->ext.et_80161FF0.unk7C += 2;
-        entity->ext.et_80161FF0.unk7E += 2;
-        if (entity->ext.et_80161FF0.unk7C >= 57) {
+        entity->ext.circleExpand.width += 2;
+        entity->ext.circleExpand.height += 2;
+        if (entity->ext.circleExpand.width >= 57) {
             DestroyEntity(entity);
             break;
         }
@@ -416,14 +416,14 @@ void func_801641A0(Entity* entity) {
     default:
     def:
         prim = &g_PrimBuf[entity->primIndex];
-        prim->x0 = entity->posX.i.hi - entity->ext.et_80161FF0.unk7C;
-        prim->y0 = entity->posY.i.hi - entity->ext.et_80161FF0.unk7E;
-        prim->x1 = entity->posX.i.hi + entity->ext.et_80161FF0.unk7C;
-        prim->y1 = entity->posY.i.hi - entity->ext.et_80161FF0.unk7E;
-        prim->x2 = entity->posX.i.hi - entity->ext.et_80161FF0.unk7C;
-        prim->y2 = entity->posY.i.hi + entity->ext.et_80161FF0.unk7E;
-        prim->x3 = entity->posX.i.hi + entity->ext.et_80161FF0.unk7C;
-        prim->y3 = entity->posY.i.hi + entity->ext.et_80161FF0.unk7E;
+        prim->x0 = entity->posX.i.hi - entity->ext.circleExpand.width;
+        prim->y0 = entity->posY.i.hi - entity->ext.circleExpand.height;
+        prim->x1 = entity->posX.i.hi + entity->ext.circleExpand.width;
+        prim->y1 = entity->posY.i.hi - entity->ext.circleExpand.height;
+        prim->x2 = entity->posX.i.hi - entity->ext.circleExpand.width;
+        prim->y2 = entity->posY.i.hi + entity->ext.circleExpand.height;
+        prim->x3 = entity->posX.i.hi + entity->ext.circleExpand.width;
+        prim->y3 = entity->posY.i.hi + entity->ext.circleExpand.height;
         if (prim->b3 >= 12) {
             prim->b3 += 244;
         }

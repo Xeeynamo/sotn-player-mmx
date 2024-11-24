@@ -6,7 +6,7 @@
 #endif
 #endif
 
-SubweaponDef D_80154688[] = {
+SubweaponDef D_80154688_MMX[] = {
     {0, 30000, 0, 0, 0, 0, 0, 0, 2, 1, 15, 0, 0},
     {20, 1, 4160, 3, 4, 4, 0, 43, 2, 129, 21, 0, 32},
     {50, 1, 4160, 3, 32, 4, 0, 19, 2, 129, 20, 0, 32},
@@ -294,17 +294,17 @@ static void OverrideStageEntities() {
 
 void PlayerMain() {
 #ifdef DEBUG
-    if (DebugFrameByFrame()) {
-        if (DebugAnimFrame() || DebugAnimation()) {
-            return;
-        }
-    }
+// if (DebugFrameByFrame()) {
+//     if (DebugAnimFrame() || DebugAnimation()) {
+//         return;
+//     }
+// }
 #endif
     if (g_pads[0].pressed & PAD_L2) {
         PLAYER.hitParams = 33;
         PLAYER.unkB8 = &g_Entities[128 + 17];
     }
-    MmxHudHandler();
+    // MmxHudHandler();
     AdjustHealthAndDamage();
     OverrideStageEntities();
     MmxMain();

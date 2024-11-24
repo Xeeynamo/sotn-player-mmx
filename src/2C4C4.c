@@ -1510,20 +1510,20 @@ void RicEntitySubwpnDagger(Entity* self) {
 }
 
 static void ReboundStoneBounce1(s32 arg0) {
-    g_CurrentEntity->ext.generic.unk7C.s =
-        (arg0 << 0x10 >> 0xF) - g_CurrentEntity->ext.generic.unk7C.s;
-    if (g_CurrentEntity->ext.generic.unk80.modeS16.unk2 == 0) {
-        g_CurrentEntity->ext.generic.unk80.modeS16.unk0++;
-        g_CurrentEntity->ext.generic.unk80.modeS16.unk2++;
+    g_CurrentEntity->ext.reboundStone.stoneAngle =
+        (arg0 << 0x10 >> 0xF) - g_CurrentEntity->ext.reboundStone.stoneAngle;
+    if (g_CurrentEntity->ext.reboundStone.unk82 == 0) {
+        g_CurrentEntity->ext.reboundStone.unk80++;
+        g_CurrentEntity->ext.reboundStone.unk82++;
     }
 }
 
 static void ReboundStoneBounce2(s16 arg0) {
-    if (g_CurrentEntity->ext.generic.unk80.modeS16.unk2 == 0) {
-        g_CurrentEntity->ext.generic.unk7C.s =
-            (arg0 * 2) - g_CurrentEntity->ext.generic.unk7C.s;
-        g_CurrentEntity->ext.generic.unk80.modeS16.unk0++;
-        g_CurrentEntity->ext.generic.unk80.modeS16.unk2++;
+    if (g_CurrentEntity->ext.reboundStone.unk82 == 0) {
+        g_CurrentEntity->ext.reboundStone.stoneAngle =
+            (arg0 * 2) - g_CurrentEntity->ext.reboundStone.stoneAngle;
+        g_CurrentEntity->ext.reboundStone.unk80++;
+        g_CurrentEntity->ext.reboundStone.unk82++;
     }
 }
 
@@ -2155,8 +2155,8 @@ void RicEntityAguneaHitEnemy(Entity* self) {
         self->facingLeft = PLAYER.facingLeft;
         self->ext.et_801291C4.unk84 = ((rand() & 0x3FF) - 0x200) & 0xFFF;
         prim = &g_PrimBuf[self->primIndex];
-        self->ext.prim = prim;
-        self->ext.et_801291C4.unk80 = prim;
+        self->ext.et_801291C4.prim1 = prim;
+        self->ext.et_801291C4.prim2 = prim;
         self->ext.et_801291C4.unk90 = (self->params >> 8);
         for (i = 0; prim != NULL;) {
             prim->tpage = 0x1A;
@@ -2190,7 +2190,7 @@ void RicEntityAguneaHitEnemy(Entity* self) {
         prim->y2 = self->posY.i.hi;
         prim->x3 = prim->x2;
         prim->y3 = prim->y2 - 0x10;
-        self->ext.et_801291C4.unk80 = prim;
+        self->ext.et_801291C4.prim2 = prim;
         while (prim != NULL) {
             prim->clut = 0x194;
             prim->r0 = prim->g0 = prim->b0 = 0x80;
@@ -2207,7 +2207,7 @@ void RicEntityAguneaHitEnemy(Entity* self) {
     case 1:
 
         for (i = 0; i < 2; i++) {
-            prim = self->ext.et_801291C4.unk80;
+            prim = self->ext.et_801291C4.prim2;
             temp_s2 = self->ext.et_801291C4.unk84;
             somethingX = temp_s6->posX.i.hi - prim->x2;
             somethingY = temp_s6->posY.i.hi - prim->y2;
@@ -2253,7 +2253,7 @@ void RicEntityAguneaHitEnemy(Entity* self) {
             LOW(temp_s3->x0) = LOW(prim->x2);
             LOW(temp_s3->x1) = LOW(prim->x3);
             self->ext.et_801291C4.unk84 = temp_s2;
-            self->ext.et_801291C4.unk80 = temp_s3;
+            self->ext.et_801291C4.prim2 = temp_s3;
             xOffset = (rcos(temp_s2) * 0xC) >> 0xC;
             yOffset = (rsin(temp_s2) * 0xC) >> 0xC;
             temp_s2 = temp_s2 - 0x400;

@@ -435,7 +435,7 @@ extern s32 func_8015FDB0(Primitive* poly, s16 posX, s16 posY);
 extern Entity* RicCreateEntFactoryFromEntity(
     Entity* entity, u32 arg1, s32 arg2);
 
-void func_8015E800();
+void RicCheckFloor();
 extern s32 func_8016840C(s16 x, s16 y);
 
 extern s16 D_80154568[];
@@ -451,17 +451,17 @@ extern u8 D_801545B0[];
 extern u8 D_801545C4[16];
 extern u8 D_801545D4[16];
 // These appear to be a set of collision boxes
-extern Point16 D_801545E4[4];
-extern Point16 D_801545F4[4];
-extern Point16 D_80154604[14];
-extern u16 D_8015463C[4];
-extern u16 D_80154644[4];
-extern u16 D_8015464C[8];
-extern u16 D_8015465C[4];
-extern u16 D_80154664[8];
+extern Point16 g_MmxSensorsCeiling[4];
+extern Point16 g_MmxSensorsFloor[4];
+extern Point16 g_MmxSensorsWall[14];
+extern u16 g_MmxSensorsCeilingDefault[4];
+extern u16 g_MmxSensorsFloorDefault[4];
+extern u16 g_MmxSensorsWallDefault[8];
+extern u16 g_MmxSensorsCeilingCrouch[4];
+extern u16 g_MmxSensorsWallCrouch[8];
 
 extern u8 D_80154674[][4]; // TODO AnimationFrames*[]
-extern SubweaponDef D_80154688[];
+extern SubweaponDef D_80154688_MMX[];
 extern u8 uv_anim_801548F4[6][8];
 extern FactoryBlueprint g_RicFactoryBlueprints[];
 

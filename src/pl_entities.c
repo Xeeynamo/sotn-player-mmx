@@ -57,10 +57,7 @@ static void SetWeaponParams(Entity* e, int weaponId) {
 
 static AnimationFrame anim_lemon_shoot[] = {{64, FRAME(1, 2)}, A_END};
 static AnimationFrame anim_lemon_impact[] = {
-    {2, FRAME(2, 0)},
-    {2, FRAME(3, 0)},
-    {2, FRAME(4, 0)},
-    A_END};
+    {2, FRAME(2, 0)}, {2, FRAME(3, 0)}, {2, FRAME(4, 0)}, A_END};
 static AnimationFrame* lemon_anims[] = {
     anim_lemon_shoot,
     anim_lemon_impact,
@@ -122,34 +119,26 @@ void EntityLemon(Entity* self) {
 }
 
 static AnimationFrame anim_cucumber_shoot[] = {
-    {2, FRAME(15, 4)},
-    {2, FRAME(16, 6)},
-    {2, FRAME(17, 8)},
-    {4, FRAME(18, 10)},
-    {1, FRAME(19, 2)},
-    {1, FRAME(20, 2)},
-    {2, FRAME(21, 2)},
-    {1, FRAME(20, 2)},
-    {1, FRAME(19, 2)},
-    A_LOOP_AT(4)};
+    {2, FRAME(15, 4)}, {2, FRAME(16, 6)}, {2, FRAME(17, 8)}, {4, FRAME(18, 10)},
+    {1, FRAME(19, 2)}, {1, FRAME(20, 2)}, {2, FRAME(21, 2)}, {1, FRAME(20, 2)},
+    {1, FRAME(19, 2)}, A_LOOP_AT(4)};
 static AnimationFrame anim_cucumber_impact[] = {
-    {2, FRAME(15, 0)},
-    {4, FRAME(16, 0)},
-    {4, FRAME(15, 0)},
-    A_END};
+    {2, FRAME(15, 0)}, {4, FRAME(16, 0)}, {4, FRAME(15, 0)}, A_END};
 static AnimationFrame* cucumber_anims[] = {
     anim_cucumber_shoot,
     anim_cucumber_impact,
 };
 static u8 cucumber_hitbox[][4] = {
-    {0, 0, 0, 0},
-    {28, 0, 6, 6},
-    {2, 0, 7, 7},
-    {6, 0, 11, 11},
-    {16, 0, 6, 6},
-    {20, 0, 6, 6},
+    {0, 0, 0, 0},   {28, 0, 6, 6}, {2, 0, 7, 7},
+    {6, 0, 11, 11}, {16, 0, 6, 6}, {20, 0, 6, 6},
 };
 void EntityCucumber(Entity* self) {
+    // PLAYER.anim = mmx_anims[PL_A_STAND_W];
+    // PLAYER.animFrameDuration = 0;
+    // PLAYER.animFrameIdx = 1;
+    // if (!(g_pads[0].tapped & PAD_DOWN)) {
+    //     return;
+    // }
     switch (self->step) {
     case 0:
         self->animSet = ANIMSET_OVL(0x11);
@@ -172,9 +161,10 @@ void EntityCucumber(Entity* self) {
         // fall back to case 2 as we still want to check for collisions
     case 2:
         self->posX.val += self->velocityX;
-        if (self->hitFlags == 1 |self->hitFlags == 2) {
+        if (self->hitFlags == 1 | self->hitFlags == 2) {
             // if hitting an enemy, and it's not dead yet, dissolve the bullet
-            if (self->unkB8 && self->unkB8->enemyId && self->unkB8->hitPoints > 0) {
+            if (self->unkB8 && self->unkB8->enemyId &&
+                self->unkB8->hitPoints > 0) {
                 if (self->facingLeft) {
                     self->posX.i.hi -= 24;
                 } else {

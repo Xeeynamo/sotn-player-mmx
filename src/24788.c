@@ -121,7 +121,7 @@ void RicEntitySmokePuff(Entity* self) {
         }
         if (paramsHi == 4) {
             for (i = paramsLo * 2; i < LEN(sensors1_80154CE4); i++) {
-                if (g_Player.colliders3[sensors1_80154CE4[i]].effects & 3) {
+                if (g_Player.colWall[sensors1_80154CE4[i]].effects & 3) {
                     break;
                 }
             }
@@ -130,9 +130,9 @@ void RicEntitySmokePuff(Entity* self) {
                 return;
             }
             self->posX.i.hi =
-                PLAYER.posX.i.hi + D_80154604[sensors1_80154CE4[i]].x;
+                PLAYER.posX.i.hi + g_MmxSensorsWall[sensors1_80154CE4[i]].x;
             self->posY.i.hi =
-                PLAYER.posY.i.hi + D_80154604[sensors1_80154CE4[i]].y;
+                PLAYER.posY.i.hi + g_MmxSensorsWall[sensors1_80154CE4[i]].y;
             self->velocityY = FIX(-0.25);
             self->rotY = self->rotX = rot_x_80154C74[1] + 0x40;
             self->step++;
@@ -140,7 +140,7 @@ void RicEntitySmokePuff(Entity* self) {
         }
         if (paramsHi == 8) {
             for (i = paramsLo * 2; i < LEN(sensors2_80154CF4); i++) {
-                if (g_Player.colliders3[sensors2_80154CF4[i]].effects & 3) {
+                if (g_Player.colWall[sensors2_80154CF4[i]].effects & 3) {
                     break;
                 }
             }
@@ -149,9 +149,9 @@ void RicEntitySmokePuff(Entity* self) {
                 return;
             }
             self->posX.i.hi =
-                PLAYER.posX.i.hi + D_80154604[sensors2_80154CF4[i]].x;
+                PLAYER.posX.i.hi + g_MmxSensorsWall[sensors2_80154CF4[i]].x;
             self->posY.i.hi =
-                PLAYER.posY.i.hi + D_80154604[sensors2_80154CF4[i]].y;
+                PLAYER.posY.i.hi + g_MmxSensorsWall[sensors2_80154CF4[i]].y;
             self->velocityY = velocity_x_80154C5C[paramsLo];
             self->rotY = self->rotX = rot_x_80154C74[paramsLo] + 0x20;
             self->step++;
@@ -629,7 +629,7 @@ void RicEntityApplyMariaPowerAnim(Entity* self) {
             return;
         }
         g_api.PlaySfx(0x881);
-        self->ext.et_80161FF0.unk7C = 0x100;
+        self->ext.circleExpand.width = 0x100;
         prim = &g_PrimBuf[self->primIndex];
         prim->u0 = props->uBase;
         prim->v0 = props->vBase;
@@ -654,36 +654,44 @@ void RicEntityApplyMariaPowerAnim(Entity* self) {
         self->step++;
         break;
     case 1:
-        self->ext.et_80161FF0.unk7C -= 8;
+        self->ext.circleExpand.width -= 8;
         self->posX.val += self->velocityX;
         self->posY.val += self->velocityY;
-        if (self->ext.et_80161FF0.unk7C < 25) {
-            self->ext.et_80161FF0.unk7E = props->timerInit;
+        if (self->ext.circleExpand.width < 25) {
+            self->ext.circleExpand.height = props->timerInit;
             self->step++;
         }
         break;
     case 2:
-        if (--self->ext.et_80161FF0.unk7E == 0) {
+        if (--self->ext.circleExpand.height == 0) {
             self->step++;
         }
         break;
     case 3:
-        self->ext.et_80161FF0.unk7C -= 2;
-        if (self->ext.et_80161FF0.unk7C < 0) {
+        self->ext.circleExpand.width -= 2;
+        if (self->ext.circleExpand.width < 0) {
             DestroyEntity(self);
             return;
         }
         break;
     }
     prim = &g_PrimBuf[self->primIndex];
-    prim->x0 = posX + (((rcos(0x600) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
-    prim->y0 = posY - (((rsin(0x600) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
-    prim->x1 = posX + (((rcos(0x200) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
-    prim->y1 = posY - (((rsin(0x200) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
-    prim->x2 = posX + (((rcos(0xA00) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
-    prim->y2 = posY - (((rsin(0xA00) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
-    prim->x3 = posX + (((rcos(0xE00) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
-    prim->y3 = posY - (((rsin(0xE00) >> 4) * self->ext.et_80161FF0.unk7C) >> 8);
+    prim->x0 =
+        posX + (((rcos(0x600) >> 4) * self->ext.circleExpand.width) >> 8);
+    prim->y0 =
+        posY - (((rsin(0x600) >> 4) * self->ext.circleExpand.width) >> 8);
+    prim->x1 =
+        posX + (((rcos(0x200) >> 4) * self->ext.circleExpand.width) >> 8);
+    prim->y1 =
+        posY - (((rsin(0x200) >> 4) * self->ext.circleExpand.width) >> 8);
+    prim->x2 =
+        posX + (((rcos(0xA00) >> 4) * self->ext.circleExpand.width) >> 8);
+    prim->y2 =
+        posY - (((rsin(0xA00) >> 4) * self->ext.circleExpand.width) >> 8);
+    prim->x3 =
+        posX + (((rcos(0xE00) >> 4) * self->ext.circleExpand.width) >> 8);
+    prim->y3 =
+        posY - (((rsin(0xE00) >> 4) * self->ext.circleExpand.width) >> 8);
     return;
 }
 
@@ -701,8 +709,8 @@ void func_801623E0(Entity* entity) {
             DestroyEntity(entity);
             return;
         }
-        entity->ext.et_80161FF0.unk7E = 32;
-        entity->ext.et_80161FF0.unk7C = 32;
+        entity->ext.circleExpand.height = 32;
+        entity->ext.circleExpand.width = 32;
         prim = &g_PrimBuf[entity->primIndex];
         prim->u2 = 64;
         prim->u0 = 64;
@@ -722,9 +730,9 @@ void func_801623E0(Entity* entity) {
         break;
 
     case 1:
-        entity->ext.et_80161FF0.unk7C++;
-        entity->ext.et_80161FF0.unk7E++;
-        if (entity->ext.et_80161FF0.unk7C >= 45) {
+        entity->ext.circleExpand.width++;
+        entity->ext.circleExpand.height++;
+        if (entity->ext.circleExpand.width >= 45) {
             DestroyEntity(entity);
             return;
         }
@@ -732,87 +740,73 @@ void func_801623E0(Entity* entity) {
     }
 
     prim = &g_PrimBuf[entity->primIndex];
-    prim->x0 = entity->posX.i.hi - entity->ext.et_80161FF0.unk7C;
-    prim->y0 = entity->posY.i.hi - entity->ext.et_80161FF0.unk7E;
-    prim->x1 = entity->posX.i.hi + entity->ext.et_80161FF0.unk7C;
-    prim->y1 = entity->posY.i.hi - entity->ext.et_80161FF0.unk7E;
-    prim->x2 = entity->posX.i.hi - entity->ext.et_80161FF0.unk7C;
-    prim->y2 = entity->posY.i.hi + entity->ext.et_80161FF0.unk7E;
-    prim->x3 = entity->posX.i.hi + entity->ext.et_80161FF0.unk7C;
-    prim->y3 = entity->posY.i.hi + entity->ext.et_80161FF0.unk7E;
+    prim->x0 = entity->posX.i.hi - entity->ext.circleExpand.width;
+    prim->y0 = entity->posY.i.hi - entity->ext.circleExpand.height;
+    prim->x1 = entity->posX.i.hi + entity->ext.circleExpand.width;
+    prim->y1 = entity->posY.i.hi - entity->ext.circleExpand.height;
+    prim->x2 = entity->posX.i.hi - entity->ext.circleExpand.width;
+    prim->y2 = entity->posY.i.hi + entity->ext.circleExpand.height;
+    prim->x3 = entity->posX.i.hi + entity->ext.circleExpand.width;
+    prim->y3 = entity->posY.i.hi + entity->ext.circleExpand.height;
     prim->clut = (LOH(g_Timer) & 1) + 0x13E;
 }
 
-void func_80162604(Entity* entity) {
+void func_80162604(Entity* self) {
     Primitive* prim;
-    s16 primIndex;
 
-    entity->posX.val = g_Entities->posX.val;
-    entity->posY.val = PLAYER.posY.val;
-    switch (entity->step) {
+    self->posX.val = PLAYER.posX.val;
+    self->posY.val = PLAYER.posY.val;
+    switch (self->step) {
     case 0:
-        primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
-        entity->primIndex = primIndex;
-        if (primIndex != -1) {
-            entity->ext.et_80161FF0.unk7E = 0;
-            entity->ext.et_80161FF0.unk7C = 0;
-            prim = &g_PrimBuf[entity->primIndex];
-            prim->v1 = 192;
-            prim->v0 = 192;
-            prim->u3 = 63;
-            prim->u1 = 63;
-            prim->v3 = 255;
-            prim->v2 = 255;
-            prim->tpage = 0x1A;
-            prim->u2 = 0;
-            prim->u0 = 0;
-            prim->clut = 0x162;
-            prim->priority = PLAYER.zPriority - 4;
-            prim->drawMode = DRAW_DEFAULT;
-            entity->flags = FLAG_UNK_10000 | FLAG_POS_PLAYER_LOCKED |
-                            FLAG_KEEP_ALIVE_OFFCAMERA | FLAG_HAS_PRIMS;
-            entity->step++;
-            goto def;
-        } else {
-            DestroyEntity(entity);
-            break;
+        self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
+        if (self->primIndex == -1) {
+            DestroyEntity(self);
+            return;
         }
+        self->ext.circleExpand.width = self->ext.circleExpand.height = 0;
+        prim = &g_PrimBuf[self->primIndex];
 
+        prim->u0 = prim->u2 = 0;
+        prim->v0 = prim->v1 = 192;
+        prim->u1 = prim->u3 = 63;
+        prim->v2 = prim->v3 = 255;
+        prim->tpage = 0x1A;
+
+        prim->clut = 0x162;
+        prim->priority = PLAYER.zPriority - 4;
+        prim->drawMode = DRAW_DEFAULT;
+        self->flags = FLAG_UNK_10000 | FLAG_POS_PLAYER_LOCKED |
+                      FLAG_KEEP_ALIVE_OFFCAMERA | FLAG_HAS_PRIMS;
+        self->step++;
+        break;
     case 1:
-        entity->ext.generic.unk7C.s += 8;
-        entity->ext.generic.unk7E.modeU16 += 8;
-        if (entity->ext.generic.unk7C.s < 0x20) {
-            goto def;
-        }
-
-    case 2:
-        entity->step++;
-        goto def;
-
-    case 3:
-        entity->ext.generic.unk7C.s -= 8;
-        entity->ext.generic.unk7E.modeU16 -= 8;
-        if (entity->ext.generic.unk7C.s >= 5) {
-            goto def;
-        } else {
-
-            DestroyEntity(entity);
+        self->ext.circleExpand.width += 8;
+        self->ext.circleExpand.height += 8;
+        if (self->ext.circleExpand.width >= 0x20) {
+            self->step++;
         }
         break;
-
-    def:
-    default:
-        prim = &g_PrimBuf[entity->primIndex];
-        prim->x0 = entity->posX.i.hi - entity->ext.et_80161FF0.unk7C;
-        prim->y0 = entity->posY.i.hi - entity->ext.et_80161FF0.unk7E;
-        prim->x1 = entity->posX.i.hi + entity->ext.et_80161FF0.unk7C;
-        prim->y1 = entity->posY.i.hi - entity->ext.et_80161FF0.unk7E;
-        prim->x2 = entity->posX.i.hi - entity->ext.et_80161FF0.unk7C;
-        prim->y2 = entity->posY.i.hi + entity->ext.et_80161FF0.unk7E;
-        prim->x3 = entity->posX.i.hi + entity->ext.et_80161FF0.unk7C;
-        prim->y3 = entity->posY.i.hi + entity->ext.et_80161FF0.unk7E;
+    case 2:
+        self->step++;
+        break;
+    case 3:
+        self->ext.circleExpand.width -= 8;
+        self->ext.circleExpand.height -= 8;
+        if (self->ext.circleExpand.width < 5) {
+            DestroyEntity(self);
+            return;
+        }
         break;
     }
+    prim = &g_PrimBuf[self->primIndex];
+    prim->x0 = self->posX.i.hi - self->ext.circleExpand.width;
+    prim->y0 = self->posY.i.hi - self->ext.circleExpand.height;
+    prim->x1 = self->posX.i.hi + self->ext.circleExpand.width;
+    prim->y1 = self->posY.i.hi - self->ext.circleExpand.height;
+    prim->x2 = self->posX.i.hi - self->ext.circleExpand.width;
+    prim->y2 = self->posY.i.hi + self->ext.circleExpand.height;
+    prim->x3 = self->posX.i.hi + self->ext.circleExpand.width;
+    prim->y3 = self->posY.i.hi + self->ext.circleExpand.height;
 }
 
 static s16 D_80154EAC[] = {0x016E, 0x0161, 0x0160, 0x0162};
@@ -937,7 +931,7 @@ void RicEntityMaria(Entity* entity) {
         entity->velocityX = FIX(-1.75);
         entity->posY.i.hi = 0xBB;
         entity->posX.i.hi = 0x148;
-        entity->ext.et_80161FF0.unk7E = 0;
+        entity->ext.circleExpand.height = 0;
         entity->step++;
         break;
     case 1:
@@ -949,10 +943,10 @@ void RicEntityMaria(Entity* entity) {
         }
 
         entity->posX.val += entity->velocityX;
-        if (((s16)entity->ext.et_80161FF0.unk7E == 0) &&
+        if (((s16)entity->ext.circleExpand.height == 0) &&
             (entity->posX.i.hi < 256)) {
             g_api.PlaySfx(0x87D);
-            entity->ext.et_80161FF0.unk7E++;
+            entity->ext.circleExpand.height++;
         }
         if (entity->posX.i.hi < 0xE0) {
             RicSetAnimation(anim_maria_offering_powers);
@@ -964,12 +958,12 @@ void RicEntityMaria(Entity* entity) {
     case 2:
         if (entity->animFrameIdx == 16) {
             g_api.PlaySfx(0x87E);
-            entity->ext.et_80161FF0.unk7C = 0x80;
+            entity->ext.circleExpand.width = 0x80;
             entity->step++;
         }
         break;
     case 3:
-        if (!--entity->ext.et_80161FF0.unk7C) {
+        if (!--entity->ext.circleExpand.width) {
             RicCreateEntFactoryFromEntity(entity, BP_MARIA_POWERS_INVOKED, 0);
             entity->step++;
         }
