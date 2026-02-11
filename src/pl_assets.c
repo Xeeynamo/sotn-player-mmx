@@ -26,7 +26,7 @@ struct GraphicsInit {
 struct GraphicsInit gfx_init[] = {
     G_MAKE(512 + 64, 256, img_hud),
     G_MAKE(512 + 96, 256, img_items),
-    //G_MAKE(512 + 64, 384, RESERVED_FOR_FUTURE_USE),
+    // G_MAKE(512 + 64, 384, RESERVED_FOR_FUTURE_USE),
     G_MAKE(512 + 96, 384, img_particles),
 };
 
@@ -36,9 +36,9 @@ static bool DecompressData(void* dst, void* src, size_t srcLen, size_t dstLen) {
 }
 
 static void InitPalette() {
-    memcpy(g_Clut + 0x1200, palette, sizeof(palette));
+    memcpy(&g_Clut[1][0x200], palette, sizeof(palette));
     RECT vramPalette = {0, 240, 256, 16};
-    LoadImage(&vramPalette, g_Clut + 0x1000);
+    LoadImage(&vramPalette, g_Clut[1]);
 }
 void MmxInitGraphics() {
     // we divide Width by 2 because the bitmaps are 4bpp

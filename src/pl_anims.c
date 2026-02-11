@@ -6,159 +6,160 @@
 // animations.
 // Not all the animations are synced. There are exceptions in the function
 // ChangeAnimToAttack, which uses this specific feature.
-#define SYNC_W_ANIM(normal_anim, weapon_anim) \
-    STATIC_ASSERT(LEN(normal_anim) == LEN(weapon_anim), "unsynced attack anim")
+#define SYNC_W_ANIM(normal_anim, weapon_anim)                                  \
+    STATIC_ASSERT(LEN(normal_anim) == LEN(weapon_anim), "unsynced attack "     \
+                                                        "anim")
 
 // clang-format off
 static AnimationFrame anim_dummy[] = {
-    {160, FRAME(3, 2)},
-    A_END};
+    POSE(160, 3, 1),
+    POSE_END};
 static AnimationFrame anim_stand[] = {
-    {160, FRAME(3, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(4, 2)},
-    {4, FRAME(3, 2)},
-    {80, FRAME(2, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(4, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(4, 2)},
-    {4, FRAME(3, 2)},
-    A_LOOP_AT(0)};
+    POSE(160, 3, 1),
+    POSE(4, 3, 1),
+    POSE(4, 4, 1),
+    POSE(4, 3, 1),
+    POSE(80, 2, 1),
+    POSE(4, 3, 1),
+    POSE(4, 4, 1),
+    POSE(4, 3, 1),
+    POSE(4, 3, 1),
+    POSE(4, 4, 1),
+    POSE(4, 3, 1),
+    POSE_LOOP(0)};
 static AnimationFrame anim_walk[] = {
-    {4, FRAME(6, 2)},
-    {4, FRAME(9, 2)},
-    {4, FRAME(10, 2)},
-    {4, FRAME(11, 2)},
-    {4, FRAME(12, 2)},
-    {4, FRAME(13, 2)},
-    {4, FRAME(14, 2)},
-    {4, FRAME(15, 2)},
-    {4, FRAME(16, 2)},
-    {4, FRAME(7, 2)},
-    {4, FRAME(8, 2)},
-    A_LOOP_AT(1)};
+    POSE(4, 6, 1),
+    POSE(4, 9, 1),
+    POSE(4, 10, 1),
+    POSE(4, 11, 1),
+    POSE(4, 12, 1),
+    POSE(4, 13, 1),
+    POSE(4, 14, 1),
+    POSE(4, 15, 1),
+    POSE(4, 16, 1),
+    POSE(4, 7, 1),
+    POSE(4, 8, 1),
+    POSE_LOOP(1)};
 static AnimationFrame anim_jump[] = {
-    {4, FRAME(17, 8)},
-    {4, FRAME(18, 4)},
-    {80, FRAME(19, 4)},
-    A_END};
+    POSE(4, 17, 4),
+    POSE(4, 18, 2),
+    POSE(80, 19, 2),
+    POSE_END};
 static AnimationFrame anim_fall[] = {
-    {8, FRAME(20, 4)},
-    {80, FRAME(21, 4)},
-    A_END};
+    POSE(8, 20, 2),
+    POSE(80, 21, 2),
+    POSE_END};
 static AnimationFrame anim_land[] = {
-    {4, FRAME(22, 2)},
-    {4, FRAME(23, 2)},
-    {160, FRAME(3, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(4, 2)},
-    {4, FRAME(3, 2)},
-    {80, FRAME(2, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(4, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(3, 2)},
-    {4, FRAME(4, 2)},
-    {4, FRAME(3, 2)},
-    A_LOOP_AT(2)};
+    POSE(4, 22, 1),
+    POSE(4, 23, 1),
+    POSE(160, 3, 1),
+    POSE(4, 3, 1),
+    POSE(4, 4, 1),
+    POSE(4, 3, 1),
+    POSE(80, 2, 1),
+    POSE(4, 3, 1),
+    POSE(4, 4, 1),
+    POSE(4, 3, 1),
+    POSE(4, 3, 1),
+    POSE(4, 4, 1),
+    POSE(4, 3, 1),
+    POSE_LOOP(2)};
 static AnimationFrame anim_dash[] = {
-    {4, FRAME(24, 2)},
-    {80, FRAME(25, 2)},
-    A_END};
+    POSE(4, 24, 1),
+    POSE(80, 25, 1),
+    POSE_END};
 static AnimationFrame anim_wall[] = {
-    {4, FRAME(26, 4)},
-    {4, FRAME(27, 4)},
-    {80, FRAME(28, 4)},
-    A_END};
+    POSE(4, 26, 2),
+    POSE(4, 27, 2),
+    POSE(80, 28, 2),
+    POSE_END};
 static AnimationFrame anim_stand_w[] = {
-    {4, FRAME(33, 2)},
-    {4, FRAME(34, 2)},
-    A_END,
+    POSE(4, 33, 1),
+    POSE(4, 34, 1),
+    POSE_END,
 };
 // anim_stand_w exception
 
 static AnimationFrame anim_walk_w[] = {
-    {4, FRAME(35, 2)},
-    {4, FRAME(38, 2)},
-    {4, FRAME(39, 2)},
-    {4, FRAME(40, 2)},
-    {4, FRAME(41, 2)},
-    {4, FRAME(42, 2)},
-    {4, FRAME(43, 2)},
-    {4, FRAME(44, 2)},
-    {4, FRAME(45, 2)},
-    {4, FRAME(36, 2)},
-    {4, FRAME(37, 2)},
-    A_LOOP_AT(1)};
+    POSE(4, 35, 1),
+    POSE(4, 38, 1),
+    POSE(4, 39, 1),
+    POSE(4, 40, 1),
+    POSE(4, 41, 1),
+    POSE(4, 42, 1),
+    POSE(4, 43, 1),
+    POSE(4, 44, 1),
+    POSE(4, 45, 1),
+    POSE(4, 36, 1),
+    POSE(4, 37, 1),
+    POSE_LOOP(1)};
 SYNC_W_ANIM(anim_walk, anim_walk_w);
 
 static AnimationFrame anim_jump_w[] = {
-    {4, FRAME(46, 8)},
-    {4, FRAME(47, 4)},
-    {80, FRAME(48, 4)},
-    A_END};
+    POSE(4, 46, 4),
+    POSE(4, 47, 2),
+    POSE(80, 48, 2),
+    POSE_END};
 SYNC_W_ANIM(anim_jump, anim_jump_w);
 
 static AnimationFrame anim_fall_w[] = {
-    {8, FRAME(49, 4)},
-    {80, FRAME(50, 4)},
-    A_END};
+    POSE(8, 49, 2),
+    POSE(80, 50, 2),
+    POSE_END};
 SYNC_W_ANIM(anim_jump, anim_jump_w);
 
 static AnimationFrame anim_land_w[] = {
-    {4, FRAME(51, 2)},
-    {4, FRAME(52, 2)},
-    {4, FRAME(33, 2)},
-    {4, FRAME(34, 2)},
-    A_LOOP_AT(2)};
+    POSE(4, 51, 1),
+    POSE(4, 52, 1),
+    POSE(4, 33, 1),
+    POSE(4, 34, 1),
+    POSE_LOOP(2)};
 // anim_land_w exception
 
 static AnimationFrame anim_dash_w[] = {
-    {4, FRAME(53, 2)},
-    {80, FRAME(54, 2)},
-    A_END};
+    POSE(4, 53, 1),
+    POSE(80, 54, 1),
+    POSE_END};
 SYNC_W_ANIM(anim_dash, anim_dash_w);
 
 static AnimationFrame anim_wall_w[] = {
-    {4, FRAME(55, 4)},
-    {4, FRAME(56, 4)},
-    {80, FRAME(57, 4)},
-    A_END};
+    POSE(4, 55, 2),
+    POSE(4, 56, 2),
+    POSE(80, 57, 2),
+    POSE_END};
 SYNC_W_ANIM(anim_wall, anim_wall_w);
 
 static AnimationFrame anim_hit_stun[] = {
-    {4, FRAME(58, 4)},
-    {2, FRAME(59, 4)},
-    {2, FRAME(63, 4)},
-    {2, FRAME(59, 4)},
-    {2, FRAME(63, 4)},
-    {2, FRAME(59, 4)},
-    {2, FRAME(63, 4)},
-    {14, FRAME(59, 4)},
-    {2, FRAME(58, 4)},
-    A_END};
+    POSE(4, 58, 2),
+    POSE(2, 59, 2),
+    POSE(2, 63, 2),
+    POSE(2, 59, 2),
+    POSE(2, 63, 2),
+    POSE(2, 59, 2),
+    POSE(2, 63, 2),
+    POSE(14, 59, 2),
+    POSE(2, 58, 2),
+    POSE_END};
 
 static AnimationFrame anim_hit_small[] = {
-    {4, FRAME(61, 4)},
-    {2, FRAME(62, 4)},
-    {2, FRAME(64, 4)},
-    {2, FRAME(62, 4)},
-    {2, FRAME(64, 4)},
-    {2, FRAME(62, 4)},
-    {2, FRAME(64, 4)},
-    {14, FRAME(62, 4)},
-    {2, FRAME(61, 4)},
-    A_END};
+    POSE(4, 61, 2),
+    POSE(2, 62, 2),
+    POSE(2, 64, 2),
+    POSE(2, 62, 2),
+    POSE(2, 64, 2),
+    POSE(2, 62, 2),
+    POSE(2, 64, 2),
+    POSE(14, 62, 2),
+    POSE(2, 61, 2),
+    POSE_END};
 
 static AnimationFrame anim_dead[] = {
-    {64, FRAME(58, 4)},
-    {2, FRAME(0, 0)},
-    A_END};
+    POSE(64, 58, 2),
+    POSE(2, 0, 0),
+    POSE_END};
 
 // Remember to update `MmxAnims` in `pl.h`
-AnimationFrame* mmx_anims[PL_A_END] = {
+AnimationFrame* mmx_anims[PL_POSE_END] = {
     anim_dummy,
     anim_stand,
     anim_walk,
@@ -178,4 +179,4 @@ AnimationFrame* mmx_anims[PL_A_END] = {
     anim_hit_small,
     anim_dead,
 };
-STATIC_ASSERT(LEN(mmx_anims) == PL_A_END, "anims array wrong size");
+STATIC_ASSERT(LEN(mmx_anims) == PL_POSE_END, "anims array wrong size");

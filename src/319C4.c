@@ -351,7 +351,7 @@ void RicEntityCrashBibleBeam(Entity* self) {
             prim->x2 = prim->x3 = bible_pages_pos[var_s3].x;
             prim->y2 = prim->y3 = bible_pages_pos[var_s3].y;
             prim->priority = 0xC2;
-            prim->blendMode = 0x435;
+            prim->drawMode = 0x435;
             prim = prim->next;
         }
         self->step++;
@@ -1630,13 +1630,13 @@ void RicEntitySubwpnStopwatch(Entity* self) {
         self->ext.ricStopWatch.unk84.val += 0xFFFF0000;
         if (self->ext.ricStopWatch.unk84.val <= 0x100000) {
             self->ext.ricStopWatch.t = 5;
-            g_api.PlaySfx(SFX_CLOCK_TICK);
+            g_api.PlaySfx(SFX_STOPWATCH_TICK);
             self->step++;
         }
         break;
     case 3:
         if (++self->ext.ricStopWatch.unk7E >= 0x51) {
-            g_api.PlaySfx(SFX_CLOCK_TICK);
+            g_api.PlaySfx(SFX_STOPWATCH_TICK);
             self->ext.ricStopWatch.unk7E = 0;
             self->ext.ricStopWatch.unk90 = 1;
             if (--self->ext.ricStopWatch.t < 0) {
@@ -2132,7 +2132,7 @@ void RicEntitySubwpnBible(Entity* self) {
         prim->priority = self->zPriority;
         RicCreateEntFactoryFromEntity(self, BP_BIBLE_TRAIL, 0);
         if (g_GameTimer % 10 == 0) {
-            g_api.PlaySfx(BIBLE_SUBWPN_SWOOSH);
+            g_api.PlaySfx(SFX_BIBLE_SUBWPN_SWISH);
         }
     }
 }

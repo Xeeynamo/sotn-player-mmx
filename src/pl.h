@@ -42,6 +42,20 @@
 #define CHECK_SLIDE 0x40000
 #define CHECK_WALL 0x80000
 
+typedef enum {
+    PL_JUMP_NONE,
+    PL_JUMP_ASCENDING,
+    PL_JUMP_DESCENDING,
+} MmxJumpState;
+
+// Richter mostly uses the same steps as Alucard, or uses unused Alucard
+// steps. There are a couple steps that mean one thing for Alucard, and
+// another for Richter. This enum handles Richter's version of the ones that
+// overlap.
+typedef enum {
+    Player_RichterCrouch = 2,
+} Richter_PlayerSteps;
+
 enum MmxSteps {
     PL_S_STAND,
     PL_S_WALK,
@@ -87,12 +101,6 @@ enum RicSfxs {
     SFX_HYDROSTORM = 0x700,
     SFX_CROSS_CRASH,
 };
-
-typedef enum {
-    PL_JUMP_NONE,
-    PL_JUMP_ASCENDING,
-    PL_JUMP_DESCENDING,
-} MmxJumpState;
 
 enum MmxTimers {
     PL_T_POISON,
@@ -375,7 +383,7 @@ enum MmxAnims {
     PL_A_HIT_STUN,
     PL_A_HIT_SMALL,
     PL_A_DEAD,
-    PL_A_END,
+    PL_POSE_END,
 };
 
 enum MmxChargeLevel {
@@ -396,48 +404,12 @@ extern enum MmxChargeLevel g_ChargeLevel;
 
 // END OF MMX STUFF
 
-// Richter mostly uses the same steps as Alucard, or uses unused Alucard
-// steps. There are a couple steps that mean one thing for Alucard, and
-// another for Richter. This enum handles Richter's version of the ones that
-// overlap.
-typedef enum {
-    Player_RichterCrouch = 2,
-} Richter_PlayerSteps;
-
 extern MmxJumpState g_JumpState;
 
 extern s16* g_MmxPlSprites[];
 extern SpriteParts* g_SpritesWeapons[];
 extern SpriteParts* g_SpritesItems[];
 extern SpriteParts* D_801541A8[];
-extern void func_80159C04(void);
-extern void DestroyEntity(Entity* entity);
-extern void func_8015BB80(void);
-extern void RicHandleBladeDash(void);
-extern void RicSetStep(PlayerSteps step);
-void MmxSetAnimation(enum MmxAnims anim);
-void RicSetAnimation(AnimationFrame* unk0);
-extern void RicDecelerateX(s32 speed);
-extern s32 RicCheckFacing(void);
-extern void RicSetSpeedX(s32 speed);
-extern void RicSetCrouch(s32 arg0, s32 velocityX);
-extern void RicSetWalkFromJump(s32 arg0, s32 velocityX);
-extern void RicSetStand(s32 velocityX);
-extern void MmxPrepareStandFromJump(s32 velocityX);
-extern void RicSetWalk(s32);
-extern void RicSetRun(void);
-extern void MmxResetChargeWeapon(void);
-extern bool MmxPerformAttack(void);
-extern void RicSetFall(void);
-extern bool RicCheckInput(s32 checks);
-extern void RicSetSubweaponParams(Entity*);
-extern s32 func_8015FDB0(Primitive* poly, s16 posX, s16 posY);
-extern Entity* RicCreateEntFactoryFromEntity(
-    Entity* entity, u32 arg1, s32 arg2);
-
-void RicCheckFloor();
-extern s32 func_8016840C(s16 x, s16 y);
-
 extern s16 D_80154568[];
 extern s32 g_IsPrologueStage;
 extern s16 D_80154574[];
@@ -524,3 +496,31 @@ extern AnimationFrame D_801558E4[];
 extern AnimationFrame D_801558DC[];
 extern AnimationFrame D_8015591C[];
 extern AnimationFrame D_80155950[];
+
+extern void func_80159C04(void);
+extern void DestroyEntity(Entity* entity);
+extern void func_8015BB80(void);
+extern void RicHandleBladeDash(void);
+extern void RicSetStep(PlayerSteps step);
+void MmxSetAnimation(enum MmxAnims anim);
+void RicSetAnimation(AnimationFrame* unk0);
+extern void RicDecelerateX(s32 speed);
+extern s32 RicCheckFacing(void);
+extern void RicSetSpeedX(s32 speed);
+extern void RicSetCrouch(s32 arg0, s32 velocityX);
+extern void RicSetWalkFromJump(s32 arg0, s32 velocityX);
+extern void RicSetStand(s32 velocityX);
+extern void MmxPrepareStandFromJump(s32 velocityX);
+extern void RicSetWalk(s32);
+extern void RicSetRun(void);
+extern void MmxResetChargeWeapon(void);
+extern bool MmxPerformAttack(void);
+extern void RicSetFall(void);
+extern bool RicCheckInput(s32 checks);
+extern void RicSetSubweaponParams(Entity*);
+extern s32 func_8015FDB0(Primitive* poly, s16 posX, s16 posY);
+extern Entity* RicCreateEntFactoryFromEntity(
+    Entity* entity, u32 arg1, s32 arg2);
+
+void RicCheckFloor();
+extern s32 func_8016840C(s16 x, s16 y);

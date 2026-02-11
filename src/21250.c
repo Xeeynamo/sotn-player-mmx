@@ -174,12 +174,12 @@ bool RicCheckInput(s32 checks) {
     if (PLAYER.velocityY > FIX(7)) {
         PLAYER.velocityY = FIX(7);
     }
-    if ((checks & CHECK_80) && (g_Player.pl_vram_flag & 2) &&
+    if ((checks & CHECK_80) && (g_Player.vram_flag & 2) &&
         (PLAYER.velocityY < FIX(-1))) {
         PLAYER.velocityY = FIX(-1);
     }
     if (PLAYER.velocityY >= 0) {
-        if ((checks & CHECK_GROUND) && (g_Player.pl_vram_flag & 1)) {
+        if ((checks & CHECK_GROUND) && (g_Player.vram_flag & 1)) {
             g_JumpState = PL_JUMP_NONE;
             // 👇 maybe not needed any more
             // g_Player.unk46 = 0; // xeeynamo: forces to go to case 0
@@ -263,7 +263,7 @@ bool RicCheckInput(s32 checks) {
                 return true;
             }
         } else if (
-            checks & CHECK_GROUND_AFTER_HIT && (g_Player.pl_vram_flag & 1)) {
+            checks & CHECK_GROUND_AFTER_HIT && (g_Player.vram_flag & 1)) {
             RicSetWalkFromJump(1, PLAYER.velocityX);
             g_api.PlaySfx(SFX_STOMP_SOFT_A);
             if (g_Player.unk5C && (g_Status.hp < 2)) {
@@ -276,7 +276,7 @@ bool RicCheckInput(s32 checks) {
             return true;
         }
     }
-    if (checks & CHECK_FALL && !(g_Player.pl_vram_flag & 1)) {
+    if (checks & CHECK_FALL && !(g_Player.vram_flag & 1)) {
         if (g_Player.unk46 != 0) {
             if (g_Player.unk46 == 1) {
                 PLAYER.step_s = 0x40;
@@ -417,7 +417,7 @@ void func_8015E484(void) {
     s32 collision = 0;
     s16 startingPosY = PLAYER.posY.i.hi;
 
-    if (g_Player.pl_vram_flag & 1 || g_IsRicDebugEnter || g_Player.unk78 == 1) {
+    if (g_Player.vram_flag & 1 || g_IsRicDebugEnter || g_Player.unk78 == 1) {
         return;
     }
     if (PLAYER.posY.i.hi < 0x30) {
@@ -501,7 +501,7 @@ void RicCheckFloor(void) {
 
     u16* yPosPtr = &PLAYER.posY.i.hi;
     u16* xPosPtr = &PLAYER.posX.i.hi;
-    s32* vram_ptr = &g_Player.pl_vram_flag;
+    s32* vram_ptr = &g_Player.vram_flag;
 
     var_s5 = 0;
     i = 0;
@@ -676,7 +676,7 @@ void RicCheckCeiling(void) {
 
     u16* yPosPtr = &PLAYER.posY.i.hi;
     u16* xPosPtr = &PLAYER.posX.i.hi;
-    s32* vram_ptr = &g_Player.pl_vram_flag;
+    s32* vram_ptr = &g_Player.vram_flag;
     // weird thing where i has to get initialized first
     i = 1;
 
@@ -841,7 +841,7 @@ void RicCheckWallRight(void) {
 
     u16* yPosPtr = &PLAYER.posY.i.hi;
     u16* xPosPtr = &PLAYER.posX.i.hi;
-    s32* vram_ptr = &g_Player.pl_vram_flag;
+    s32* vram_ptr = &g_Player.vram_flag;
 
     if (g_unkGraphicsStruct.unk18) {
         return;
@@ -914,7 +914,7 @@ void RicCheckWallLeft(void) {
 
     u16* yPosPtr = &PLAYER.posY.i.hi;
     u16* xPosPtr = &PLAYER.posX.i.hi;
-    s32* vram_ptr = &g_Player.pl_vram_flag;
+    s32* vram_ptr = &g_Player.vram_flag;
 
     if (g_unkGraphicsStruct.unk18) {
         return;
@@ -1165,13 +1165,10 @@ void RicEntityHitByHoly(Entity* entity) {
 
 // same as DRA/func_8011F074
 static AnimationFrame anim_smoke_dark[] = {
-    {2, FRAME(1, 0)},  {2, FRAME(2, 0)},
-    {2, FRAME(3, 0)},  {2, FRAME(4, 0)},
-    {2, FRAME(5, 0)},  {2, FRAME(6, 0)},
-    {2, FRAME(7, 0)},  {2, FRAME(8, 0)},
-    {2, FRAME(9, 0)},  {2, FRAME(10, 0)},
-    {2, FRAME(11, 0)}, {2, FRAME(12, 0)},
-    {2, FRAME(13, 0)}, A_END};
+    POSE(2, 1, 0),  POSE(2, 2, 0),  POSE(2, 3, 0),  POSE(2, 4, 0),
+    POSE(2, 5, 0),  POSE(2, 6, 0),  POSE(2, 7, 0),  POSE(2, 8, 0),
+    POSE(2, 9, 0),  POSE(2, 10, 0), POSE(2, 11, 0), POSE(2, 12, 0),
+    POSE(2, 13, 0), POSE_END};
 static s32 D_80174FFC;
 void RicEntityHitByDark(Entity* entity) {
     s16 posX;
@@ -1191,13 +1188,13 @@ void RicEntityHitByDark(Entity* entity) {
         } else {
             entity->drawMode = DRAW_TPAGE;
         }
-        entity->rotY = 0x40;
-        entity->rotX = 0x40;
+        entity->scaleX = 0x40;
+        entity->scaleY = 0x40;
         entity->anim = anim_smoke_dark;
         D_80174FFC++;
-        entity->unk6C = 0xFF;
-        entity->drawFlags =
-            FLAG_DRAW_ROTX | FLAG_DRAW_ROTY | FLAG_DRAW_UNK10 | FLAG_DRAW_UNK20;
+        entity->opacity = 0xFF;
+        entity->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY |
+                            FLAG_DRAW_UNK10 | FLAG_DRAW_UNK20;
         posX = 10;
         posY = 15;
         entity->posY.i.hi = entity->posY.i.hi - posY + (rand() % 35);
@@ -1207,13 +1204,13 @@ void RicEntityHitByDark(Entity* entity) {
         break;
 
     case 1:
-        if (entity->unk6C >= 17) {
-            entity->unk6C += 248;
+        if (entity->opacity >= 17) {
+            entity->opacity += 248;
         }
         entity->posY.val += entity->velocityY;
-        entity->rotX += 8;
-        entity->rotY += 8;
-        if (entity->animFrameDuration < 0) {
+        entity->scaleX += 8;
+        entity->scaleY += 8;
+        if (entity->poseTimer < 0) {
             DestroyEntity(entity);
         }
         break;

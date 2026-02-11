@@ -143,7 +143,7 @@ static bool DebugAnimFrame() {
 static bool DebugAnimation() {
     static int debug_anim = -1;
     if (debug_anim >= 0) {
-        PLAYER.animFrameIdx = debug_anim;
+        PLAYER.pose = debug_anim;
         return true;
     }
     return false;

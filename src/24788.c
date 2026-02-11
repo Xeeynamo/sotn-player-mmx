@@ -24,7 +24,7 @@ void RicEntityBladeDash(Entity* self) {
             RicSetSubweaponParams(self);
             self->step++;
         }
-        if (PLAYER.animFrameIdx >= 19) {
+        if (PLAYER.pose >= 19) {
             DestroyEntity(self);
         }
     }
@@ -56,31 +56,13 @@ static s32 velocity_x_80154C5C[] = {
     -0x3000, -0x4000, -0x6000, -0x8000, -0xA000, -0xC000};
 static u16 rot_x_80154C74[] = {0x0030, 0x0040, 0x0050, 0x0060, 0x0070, 0x0080};
 static AnimationFrame anim_smoke_puff[] = {
-    {1, FRAME(0x01, 0)},
-    {1, FRAME(0x02, 0)},
-    {1, FRAME(0x03, 0)},
-    {1, FRAME(0x04, 0)},
-    {1, FRAME(0x05, 0)},
-    {1, FRAME(0x06, 0)},
-    {1, FRAME(0x07, 0)},
-    {1, FRAME(0x08, 0)},
-    {1, FRAME(0x09, 0)},
-    {1, FRAME(0x0A, 0)},
-    {1, FRAME(0x0B, 0)},
-    {1, FRAME(0x0C, 0)},
-    {1, FRAME(0x0D, 0)},
-    {1, FRAME(0x0E, 0)},
-    {1, FRAME(0x0F, 0)},
-    {1, FRAME(0x10, 0)},
-    {1, FRAME(0x11, 0)},
-    {1, FRAME(0x12, 0)},
-    {1, FRAME(0x13, 0)},
-    {1, FRAME(0x14, 0)},
-    {1, FRAME(0x15, 0)},
-    {1, FRAME(0x16, 0)},
-    {1, FRAME(0x17, 0)},
-    {1, FRAME(0x18, 0)},
-    A_END};
+    POSE(1, 1, 0),  POSE(1, 2, 0),  POSE(1, 3, 0),  POSE(1, 4, 0),
+    POSE(1, 5, 0),  POSE(1, 6, 0),  POSE(1, 7, 0),  POSE(1, 8, 0),
+    POSE(1, 9, 0),  POSE(1, 10, 0), POSE(1, 11, 0), POSE(1, 12, 0),
+    POSE(1, 13, 0), POSE(1, 14, 0), POSE(1, 15, 0), POSE(1, 16, 0),
+    POSE(1, 17, 0), POSE(1, 18, 0), POSE(1, 19, 0), POSE(1, 20, 0),
+    POSE(1, 21, 0), POSE(1, 22, 0), POSE(1, 23, 0), POSE(1, 24, 0),
+    POSE_END};
 static u8 sensors1_80154CE4[] = {2, 9, 3, 10, 1, 8, 4, 11, 0, 7, 5, 12, 6, 13};
 static u8 sensors2_80154CF4[] = {2, 9, 3, 10, 4, 11, 5, 12, 6, 13};
 void RicEntitySmokePuff(Entity* self) {
@@ -101,8 +83,8 @@ void RicEntitySmokePuff(Entity* self) {
         self->zPriority = PLAYER.zPriority + 2;
         self->flags = FLAG_POS_CAMERA_LOCKED | FLAG_UNK_100000 | FLAG_UNK_10000;
         self->drawMode = DRAW_TPAGE2 | DRAW_TPAGE;
-        self->drawFlags = FLAG_DRAW_ROTX | FLAG_DRAW_ROTY | FLAG_DRAW_UNK8;
-        self->unk6C = 0x60;
+        self->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY | FLAG_DRAW_UNK40;
+        self->opacity = 0x60;
         posX = pos_x_80154C50[paramsLo];
         if (paramsHi == 0) {
             posX += 6;
@@ -134,7 +116,7 @@ void RicEntitySmokePuff(Entity* self) {
             self->posY.i.hi =
                 PLAYER.posY.i.hi + g_MmxSensorsWall[sensors1_80154CE4[i]].y;
             self->velocityY = FIX(-0.25);
-            self->rotY = self->rotX = rot_x_80154C74[1] + 0x40;
+            self->scaleX = self->scaleY = rot_x_80154C74[1] + 0x40;
             self->step++;
             return;
         }
@@ -153,12 +135,12 @@ void RicEntitySmokePuff(Entity* self) {
             self->posY.i.hi =
                 PLAYER.posY.i.hi + g_MmxSensorsWall[sensors2_80154CF4[i]].y;
             self->velocityY = velocity_x_80154C5C[paramsLo];
-            self->rotY = self->rotX = rot_x_80154C74[paramsLo] + 0x20;
+            self->scaleX = self->scaleY = rot_x_80154C74[paramsLo] + 0x20;
             self->step++;
             return;
         }
         if (paramsHi == 1) {
-            if (g_Player.pl_vram_flag & 0x8000) {
+            if (g_Player.vram_flag & 0x8000) {
                 posX /= 2;
             }
         }
@@ -167,12 +149,12 @@ void RicEntitySmokePuff(Entity* self) {
         }
         self->posX.i.hi += posX;
         self->posY.i.hi += 0x18;
-        self->rotX = rot_x_80154C74[paramsLo] + 0x40;
+        self->scaleX = rot_x_80154C74[paramsLo] + 0x40;
         self->velocityY = velocity_x_80154C5C[paramsLo];
         if (paramsHi == 1) {
             self->velocityY = FIX(-0.25);
             RicSetSpeedX(-0x3000);
-            self->rotX = rot_x_80154C74[1] + 0x40;
+            self->scaleX = rot_x_80154C74[1] + 0x40;
         }
         if (paramsHi == 5) {
             self->velocityY = velocity_x_80154C5C[4 - paramsLo * 2];
@@ -180,19 +162,19 @@ void RicEntitySmokePuff(Entity* self) {
         if (paramsHi == 2) {
             self->velocityY = FIX(-0.5);
             RicSetSpeedX(-0x3000);
-            self->rotX = rot_x_80154C74[1] + 0x40;
+            self->scaleX = rot_x_80154C74[1] + 0x40;
         }
-        self->rotY = self->rotX;
+        self->scaleX = self->scaleY;
         if (paramsHi == 10) {
             self->posY.i.hi -= 6;
         }
         self->step++;
         return;
     case 1:
-        self->unk6C += 0xFE;
+        self->opacity += 0xFE;
         self->posY.val += self->velocityY;
         self->posX.val += self->velocityX;
-        if (self->animFrameDuration < 0) {
+        if (self->poseTimer < 0) {
             DestroyEntity(self);
             return;
         }
@@ -478,25 +460,14 @@ void RicEntityHitByCutBlood(Entity* self) {
 
 // DRA function is func_8011EDA8
 static AnimationFrame anim_80154DC8[] = {
-    {2, FRAME(1, 0)}, {2, FRAME(2, 0)}, {2, FRAME(3, 0)},
-    {2, FRAME(4, 0)}, {2, FRAME(5, 0)}, {2, FRAME(4, 0)},
-    {2, FRAME(3, 0)}, {2, FRAME(4, 0)}, {2, FRAME(3, 0)},
-    {2, FRAME(4, 0)}, {2, FRAME(5, 0)}, {1, FRAME(6, 0)},
-    {1, FRAME(7, 0)}, {1, FRAME(8, 0)}, A_END};
+    POSE(2, 1, 0), POSE(2, 2, 0), POSE(2, 3, 0), POSE(2, 4, 0), POSE(2, 5, 0),
+    POSE(2, 4, 0), POSE(2, 3, 0), POSE(2, 4, 0), POSE(2, 3, 0), POSE(2, 4, 0),
+    POSE(2, 5, 0), POSE(1, 6, 0), POSE(1, 7, 0), POSE(1, 8, 0), POSE_END};
 static AnimationFrame anim_80154E04[] = {
-    {1, FRAME(9, 0)},
-    {2, FRAME(10, 0)},
-    {2, FRAME(11, 0)},
-    {2, FRAME(12, 0)},
-    {2, FRAME(13, 0)},
-    {2, FRAME(14, 0)},
-    {2, FRAME(15, 0)},
-    {2, FRAME(16, 0)},
-    {2, FRAME(17, 0)},
-    {2, FRAME(18, 0)},
-    {3, FRAME(19, 0)},
-    {4, FRAME(20, 0)},
-    A_END};
+    POSE(1, 9, 0),  POSE(2, 10, 0), POSE(2, 11, 0), POSE(2, 12, 0),
+    POSE(2, 13, 0), POSE(2, 14, 0), POSE(2, 15, 0), POSE(2, 16, 0),
+    POSE(2, 17, 0), POSE(2, 18, 0), POSE(3, 19, 0), POSE(4, 20, 0),
+    POSE_END};
 void func_80161C2C(Entity* self) {
     u16 params = self->params;
     s16 paramsHi = self->params >> 8;
@@ -506,9 +477,9 @@ void func_80161C2C(Entity* self) {
     switch (step) {
     case 0:
         if (paramsHi == 1) {
-            self->rotX = 0xC0;
-            self->rotY = 0xC0;
-            self->drawFlags = FLAG_DRAW_ROTX | FLAG_DRAW_ROTY;
+            self->scaleX = 0xC0;
+            self->scaleY = 0xC0;
+            self->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY;
             self->animSet = ANIMSET_DRA(2);
             self->anim = anim_80154E04;
         }
@@ -516,9 +487,9 @@ void func_80161C2C(Entity* self) {
         if ((paramsHi == 0) || (paramsHi == 2)) {
             if (params & 3) {
                 self->anim = anim_80154DC8;
-                self->rotX = 0x120;
-                self->rotY = 0x120;
-                self->drawFlags = FLAG_DRAW_ROTX | FLAG_DRAW_ROTY;
+                self->scaleX = 0x120;
+                self->scaleY = 0x120;
+                self->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY;
                 self->animSet = ANIMSET_DRA(2);
             } else {
                 self->animSet = ANIMSET_DRA(5);
@@ -548,22 +519,22 @@ void func_80161C2C(Entity* self) {
         break;
 
     case 1:
-        self->rotX -= 4;
-        self->rotY -= 4;
+        self->scaleX -= 4;
+        self->scaleY -= 4;
         self->posY.val += self->velocityY;
         self->posX.val += self->velocityX;
-        if ((self->animFrameIdx == 8) && (self->anim != anim_smoke_puff)) {
+        if ((self->pose == 8) && (self->anim != anim_smoke_puff)) {
             self->drawMode = DRAW_TPAGE;
-            if (!(params & 1) && (self->animFrameDuration == step)) {
+            if (!(params & 1) && (self->poseTimer == step)) {
                 RicCreateEntFactoryFromEntity(self, FACTORY(BP_EMBERS, 4), 0);
             }
         }
 
-        if ((self->animFrameIdx == 16) && (self->anim == anim_smoke_puff)) {
+        if ((self->pose == 16) && (self->anim == anim_smoke_puff)) {
             self->drawMode = DRAW_TPAGE;
         }
 
-        if (self->animFrameDuration < 0) {
+        if (self->poseTimer < 0) {
             DestroyEntity(self);
         }
         break;
@@ -571,9 +542,8 @@ void func_80161C2C(Entity* self) {
 }
 
 static AnimationFrame anim_80154E38[] = {
-    {2, FRAME(1, 0)}, {2, FRAME(2, 0)}, {2, FRAME(3, 0)},
-    {2, FRAME(4, 0)}, {2, FRAME(5, 0)}, {2, FRAME(6, 0)},
-    {2, FRAME(7, 0)}, {2, FRAME(8, 0)}, A_END};
+    POSE(2, 1, 0), POSE(2, 2, 0), POSE(2, 3, 0), POSE(2, 4, 0), POSE(2, 5, 0),
+    POSE(2, 6, 0), POSE(2, 7, 0), POSE(2, 8, 0), POSE_END};
 void func_80161EF8(Entity* self) {
     switch (self->step) {
     case 0:
@@ -586,12 +556,12 @@ void func_80161EF8(Entity* self) {
         self->step++;
         break;
     case 1:
-        if ((self->animFrameIdx == 6) &&
-            (self->animFrameDuration == self->step) && (rand() & 1)) {
+        if ((self->pose == 6) && (self->poseTimer == self->step) &&
+            (rand() & 1)) {
             RicCreateEntFactoryFromEntity(self, BP_EMBERS, 0);
         }
         self->posY.val += self->velocityY;
-        if (self->animFrameDuration < 0) {
+        if (self->poseTimer < 0) {
             DestroyEntity(self);
         }
         break;
@@ -856,7 +826,7 @@ void RicEntityMariaPowers(Entity* self) {
         self->posY.val += self->velocityY;
         if (--self->ext.et_80162870.unk82 == 0) {
             self->drawFlags = 3;
-            self->rotX = self->rotY = 0x100;
+            self->scaleX = self->scaleY = 0x100;
             self->ext.et_80162870.unk82 = 0x10;
             self->step++;
             g_PrimBuf[self->primIndex].drawMode =
@@ -864,7 +834,7 @@ void RicEntityMariaPowers(Entity* self) {
         }
         break;
     case 2:
-        self->rotX = self->rotY = self->ext.et_80162870.unk82 * 0x10;
+        self->scaleX = self->scaleY = self->ext.et_80162870.unk82 * 0x10;
         if (--self->ext.et_80162870.unk82 == 0) {
             self->animCurFrame = 0;
             g_api.PlaySfx(0x69D);
@@ -902,21 +872,18 @@ void RicEntityMariaPowers(Entity* self) {
 void RicEntityNotImplemented4(Entity* self) {}
 
 static AnimationFrame anim_maria_walk[] = {
-    {4, FRAME(1, 0)}, {4, FRAME(2, 0)}, {4, FRAME(3, 0)},
-    {4, FRAME(4, 0)}, {4, FRAME(5, 0)}, {4, FRAME(6, 0)},
-    {4, FRAME(7, 0)}, {4, FRAME(8, 0)}, A_LOOP_AT(0)};
+    POSE(4, 1, 0), POSE(4, 2, 0), POSE(4, 3, 0), POSE(4, 4, 0), POSE(4, 5, 0),
+    POSE(4, 6, 0), POSE(4, 7, 0), POSE(4, 8, 0), POSE_LOOP(0)};
 static AnimationFrame anim_maria_offering_powers[] = {
-    {0x08, FRAME(0x09, 0)}, {0x08, FRAME(0x0D, 0)}, {0x40, FRAME(0x0A, 0)},
-    {0x02, FRAME(0x0B, 0)}, {0x02, FRAME(0x0C, 0)}, {0x06, FRAME(0x0D, 0)},
-    {0x07, FRAME(0x0E, 0)}, {0x06, FRAME(0x0F, 0)}, {0x05, FRAME(0x0E, 0)},
-    {0x04, FRAME(0x0D, 0)}, {0x03, FRAME(0x0F, 0)}, {0x03, FRAME(0x0E, 0)},
-    {0x03, FRAME(0x0D, 0)}, {0x03, FRAME(0x0E, 0)}, {0x03, FRAME(0x0F, 0)},
-    {0x03, FRAME(0x0E, 0)}, {0x03, FRAME(0x0D, 0)}, {0x04, FRAME(0x0E, 0)},
-    {0x05, FRAME(0x0F, 0)}, {0x06, FRAME(0x0E, 0)}, {0x07, FRAME(0x0D, 0)},
-    {0x30, FRAME(0x0E, 0)}, {0x0C, FRAME(0x09, 0)}, {0x0D, FRAME(0x10, 0)},
-    {0x08, FRAME(0x11, 0)}, {0x0C, FRAME(0x12, 0)}, {0xB0, FRAME(0x13, 0)},
-    {0x0A, FRAME(0x14, 0)}, {0x0A, FRAME(0x15, 0)}, {0x0A, FRAME(0x16, 0)},
-    {0x30, FRAME(0x17, 0)}, {0xD0, FRAME(0x18, 0)}, A_END};
+    POSE(8, 9, 0),   POSE(8, 13, 0),  POSE(64, 10, 0),  POSE(2, 11, 0),
+    POSE(2, 12, 0),  POSE(6, 13, 0),  POSE(7, 14, 0),   POSE(6, 15, 0),
+    POSE(5, 14, 0),  POSE(4, 13, 0),  POSE(3, 15, 0),   POSE(3, 14, 0),
+    POSE(3, 13, 0),  POSE(3, 14, 0),  POSE(3, 15, 0),   POSE(3, 14, 0),
+    POSE(3, 13, 0),  POSE(4, 14, 0),  POSE(5, 15, 0),   POSE(6, 14, 0),
+    POSE(7, 13, 0),  POSE(48, 14, 0), POSE(12, 9, 0),   POSE(13, 16, 0),
+    POSE(8, 17, 0),  POSE(12, 18, 0), POSE(176, 19, 0), POSE(10, 20, 0),
+    POSE(10, 21, 0), POSE(10, 22, 0), POSE(48, 23, 0),  POSE(208, 24, 0),
+    POSE_END};
 void RicEntityMaria(Entity* entity) {
     switch (entity->step) {
     case 0:
@@ -925,7 +892,7 @@ void RicEntityMaria(Entity* entity) {
         entity->facingLeft = 1;
         entity->unk5A = 0x66;
         entity->zPriority = PLAYER.zPriority - 8;
-        entity->palette = PAL_OVL(0x149);
+        entity->palette = PAL_FLAG(0x149);
         entity->animSet = ANIMSET_OVL(19);
         RicSetAnimation(anim_maria_walk);
         entity->velocityX = FIX(-1.75);
@@ -935,10 +902,10 @@ void RicEntityMaria(Entity* entity) {
         entity->step++;
         break;
     case 1:
-        if (entity->animFrameIdx == 0 && entity->animFrameDuration == 1) {
+        if (entity->pose == 0 && entity->poseTimer == 1) {
             g_api.PlaySfx(0x882);
         }
-        if (entity->animFrameIdx == 4 && entity->animFrameDuration == 1) {
+        if (entity->pose == 4 && entity->poseTimer == 1) {
             g_api.PlaySfx(0x883);
         }
 
@@ -956,7 +923,7 @@ void RicEntityMaria(Entity* entity) {
         }
         break;
     case 2:
-        if (entity->animFrameIdx == 16) {
+        if (entity->pose == 16) {
             g_api.PlaySfx(0x87E);
             entity->ext.circleExpand.width = 0x80;
             entity->step++;

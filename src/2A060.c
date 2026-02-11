@@ -20,7 +20,7 @@ void RicEntityTeleport(Entity* self) {
     bool var_s5 = false;
 
     upperParams = self->params & 0xFE00;
-    FntPrint("pl_warp_flag:%02x\n", g_Player.unk1C);
+    FntPrint("pl_warp_flag:%02x\n", g_Player.warp_flag);
     switch (self->step) {
     case 0:
         self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 4 + LEN(D_80175000));
@@ -38,13 +38,13 @@ void RicEntityTeleport(Entity* self) {
             prim->y0 = 0;
             prim->u0 = 0xC0;
             prim->v0 = 0xF0;
-            prim->type = 1;
+            prim->type = PRIM_TILE;
             prim->priority = 0x1FD;
             prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_HIDE | DRAW_TRANSP;
             prim = prim->next;
         }
         for (i = 0; i < 2; i++) {
-            prim->type = 3;
+            prim->type = PRIM_G4;
             prim->priority = 0x1F8;
             prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
             prim = prim->next;
@@ -66,55 +66,55 @@ void RicEntityTeleport(Entity* self) {
             prim->g2 = 0;
             prim = prim->next;
         }
-        self->ext.teleport.unk7C = 0;
-        self->ext.teleport.unk80 = 0x10;
-        self->ext.teleport.unk88 = 0x80;
+        self->ext.teleport.width = 0;
+        self->ext.teleport.height = 0x10;
+        self->ext.teleport.colorIntensity = 0x80;
         if (self->params & 0x100) {
             var_s5 = true;
-            self->ext.teleport.unk7C = 0x10;
-            self->ext.teleport.unk80 = 0x100;
-            self->ext.teleport.unk88 = 0x80;
+            self->ext.teleport.width = 0x10;
+            self->ext.teleport.height = 0x100;
+            self->ext.teleport.colorIntensity = 0x80;
             self->ext.teleport.unk90 = 0xFF;
             self->step = 0x14;
             g_api.PlaySfx(0x8BB);
         } else {
-            self->ext.teleport.unk7C = 1;
+            self->ext.teleport.width = 1;
             self->ext.teleport.unk90 = 0;
-            self->ext.teleport.unk80 = 0x10;
-            self->ext.teleport.unk88 = 0x80;
+            self->ext.teleport.height = 0x10;
+            self->ext.teleport.colorIntensity = 0x80;
             self->step = 1;
             g_api.PlaySfx(SFX_TELEPORT_BANG_A);
             g_api.PlaySfx(0x8BA);
         }
         break;
     case 1:
-        self->ext.teleport.unk80 += 0x20;
-        if (self->ext.teleport.unk80 >= 0x101) {
+        self->ext.teleport.height += 0x20;
+        if (self->ext.teleport.height >= 0x101) {
             self->step++;
         }
         break;
     case 2:
-        if (++self->ext.teleport.unk7C >= 0x10) {
-            self->ext.teleport.unk7C = 0x10;
-            self->ext.teleport.unk84 = 0x80;
+        if (++self->ext.teleport.width >= 0x10) {
+            self->ext.teleport.width = 0x10;
+            self->ext.teleport.timer = 0x80;
             self->step++;
         }
         break;
     case 3:
         showParticles = true;
-        self->ext.teleport.unk88 += 4;
-        if (self->ext.teleport.unk88 >= 0x100) {
-            self->ext.teleport.unk88 = 0x100;
+        self->ext.teleport.colorIntensity += 4;
+        if (self->ext.teleport.colorIntensity >= 0x100) {
+            self->ext.teleport.colorIntensity = 0x100;
         }
-        if (--self->ext.teleport.unk84 == 0) {
+        if (--self->ext.teleport.timer == 0) {
             PLAYER.palette = 0x810D;
             self->step++;
         }
         break;
     case 4:
         func_80166024();
-        if (--self->ext.teleport.unk7C <= 0) {
-            self->ext.teleport.unk7C = 0;
+        if (--self->ext.teleport.width <= 0) {
+            self->ext.teleport.width = 0;
             self->step++;
         }
         break;
@@ -124,14 +124,14 @@ void RicEntityTeleport(Entity* self) {
         self->ext.teleport.unk90 += 4;
         if (self->ext.teleport.unk90 >= 0x100) {
             self->ext.teleport.unk90 = 0xFF;
-            self->ext.teleport.unk84 = 0x20;
+            self->ext.teleport.timer = 0x20;
             self->step++;
         }
         break;
     case 6:
         var_s5 = true;
         func_80166024();
-        if (--self->ext.teleport.unk84 == 0) {
+        if (--self->ext.teleport.timer == 0) {
             self->ext.teleport.unk90 = 0;
             if (upperParams == 0) {
                 D_80097C98 = 6;
@@ -147,12 +147,12 @@ void RicEntityTeleport(Entity* self) {
     case 20:
         var_s5 = true;
         self->ext.teleport.unk90 = 0xFF;
-        self->ext.teleport.unk84 = 0x20;
+        self->ext.teleport.timer = 0x20;
         self->step++;
         break;
     case 21:
         var_s5 = true;
-        if (--self->ext.teleport.unk84 == 0) {
+        if (--self->ext.teleport.timer == 0) {
             self->step++;
         }
         break;
@@ -165,19 +165,19 @@ void RicEntityTeleport(Entity* self) {
         }
         break;
     case 23:
-        if (--self->ext.teleport.unk7C < 2) {
-            self->ext.teleport.unk7C = 0;
-            self->ext.teleport.unk84 = 4;
+        if (--self->ext.teleport.width < 2) {
+            self->ext.teleport.width = 0;
+            self->ext.teleport.timer = 4;
             self->step++;
-            g_Player.unk1C = 1;
+            g_Player.warp_flag = 1;
             g_api.PlaySfx(SFX_TELEPORT_BANG_B);
             DestroyEntity(self);
             return;
         }
         break;
     }
-    selfUnk7C = self->ext.teleport.unk7C;
-    selfUnk80 = self->ext.teleport.unk80;
+    selfUnk7C = self->ext.teleport.width;
+    selfUnk80 = self->ext.teleport.height;
     self->posX.i.hi = PLAYER.posX.i.hi;
     self->posY.i.hi = PLAYER.posY.i.hi;
     prim = &g_PrimBuf[self->primIndex];
@@ -193,11 +193,13 @@ void RicEntityTeleport(Entity* self) {
     }
     prim->x1 = prim->x3 = xVar;
     prim->x0 = prim->x2 = xVar - selfUnk7C;
-    func_80165DD8(prim, self->ext.teleport.unk88, yVar, selfUnk80, upperParams);
+    func_80165DD8(
+        prim, self->ext.teleport.colorIntensity, yVar, selfUnk80, upperParams);
     prim = prim->next;
     prim->x1 = prim->x3 = xVar;
     prim->x0 = prim->x2 = xVar + selfUnk7C;
-    func_80165DD8(prim, self->ext.teleport.unk88, yVar, selfUnk80, upperParams);
+    func_80165DD8(
+        prim, self->ext.teleport.colorIntensity, yVar, selfUnk80, upperParams);
     prim = prim->next;
     if (showParticles) {
         for (i = 0; i < LEN(D_80175000); i++) {
@@ -242,12 +244,12 @@ void func_80167964(Entity* entity) {
                             FLAG_KEEP_ALIVE_OFFCAMERA | FLAG_UNK_10000;
         }
         if (!(entity->params & 0xFF00)) {
-            g_Entities[D_80155D30[entity->animFrameDuration]].palette =
-                PAL_OVL(0x140);
+            g_Entities[D_80155D30[entity->poseTimer]].palette =
+                PAL_FLAG(0x140);
         }
-        g_Entities[D_80155D30[entity->animFrameDuration]].ext.player.unkA4 = 4;
-        entity->animFrameDuration++;
-        if (entity->animFrameDuration == 0xF) {
+        g_Entities[D_80155D30[entity->poseTimer]].ext.player.unkA4 = 4;
+        entity->poseTimer++;
+        if (entity->poseTimer == 0xF) {
             DestroyEntity(entity);
         }
     } else {
@@ -433,7 +435,7 @@ void RicEntityCrashHydroStorm(Entity* self) {
             line = line->next;
         }
         if (self->params == 1) {
-            g_api.func_801027C4(3);
+            g_api.SetFadeMode(3);
         }
         self->ext.subweapon.timer = 0x160;
         if ((self->params < 32) && !(self->params & 3)) {

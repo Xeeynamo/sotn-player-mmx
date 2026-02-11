@@ -71,9 +71,9 @@ static void SetWeaponParams(Entity* e, int weaponId) {
     }
 }
 
-static AnimationFrame anim_lemon_shoot[] = {{64, FRAME(1, 2)}, A_END};
+static AnimationFrame anim_lemon_shoot[] = {POSE(64, 1, 1), POSE_END};
 static AnimationFrame anim_lemon_impact[] = {
-    {2, FRAME(2, 0)}, {2, FRAME(3, 0)}, {2, FRAME(4, 0)}, A_END};
+    POSE(2, 2, 0), POSE(2, 3, 0), POSE(2, 4, 0), POSE_END};
 static AnimationFrame* lemon_anims[] = {
     anim_lemon_shoot,
     anim_lemon_impact,
@@ -118,14 +118,14 @@ void EntityLemon(Entity* self) {
         break;
     dispose:
         self->ext.player.anim = 1;
-        self->animFrameDuration = 0;
-        self->animFrameIdx = 0;
+        self->poseTimer = 0;
+        self->pose = 0;
         self->hitboxState = 0;
-        g_api.PlaySfx(SFX_UI_TINK);
+        g_api.PlaySfx(SFX_UI_SUBWEAPON_TINK);
         self->step++;
         break;
     case 2:
-        if (self->animFrameDuration < 0) {
+        if (self->poseTimer < 0) {
             DestroyEntity(self);
             return;
         }
@@ -135,11 +135,11 @@ void EntityLemon(Entity* self) {
 }
 
 static AnimationFrame anim_cucumber_shoot[] = {
-    {2, FRAME(15, 4)}, {2, FRAME(16, 6)}, {2, FRAME(17, 8)}, {4, FRAME(18, 10)},
-    {1, FRAME(19, 2)}, {1, FRAME(20, 2)}, {2, FRAME(21, 2)}, {1, FRAME(20, 2)},
-    {1, FRAME(19, 2)}, A_LOOP_AT(4)};
+    POSE(2, 15, 2), POSE(2, 16, 3), POSE(2, 17, 4), POSE(4, 18, 5),
+    POSE(1, 19, 1), POSE(1, 20, 1), POSE(2, 21, 1), POSE(1, 20, 1),
+    POSE(1, 19, 1), POSE_LOOP(4)};
 static AnimationFrame anim_cucumber_impact[] = {
-    {2, FRAME(15, 0)}, {4, FRAME(16, 0)}, {4, FRAME(15, 0)}, A_END};
+    POSE(2, 15, 0), POSE(4, 16, 0), POSE(4, 15, 0), POSE_END};
 static AnimationFrame* cucumber_anims[] = {
     anim_cucumber_shoot,
     anim_cucumber_impact,
@@ -150,8 +150,8 @@ static u8 cucumber_hitbox[][4] = {
 };
 void EntityCucumber(Entity* self) {
     // PLAYER.anim = mmx_anims[PL_A_STAND_W];
-    // PLAYER.animFrameDuration = 0;
-    // PLAYER.animFrameIdx = 1;
+    // PLAYER.poseTimer = 0;
+    // PLAYER.pose = 1;
     // if (!(g_pads[0].tapped & PAD_DOWN)) {
     //     return;
     // }
@@ -170,7 +170,7 @@ void EntityCucumber(Entity* self) {
         break;
     case 1:
         // in the first two anim frames, the projectile does not move
-        if (self->animFrameIdx == 4) {
+        if (self->pose == 4) {
             RicSetSpeedX(FIX(5));
             self->step++;
         }
@@ -188,17 +188,17 @@ void EntityCucumber(Entity* self) {
                 }
                 self->facingLeft = !self->facingLeft; // animation is flipped
                 self->ext.player.anim = 1;
-                self->animFrameDuration = 0;
-                self->animFrameIdx = 0;
+                self->poseTimer = 0;
+                self->pose = 0;
                 self->hitboxState = 0;
                 self->step++;
-                g_api.PlaySfx(SFX_UI_TINK);
+                g_api.PlaySfx(SFX_UI_SUBWEAPON_TINK);
             }
             // otherwise the projectile will pass through
         }
         break;
     case 3:
-        if (self->animFrameDuration < 0) {
+        if (self->poseTimer < 0) {
             DestroyEntity(self);
             return;
         }
@@ -219,19 +219,11 @@ void EntityFireWave(Entity* self) { DestroyEntity(self); }
 void EntityHadouken(Entity* self) { DestroyEntity(self); }
 
 static AnimationFrame anim_charge_x1_lv1_particle[] = {
-    {8, FRAME(5, 0)}, {8, FRAME(6, 0)}, A_END};
+    POSE(8, 5, 0), POSE(8, 6, 0), POSE_END};
 static AnimationFrame anim_charge_x1_lv2_particle[] = {
-    {4, FRAME(7, 0)},
-    {4, FRAME(8, 0)},
-    {4, FRAME(9, 0)},
-    {4, FRAME(10, 0)},
-    A_END};
+    POSE(4, 7, 0), POSE(4, 8, 0), POSE(4, 9, 0), POSE(4, 10, 0), POSE_END};
 static AnimationFrame anim_charge_x1_lv3_particle[] = {
-    {4, FRAME(11, 0)},
-    {4, FRAME(12, 0)},
-    {4, FRAME(13, 0)},
-    {4, FRAME(14, 0)},
-    A_END};
+    POSE(4, 11, 0), POSE(4, 12, 0), POSE(4, 13, 0), POSE(4, 14, 0), POSE_END};
 static AnimationFrame* anim_charge_weapon_particles[] = {
     anim_charge_x1_lv1_particle,
     anim_charge_x1_lv2_particle,
@@ -412,10 +404,10 @@ static void IncreaseWeaponEnergy(s32 amount) {
 void EntityMmxPrizeDrop(Entity* self) { DestroyEntity(self); }
 
 static AnimationFrame anim_power_capsule_small_fall[] = {
-    {4, FRAME(1, 2)}, A_LOOP_AT(0)};
+    POSE(4, 1, 1), POSE_LOOP(0)};
 static AnimationFrame anim_power_capsule_small_open[] = {
-    {2, FRAME(1, 4)}, {2, FRAME(2, 4)}, {2, FRAME(3, 4)},
-    {2, FRAME(4, 4)}, {2, FRAME(3, 4)}, A_LOOP_AT(1)};
+    POSE(2, 1, 2), POSE(2, 2, 2), POSE(2, 3, 2),
+    POSE(2, 4, 2), POSE(2, 3, 2), POSE_LOOP(1)};
 static AnimationFrame* power_capsule_small_anims[] = {
     anim_power_capsule_small_fall,
     anim_power_capsule_small_open,
@@ -431,10 +423,10 @@ void EntityPowerCapsuleSmall(Entity* self) {
 }
 
 static AnimationFrame anim_power_capsule_big_fall[] = {
-    {4, FRAME(5, 2)}, A_LOOP_AT(0)};
+    POSE(4, 5, 1), POSE_LOOP(0)};
 static AnimationFrame anim_power_capsule_big_open[] = {
-    {2, FRAME(5, 2)}, {2, FRAME(6, 2)}, {2, FRAME(7, 2)},
-    {2, FRAME(8, 2)}, {2, FRAME(7, 2)}, A_LOOP_AT(1)};
+    POSE(2, 5, 1), POSE(2, 6, 1), POSE(2, 7, 1),
+    POSE(2, 8, 1), POSE(2, 7, 1), POSE_LOOP(1)};
 static AnimationFrame* power_capsule_big_anims[] = {
     anim_power_capsule_big_fall,
     anim_power_capsule_big_open,
@@ -449,11 +441,8 @@ void EntityPowerCapsuleBig(Entity* self) {
 }
 
 static AnimationFrame anim_energy_capsule_small[] = {
-    {2, FRAME(9, 2)},
-    {2, FRAME(10, 2)},
-    {2, FRAME(11, 2)},
-    {2, FRAME(10, 2)},
-    A_LOOP_AT(0)};
+    POSE(2, 9, 1), POSE(2, 10, 1), POSE(2, 11, 1), POSE(2, 10, 1),
+    POSE_LOOP(0)};
 static AnimationFrame* energy_capsule_small_anims[] = {
     anim_energy_capsule_small,
     anim_energy_capsule_small,
@@ -468,11 +457,8 @@ void EntityEnergyCapsuleSmall(Entity* self) {
 }
 
 static AnimationFrame anim_energy_capsule_big[] = {
-    {2, FRAME(12, 2)},
-    {2, FRAME(13, 2)},
-    {2, FRAME(14, 2)},
-    {2, FRAME(13, 2)},
-    A_LOOP_AT(0)};
+    POSE(2, 12, 1), POSE(2, 13, 1), POSE(2, 14, 1), POSE(2, 13, 1),
+    POSE_LOOP(0)};
 static AnimationFrame* energy_capsule_big_anims[] = {
     anim_energy_capsule_big,
     anim_energy_capsule_big,
@@ -487,7 +473,7 @@ void EntityEnergyCapsuleBig(Entity* self) {
 }
 
 static AnimationFrame anim_life_up[] = {
-    {4, FRAME(15, 2)}, {4, FRAME(16, 2)}, A_LOOP_AT(0)};
+    POSE(4, 15, 1), POSE(4, 16, 1), POSE_LOOP(0)};
 static AnimationFrame* life_up_anims[] = {
     anim_life_up,
     anim_life_up,
@@ -501,11 +487,8 @@ void EntityLifeUp(Entity* self) {
 }
 
 static AnimationFrame anim_heart_tank[] = {
-    {4, FRAME(17, 2)},
-    {4, FRAME(18, 2)},
-    {4, FRAME(19, 2)},
-    {4, FRAME(20, 2)},
-    A_LOOP_AT(0)};
+    POSE(4, 17, 1), POSE(4, 18, 1), POSE(4, 19, 1), POSE(4, 20, 1),
+    POSE_LOOP(0)};
 static AnimationFrame* anim_heart_tank_anims[] = {
     anim_heart_tank,
     anim_heart_tank,
@@ -541,9 +524,8 @@ void EntityHeartTank(Entity* self) {
 void EntityEnergyTank(Entity* self) { DestroyEntity(self); }
 
 static AnimationFrame anim_death_particle[] = {
-    {16, FRAME(21, 0)}, {16, FRAME(22, 0)}, {8, FRAME(23, 0)},
-    {8, FRAME(23, 0)},  {8, FRAME(24, 0)},  {8, FRAME(25, 0)},
-    A_LOOP_AT(3)};
+    POSE(16, 21, 0), POSE(16, 22, 0), POSE(8, 23, 0), POSE(8, 23, 0),
+    POSE(8, 24, 0),  POSE(8, 25, 0),  POSE_LOOP(3)};
 static AnimationFrame* anim_death_particle_anims[] = {
     anim_death_particle,
 };

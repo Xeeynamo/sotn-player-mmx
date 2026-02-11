@@ -17,10 +17,11 @@ CC        := $(CROSS)gcc
 LD        := $(CROSS)ld
 CPP       := $(CROSS)cpp
 OBJCOPY   := $(CROSS)objcopy
-CC_FLAGS  := -c -I$(INCLUDE_DIR) -G0 -O2 -g -funsigned-char -w
+CC_FLAGS  := -std=c11 -c -I$(INCLUDE_DIR) -G0 -O2 -g -funsigned-char -w
 CC_FLAGS  += -DVERSION_PSX -DVERSION_US -DNO_LOGS
 CC_FLAGS  += -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -mfp32 -mno-llsc
 CC_FLAGS  += -fno-stack-protector -nostdlib
+CC_FLAGS  += -Wno-incompatible-pointer-types -Wno-implicit-function-declaration
 OBJS      := $(addprefix build/, $(addsuffix .o, $(FILES)))
 SRC_FILES := $(addsuffix .c, $(FILES))
 ASSETS_H  := $(addprefix src/assets/, $(addsuffix .inc, $(ASSETS)))
@@ -37,9 +38,10 @@ build: build/$(PL_NAME).bin
 build/%.bin: build/%.elf
 	$(OBJCOPY) -O binary $< $@
 build/$(PL_NAME).elf: $(OBJS)
+	grep -o '^[^/]*' $(CONFIG_DIR)/symbols.$(VERSION).txt > build/symbols.$(VERSION).txt
 	$(LD) -o $@ -Map build/$(PL_NAME).map -T pl.ld \
 		-T $(CONFIG_DIR)/undefined_syms.$(VERSION).txt \
-		-T $(CONFIG_DIR)/symbols.$(VERSION).txt \$^
+		-T build/symbols.$(VERSION).txt \$^
 build/%.o: src/%.c $(SOTN_SDK)
 	mkdir -p $(dir $@)
 	$(CC) $(CC_FLAGS) -o $@ $<

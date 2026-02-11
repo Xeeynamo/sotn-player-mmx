@@ -1,27 +1,47 @@
 #include "pl.h"
 
-#define B_A_LOT 3 // can spawn a maximum of 48 concurrent entities!
-#define B_STAGE 7 // unique to the MMX mod, serves to replace stage entities
+#define B_MAKE(entityId, amount, nPerCycle, isNonCritical, incParamsKind,      \
+               timerCycle, kind, origin, timerDelay)                           \
+    {(entityId),                                                               \
+     (amount),                                                                 \
+     ((nPerCycle) & 0x3F) | ((!!(incParamsKind)) << 6) |                       \
+         ((!!(isNonCritical)) << 7),                                           \
+     (timerCycle),                                                             \
+     ((kind) & 7) | (((origin) & 31) << 3),                                    \
+     timerDelay}
+
+// Blueprint kind constants (from ric.h BlueprintKind enum)
+enum BlueprintKind {
+    B_DECORATION,      //
+    B_WEAPON,          //
+    B_WEAPON_UNIQUE,   //
+    B_EFFECTS,         // can spawn a maximum of 48 concurrent entities!
+    B_WHIP,            //
+    B_CUTSCENE_MARIA,  //
+    B_WEAPON_CHILDREN, //
+    B_STAGE, // unique to the MMX mod, serves to replace stage entities
+};
 
 static FactoryBlueprint blueprints[] = {
     B_MAKE(0, 0, 0, false, false, 0, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF, 5, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF_WHEN_SLIDING, 1, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF, 1, 1, true, true, 2, 0, 0, 0),
-    B_MAKE(E_W_LEMON, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_CUCUMBER, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_CHARJELLY, 1, 1, false, true, 1, B_WPN, 0, 0),
+    B_MAKE(E_W_LEMON, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_CUCUMBER, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_CHARJELLY, 1, 1, false, true, 1, B_WEAPON, 0, 0),
     // TODO: add here lv3 projectile
-    B_MAKE(E_W_SHOTGUN_ICE, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_ELECTRIC_SPARK, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_ROLLING_SHIELD, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_HOMING_TORPEDO, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_BOOMERANG_CUTTER, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_CHAMELEON_STING, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_STORM_TORNADO, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_FIRE_WAVE, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_W_HADOUKEN, 1, 1, false, true, 1, B_WPN, 0, 0),
-    B_MAKE(E_CHARGE_WEAPON_PARTICLE, 16, 2, true, true, 4, B_A_LOT, 0, 0),
+    B_MAKE(E_W_SHOTGUN_ICE, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_ELECTRIC_SPARK, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_ROLLING_SHIELD, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_HOMING_TORPEDO, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_BOOMERANG_CUTTER, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_CHAMELEON_STING, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_STORM_TORNADO, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_FIRE_WAVE, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_HADOUKEN, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_CHARGE_WEAPON_PARTICLE, 16, 2, true, true, 4, B_WEAPON_CHILDREN, 0,
+           0),
     B_MAKE(E_MMX_PRIZE_DROP, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_POWER_CAPSULE_SMALL, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_POWER_CAPSULE_BIG, 1, 1, false, true, 1, B_STAGE, 0, 0),
@@ -30,8 +50,9 @@ static FactoryBlueprint blueprints[] = {
     B_MAKE(E_LIFE_UP, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_HEART_TANK, 1, 1, false, true, 1, B_STAGE, 0, 0),
     B_MAKE(E_ENERGY_TANK, 1, 1, false, true, 1, B_STAGE, 0, 0),
-    B_MAKE(E_DEATH_PARTICLE, 32, 8, true, true, 64, B_A_LOT, 0, 0),
-    B_MAKE(E_DEATH_SCREEN_HANDLER, 1, 1, false, true, 1, B_A_LOT, 0, 0),
+    B_MAKE(E_DEATH_PARTICLE, 32, 8, true, true, 64, B_WEAPON_CHILDREN, 0, 0),
+    B_MAKE(
+        E_DEATH_SCREEN_HANDLER, 1, 1, false, true, 1, B_WEAPON_CHILDREN, 0, 0),
 };
 STATIC_ASSERT(
     LEN(blueprints) == (NUM_BLUEPRINTS - B_DUMMY), "bp array wrong size");
@@ -291,19 +312,20 @@ void RicEntityFactory(Entity* self) {
 
     if (self->step == 0) {
         data_idx = &g_RicFactoryBlueprints[self->params];
-        self->ext.factory.childId = *data_idx++;
-        self->ext.factory.unk94 = *data_idx++;          // index 1
-        self->ext.factory.unk96 = *data_idx & 0x3F;     // index 2, lower 6 bits
-        self->ext.factory.unk9E = *data_idx >> 7;       // index 2, top bit
-        self->ext.factory.unkA2 = *data_idx++ >> 6 & 1; // index 2, 2nd-top bit
-        self->ext.factory.unk98 = *data_idx++;          // index 3
-        self->ext.factory.unk9C = *data_idx & 0x7;      // index 4, lower 4 bits
-        self->ext.factory.unkA4 = *data_idx++ >> 3;     // index 4, upper 4 bits
-        self->ext.factory.unk9A = *data_idx;            // index 5
+        self->ext.factory.newEntityId = *data_idx++;
+        self->ext.factory.amount = *data_idx++;         // index 1
+        self->ext.factory.nPerCycle = *data_idx & 0x3F; // index 2, lower 6 bits
+        self->ext.factory.isNonCritical = *data_idx >> 7; // index 2, top bit
+        self->ext.factory.incParamsKind =
+            *data_idx++ >> 6 & 1;                    // index 2, 2nd-top bit
+        self->ext.factory.tCycle = *data_idx++;      // index 3
+        self->ext.factory.kind = *data_idx & 0x7;    // index 4, lower 4 bits
+        self->ext.factory.origin = *data_idx++ >> 3; // index 4, upper 4 bits
+        self->ext.factory.delay = *data_idx;         // index 5
         self->flags |= FLAG_KEEP_ALIVE_OFFCAMERA;
 
         self->step++;
-        switch (self->ext.factory.unkA4) {
+        switch (self->ext.factory.origin) {
         case 0:
             self->flags |= FLAG_POS_CAMERA_LOCKED;
             break;
@@ -324,7 +346,7 @@ void RicEntityFactory(Entity* self) {
             break;
         }
     } else {
-        switch (self->ext.factory.unkA4) {
+        switch (self->ext.factory.origin) {
         case 0:
             break;
         case 9:
@@ -366,38 +388,38 @@ void RicEntityFactory(Entity* self) {
             break;
         }
     }
-    if (self->ext.factory.unk9A != 0) {
-        self->ext.factory.unk9A--;
-        if (self->ext.factory.unk9A != 0) {
+    if (self->ext.factory.delay != 0) {
+        self->ext.factory.delay--;
+        if (self->ext.factory.delay != 0) {
             return;
         }
-        self->ext.factory.unk9A = self->ext.factory.unk98;
+        self->ext.factory.delay = self->ext.factory.tCycle;
     }
     // Save this value so we don't have to re-fetch on every for-loop cycle
-    n = self->ext.factory.unk96;
+    n = self->ext.factory.nPerCycle;
     for (i = 0; i < n; i++) {
         // !FAKE, this should probably be &entity_ranges[unk9C] or similar,
         // instead of doing &entity_ranges followed by +=
         data_idx = entity_ranges;
-        data_idx += self->ext.factory.unk9C * 2;
+        data_idx += self->ext.factory.kind * 2;
 
         startIndex = *data_idx;
         endIndex = *(data_idx + 1);
 
-        if (self->ext.factory.unk9C == 0) {
+        if (self->ext.factory.kind == 0) {
             newEntity = RicGetFreeEntityReverse(startIndex, endIndex + 1);
-        } else if (self->ext.factory.unk9C == 4) {
+        } else if (self->ext.factory.kind == 4) {
             newEntity = &g_Entities[31];
-        } else if (self->ext.factory.unk9C == 5) {
+        } else if (self->ext.factory.kind == 5) {
             newEntity = &g_Entities[48];
-        } else if (self->ext.factory.unk9C == B_STAGE) {
+        } else if (self->ext.factory.kind == B_STAGE) {
             newEntity = RicGetFreeEntity(STAGE_ENTITY_START, LEN(g_Entities));
         } else {
             newEntity = RicGetFreeEntity(startIndex, endIndex + 1);
         }
 
         if (newEntity == NULL) {
-            if (self->ext.factory.unk9E == 1) {
+            if (self->ext.factory.isNonCritical == 1) {
                 self->entityId = 0;
                 return;
             }
@@ -406,8 +428,8 @@ void RicEntityFactory(Entity* self) {
         DestroyEntity(newEntity);
         // unkA8 never gets set so is always zero
         newEntity->entityId =
-            self->ext.factory.childId + self->ext.factory.unkA8;
-        newEntity->params = self->ext.factory.unkA0;
+            self->ext.factory.newEntityId + self->ext.factory.entityIdMod;
+        newEntity->params = self->ext.factory.paramsBase;
         // The child  (newEntity) is not an ent factory, but because the
         // factory creates many entities, we can't pick a particular extension.
         // But we're not allowed to use generic, so i'll just reuse entFactory.
@@ -419,8 +441,8 @@ void RicEntityFactory(Entity* self) {
         if (self->flags & FLAG_UNK_10000) {
             newEntity->flags |= FLAG_UNK_10000;
         }
-        if (self->ext.factory.unkA2 != 0) {
-            newEntity->params += self->ext.factory.unkA6;
+        if (self->ext.factory.incParamsKind != 0) {
+            newEntity->params += self->ext.factory.spawnIndex;
         } else {
             newEntity->params += i;
         }
@@ -431,16 +453,16 @@ void RicEntityFactory(Entity* self) {
         // on the player behalf because the two overlays have a different table
         // for their own entityId list.
         // we need to activate the B_STAGE entities immediately here
-        if (self->ext.factory.unk9C == B_STAGE) {
+        if (self->ext.factory.kind == B_STAGE) {
             newEntity->pfnUpdate = entity_functions[newEntity->entityId];
         }
 
-        if (++self->ext.factory.unkA6 == self->ext.factory.unk94) {
+        if (++self->ext.factory.spawnIndex == self->ext.factory.amount) {
             self->entityId = 0;
             return;
         }
     }
-    self->ext.factory.unk9A = self->ext.factory.unk98;
+    self->ext.factory.delay = self->ext.factory.tCycle;
 }
 
 static u8 D_80174FAC;
@@ -491,7 +513,7 @@ void RicUpdatePlayerEntities(void) {
 
     if (D_80174FAC != 0) {
         if (--D_80174FAC & 1) {
-            g_api.g_pfn_800EA5AC(1, D_80174FB0, D_80174FB4, D_80174FB8);
+            g_api.func_800EA5AC(1, D_80174FB0, D_80174FB4, D_80174FB8);
         }
     }
 
@@ -548,7 +570,7 @@ Entity* RicCreateEntFactoryFromEntity(
         entity->facingLeft = source->facingLeft;
         entity->zPriority = source->zPriority;
         entity->params = factoryParams & 0xFFF;
-        entity->ext.factory.unkA0 = (factoryParams >> 8) & 0xFF00;
+        entity->ext.factory.paramsBase = (factoryParams >> 8) & 0xFF00;
 
         if (source->flags & FLAG_UNK_10000) {
             entity->flags |= FLAG_UNK_10000;

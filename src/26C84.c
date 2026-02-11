@@ -77,7 +77,7 @@ void RicEntityPlayerBlinkWhite(Entity* self) {
     self->posY.i.hi = PLAYER.posY.i.hi;
     self->posX.i.hi = PLAYER.posX.i.hi;
     self->facingLeft = PLAYER.facingLeft;
-    rotz = PLAYER.rotZ;
+    rotz = PLAYER.rotate;
     selfY = self->posY.i.hi;
     selfX = self->posX.i.hi;
     temp_v1 = g_MmxPlSprites[PLAYER.animCurFrame & 0x7FFF];
@@ -93,10 +93,10 @@ void RicEntityPlayerBlinkWhite(Entity* self) {
     xPivot = temp_v1[0] + plSprite[2];
     yPivot = temp_v1[1] + plSprite[3];
 
-    self->rotZ = rotz;
+    self->rotate = rotz;
     self->drawFlags = PLAYER.drawFlags;
-    self->rotX = PLAYER.rotX;
-    self->rotY = PLAYER.rotY;
+    self->scaleX = PLAYER.scaleX;
+    self->scaleY = PLAYER.scaleY;
     self->rotPivotY = PLAYER.rotPivotY;
     self->rotPivotX = PLAYER.rotPivotX;
     upperParams = (self->params & 0x7F00) >> 8;
@@ -729,22 +729,22 @@ void RicEntityHitByIce(Entity* self) {
         }
         if (PLAYER.velocityY != 0) {
             if (!PLAYER.facingLeft) {
-                self->rotZ = -0x100;
+                self->rotate = -0x100;
             } else {
-                self->rotZ = 0x100;
+                self->rotate = 0x100;
             }
         } else {
             if (PLAYER.velocityX <= 0) {
-                self->rotZ = 0xF80;
+                self->rotate = 0xF80;
             } else {
-                self->rotZ = 0x80;
+                self->rotate = 0x80;
             }
         }
         if (PLAYER.step == PL_S_DEAD) {
             if (!PLAYER.facingLeft) {
-                self->rotZ = -0x180;
+                self->rotate = -0x180;
             } else {
-                self->rotZ = 0x180;
+                self->rotate = 0x180;
             }
             self->ext.hitbyice.unk80 = 1;
             self->ext.hitbyice.unk82 = 0x3C;
@@ -759,30 +759,30 @@ void RicEntityHitByIce(Entity* self) {
         if (PLAYER.step == PL_S_DEAD) {
             if ((PLAYER.animCurFrame & 0x7FFF) == 0x21) {
                 if (!PLAYER.facingLeft) {
-                    self->rotZ = -0x280;
+                    self->rotate = -0x280;
                 } else {
-                    self->rotZ = 0x280;
+                    self->rotate = 0x280;
                 }
             }
             if ((PLAYER.animCurFrame & 0x7FFF) == 0x22) {
                 if (!PLAYER.facingLeft) {
-                    self->rotZ = -0x380;
+                    self->rotate = -0x380;
                 } else {
-                    self->rotZ = 0x380;
+                    self->rotate = 0x380;
                 }
             }
             if ((PLAYER.animCurFrame & 0x7FFF) == 0x20) {
                 if (!PLAYER.facingLeft) {
-                    self->rotZ = -0x180;
+                    self->rotate = -0x180;
                 } else {
-                    self->rotZ = 0x180;
+                    self->rotate = 0x180;
                 }
             }
         }
         if (self->ext.hitbyice.unk80 && !--self->ext.hitbyice.unk82) {
             sp18 = true;
         }
-        if ((self->ext.hitbyice.unk7E) && (g_Player.pl_vram_flag & 0xC)) {
+        if ((self->ext.hitbyice.unk7E) && (g_Player.vram_flag & 0xC)) {
             sp18 = true;
         }
         if (sp18) {
@@ -809,7 +809,7 @@ void RicEntityHitByIce(Entity* self) {
         if (prim->u0 < 2) {
             size = SquareRoot12(
                 ((offset->x * offset->x) + (offset->y * offset->y)) << 0xC);
-            angle = self->rotZ + ratan2(offset->y, offset->x);
+            angle = self->rotate + ratan2(offset->y, offset->x);
             xShift1 = (((rcos(angle) >> 4) * size) + 0x80000) >> 0x14;
             yShift1 = (((rsin(angle) >> 4) * size) + 0x80000) >> 0x14;
             prim->x0 = selfX + xShift1;
@@ -818,7 +818,7 @@ void RicEntityHitByIce(Entity* self) {
             offset = D_80155244[i * 3 + 1];
             size = SquareRoot12(
                 ((offset->x * offset->x) + (offset->y * offset->y)) << 0xC);
-            angle = self->rotZ + ratan2(offset->y, offset->x);
+            angle = self->rotate + ratan2(offset->y, offset->x);
             xShift2 = (((rcos(angle) >> 4) * size) + 0x80000) >> 0x14;
             yShift2 = (((rsin(angle) >> 4) * size) + 0x80000) >> 0x14;
             prim->x1 = selfX + xShift2;
@@ -827,7 +827,7 @@ void RicEntityHitByIce(Entity* self) {
             offset = D_80155244[i * 3 + 2];
             size = SquareRoot12(
                 ((offset->x * offset->x) + (offset->y * offset->y)) << 0xC);
-            angle = self->rotZ + ratan2(offset->y, offset->x);
+            angle = self->rotate + ratan2(offset->y, offset->x);
             xShift3 = (((rcos(angle) >> 4) * size) + 0x80000) >> 0x14;
             yShift3 = (((rsin(angle) >> 4) * size) + 0x80000) >> 0x14;
             prim->x2 = prim->x3 = selfX + xShift3;
@@ -953,7 +953,7 @@ void RicEntityHitByLightning(Entity* self) {
         self->posX.val = xOffset + PLAYER.posX.val;
         self->posY.val = yOffset + PLAYER.posY.val;
         if ((self->ext.hitbylightning.unk92 != 0) &&
-            (g_Player.pl_vram_flag & 0xE)) {
+            (g_Player.vram_flag & 0xE)) {
             var_s0 = true;
         }
         if (var_s0) {
