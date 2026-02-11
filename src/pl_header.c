@@ -11,6 +11,6 @@ u_long* MMX_player[] = {
 #else
 u_long* MMX_player[] = {
 #endif
-    PlayerMain,    PlayerInit, RicUpdatePlayerEntities,
+    PlayerMain,         PlayerInit, RicUpdatePlayerEntities,
     RicGetPlayerSensor, pl_sprites, pl_sprites,
-    pl_sprites,    pl_sprites};
+    pl_sprites,         pl_sprites};

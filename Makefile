@@ -17,7 +17,7 @@ CC        := $(CROSS)gcc
 LD        := $(CROSS)ld
 CPP       := $(CROSS)cpp
 OBJCOPY   := $(CROSS)objcopy
-CC_FLAGS  := -std=c11 -c -I$(INCLUDE_DIR) -G0 -O2 -g -funsigned-char -w
+CC_FLAGS  := -std=c11 -c -I$(INCLUDE_DIR) -G0 -O2 -g -funsigned-char -w -ffunction-sections -fdata-sections
 CC_FLAGS  += -DVERSION_PSX -DVERSION_US -DNO_LOGS
 CC_FLAGS  += -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -mfp32 -mno-llsc
 CC_FLAGS  += -fno-stack-protector -nostdlib
@@ -39,7 +39,7 @@ build/%.bin: build/%.elf
 	$(OBJCOPY) -O binary $< $@
 build/$(PL_NAME).elf: $(OBJS)
 	grep -o '^[^/]*' $(CONFIG_DIR)/symbols.$(VERSION).txt > build/symbols.$(VERSION).txt
-	$(LD) -o $@ -Map build/$(PL_NAME).map -T pl.ld \
+	$(LD) -o $@ --gc-sections -Map build/$(PL_NAME).map -T pl.ld \
 		-T $(CONFIG_DIR)/undefined_syms.$(VERSION).txt \
 		-T build/symbols.$(VERSION).txt \$^
 build/%.o: src/%.c $(SOTN_SDK)

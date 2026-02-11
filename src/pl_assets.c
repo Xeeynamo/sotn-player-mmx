@@ -35,6 +35,10 @@ static bool DecompressData(void* dst, void* src, size_t srcLen, size_t dstLen) {
            dstLen;
 }
 
+int __ctzsi2(unsigned int a) {
+    // necessary to compile lz4.c
+    return a;
+}
 static void InitPalette() {
     memcpy(&g_Clut[1][0x200], palette, sizeof(palette));
     RECT vramPalette = {0, 240, 256, 16};
