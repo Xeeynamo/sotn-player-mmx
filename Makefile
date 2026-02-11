@@ -61,4 +61,9 @@ $(SOTN_SDK):
 	git submodule init $(SOTN_DIR)
 	git submodule update $(SOTN_DIR)
 
-.PHONY: all build clean spritesheet
+PCSX_REDUX_PATH = $$(cat path)
+run: build
+	cd sotn-decomp && go run ./tools/sotn-disk inject ../.emu/sotn-mmx.us.bin BIN/RIC.BIN ../build/mmx.bin
+	cd .emu && $(PCSX_REDUX_PATH) -run -iso sotn-mmx.us.bin
+
+.PHONY: all build clean run spritesheet
