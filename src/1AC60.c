@@ -114,8 +114,14 @@ static s16 func_80156DE4(void) {
 
 static void RicDebugOff();
 
+static void func_8015CC70(s16 arg0) {
+    PLAYER.step_s = arg0;
+    PLAYER.step = PL_S_INIT;
+    MmxSetAnimation(PL_A_STAND);
+}
+
 // Duplicate of DRA func_80109594
-void RicInit(s16 isPrologue) {
+void RicInit(u16 isPrologue) {
     Entity* e;
     s32 radius;
     s32 intensity;
@@ -123,8 +129,6 @@ void RicInit(s16 isPrologue) {
     Primitive* prim;
     s32 i;
     s32 val;
-    s32 memset_len;
-    s32* memset_ptr;
     SpriteParts** spriteptr;
     Entity* playerPtr = &PLAYER;
 
@@ -138,11 +142,7 @@ void RicInit(s16 isPrologue) {
     PLAYER.facingLeft = 0;
     PLAYER.rotPivotY = 0x18;
     PLAYER.zPriority = g_unkGraphicsStruct.g_zEntityCenter;
-    memset_len = sizeof(PlayerState) / sizeof(s32);
-    memset_ptr = &g_Player;
-    for (i = 0; i < memset_len; i++) {
-        *memset_ptr++ = 0;
-    }
+    __builtin_memset(&g_Player, 0, sizeof(PlayerState));
     g_Player.unk04 = 1;
     g_Player.vram_flag = 1;
     RicSetStand(0);
@@ -165,10 +165,10 @@ void RicInit(s16 isPrologue) {
     }
     spriteptr = g_api.o.spriteBanks;
     spriteptr += 0x10;
-    *spriteptr++ = g_MmxPlSprites;
-    *spriteptr++ = g_SpritesWeapons;
-    *spriteptr++ = g_SpritesItems;
-    *spriteptr++ = D_801541A8;
+    *spriteptr++ = (SpriteParts*)g_MmxPlSprites;
+    *spriteptr++ = (SpriteParts*)g_SpritesWeapons;
+    *spriteptr++ = (SpriteParts*)g_SpritesItems;
+    *spriteptr++ = (SpriteParts*)D_801541A8;
     for (e = &g_Entities[1], i = 0; i < 3; i++, e++) {
         DestroyEntity(e);
         e->animSet = ANIMSET_OVL(0x10);
@@ -203,7 +203,6 @@ static void CheckStageCollision(bool arg0) {
     s16 argY;
     s32 xVel;
     s32 i;
-    s32 j;
     s32 unk0C;
 
     s32* vram_ptr = &g_Player.vram_flag;
@@ -446,88 +445,6 @@ void MmxSetAnimation(enum MmxAnims anim) {
     }
 }
 
-bool func_8015885C(void);
-void RicHandleDead(s32 damageEffects, s32 arg1, s32 arg2, s32 arg3);
-
-static void UpdateTimers() {
-    s32 i;
-    PlayerDraw* playerDraw = g_PlayerDraw;
-
-    for (i = 0; i < LEN(g_Player.timers); i++) {
-        if (!g_Player.timers[i]) {
-            continue;
-        }
-        switch (i) {
-        case PL_T_POISON:
-        case PL_T_CURSE:
-        case PL_T_3:
-        case PL_T_5:
-        case PL_T_FALL:
-        case PL_T_7:
-        case PL_T_8:
-            break;
-        case PL_T_ATTACK:
-            ChangeAnimToAttack();
-            break;
-        case PL_T_10:
-        case PL_T_RUN:
-        case PL_T_12:
-        case PL_T_INVINCIBLE:
-            break;
-        case PL_T_2:
-            PLAYER.palette = g_Player.damagePalette;
-            break;
-        case PL_T_4: {
-            s32 temp_s0 = (g_GameTimer & 0xF) << 8;
-            playerDraw->r0 = playerDraw->b0 = playerDraw->g0 =
-                (rsin((s16)temp_s0) + 0x1000) / 64 + 0x60;
-            playerDraw->r1 = playerDraw->b1 = playerDraw->g1 =
-                (rsin(temp_s0 + 0x200) + 0x1000) / 64 + 0x60;
-            playerDraw->r3 = playerDraw->b3 = playerDraw->g3 =
-                (rsin(temp_s0 + 0x400) + 0x1000) / 64 + 0x60;
-            playerDraw->r2 = playerDraw->b2 = playerDraw->g2 =
-                (rsin(temp_s0 + 0x600) + 0x1000) / 64 + 0x60;
-            playerDraw->enableColorBlend = 1;
-            break;
-        }
-        case PL_T_INVINCIBLE_SCENE:
-            g_Player.timers[PL_T_INVINCIBLE_SCENE] = 4;
-            break;
-        case PL_T_AFTERIMAGE_DISABLE:
-            DisableAfterImage(false, 0);
-            break;
-        }
-        if (--g_Player.timers[i]) {
-            continue;
-        }
-        switch (i) {
-        case PL_T_POISON:
-            break;
-        case PL_T_2:
-            PLAYER.palette = 0x8120;
-            break;
-        case PL_T_4:
-            playerDraw->enableColorBlend = 0;
-            break;
-        case PL_T_ATTACK:
-            RevertAnimFromAttack();
-            break;
-        case PL_T_INVINCIBLE_SCENE:
-            RicSetInvincibilityFrames(1, 16);
-            break;
-        case PL_T_FALL:
-            if (PLAYER.step == PL_S_FALL) {
-                MmxSetAnimation(PL_A_FALL);
-                g_Player.unk44 &= ~0x10;
-            }
-            break;
-        case PL_T_AFTERIMAGE_DISABLE:
-            func_8015CC28();
-            break;
-        }
-    }
-}
-
 static void UpdateInput() {
     g_Player.padHeld = g_Player.padPressed;
     if (g_Player.demo_timer) {
@@ -539,338 +456,6 @@ static void UpdateInput() {
     g_Player.padTapped =
         (g_Player.padHeld ^ g_Player.padPressed) & g_Player.padPressed;
     g_PadReleased = (g_Player.padHeld ^ g_Player.padPressed) & g_Player.padHeld;
-}
-
-AnimationFrame mmx_anim_stand[] = {POSE(160, 3, 1), POSE_END};
-static AnimationFrame* D_8015538C[] = {mmx_anim_stand, mmx_anim_stand};
-static FrameProperty D_80155964[] = {
-    0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x06, 0x14, 0x02, 0x05, 0x07, 0x0C,
-    0x03, 0x0C, 0x08, 0x0C, 0x00, 0xFF, 0x06, 0x10, 0x00, 0x01, 0x08, 0x08,
-    0x00, 0xFB, 0x07, 0x05, 0xC0, 0xA8, 0x00, 0x00, 0xFC, 0x00, 0x06, 0x11,
-    0x00, 0x00, 0x09, 0x10, 0xFF, 0x11, 0x0C, 0x07, 0xF9, 0x0A, 0x08, 0x05,
-    0xFE, 0x06, 0x08, 0x08, 0xFA, 0x06, 0x07, 0x11, 0x04, 0x06, 0x0A, 0x09,
-    0xFD, 0x03, 0x09, 0x14, 0x00, 0x08, 0x08, 0x08, 0xFF, 0x0A, 0x0C, 0x07,
-};
-
-void MmxMain(void) {
-    DamageParam damage;
-    s32 temp_s0;
-    s32 newStatus;
-    s32 damageKind;
-    s32 damageEffects;
-    s16 playerStep;
-    s16 playerStepS;
-    s32 i;
-    bool isDamageTakenDeadly;
-    f32* playerY;
-
-    g_CurrentEntity = &PLAYER;
-    g_Player.unk4C = 0;
-    g_Player.unk72 = func_80156DE4();
-    UpdateTimers();
-    UpdateInput();
-    if (PLAYER.step != PL_S_DEAD) {
-        // Reuse the i variable here even though we aren't iterating
-        i = GetTeleportToOtherCastle();
-        if (i != 0) {
-            func_8015CC70(i);
-        }
-        // Richter must use step #32 for something else, look into it!
-        if (PLAYER.step != PL_S_INIT) {
-            if (g_DebugPlayer && RicDebug()) {
-                return;
-            }
-            if (g_Player.unk60 >= 2) {
-                goto check_input_combo;
-            }
-            if (g_Player.unk60 == 1) {
-                playerStep = PLAYER.step;
-                playerStepS = PLAYER.step_s;
-                RicSetStep(PL_S_BOSS_GRAB);
-                goto skip_input_combo;
-            }
-            if ((g_Player.timers[PL_T_INVINCIBLE_SCENE] |
-                 g_Player.timers[PL_T_INVINCIBLE]) ||
-                !PLAYER.hitParams) {
-                goto check_input_combo;
-            }
-            // handle received damage
-            playerStep = PLAYER.step;
-            playerStepS = PLAYER.step_s;
-            damage.effects = PLAYER.hitParams & ~0x1F;
-            damage.damageKind = PLAYER.hitParams & 0x1F;
-            damage.damageTaken = PLAYER.hitPoints;
-            isDamageTakenDeadly = g_api.CalcPlayerDamage(&damage);
-            damageKind = damage.damageKind;
-            damageEffects = damage.effects;
-            g_Player.timers[PL_T_INVINCIBLE] = 106; // tested on MMX
-            if (isDamageTakenDeadly) {
-                if (!g_Player.unk5C) {
-                    RicSetStep(PL_S_DEAD);
-                } else {
-                    g_Status.hp = 1;
-                    RicSetStep(PL_S_HIT);
-                }
-            } else {
-                RicSetStep(PL_S_HIT);
-            }
-        }
-    } else {
-    check_input_combo:
-        // CheckBladeDashInput();
-        // CheckHighJumpInput();
-        CheckHadoukenInput();
-    }
-skip_input_combo:
-    g_Player.prev_step = PLAYER.step;
-    g_Player.prev_step_s = PLAYER.step_s;
-    switch (PLAYER.step) {
-    case PL_S_STAND:
-        RicHandleStand();
-        break;
-    case PL_S_WALK:
-        RicHandleWalk();
-        break;
-    case PL_S_CROUCH:
-        RicHandleCrouch();
-        break;
-    case PL_S_FALL:
-        RicHandleFall();
-        break;
-    case PL_S_JUMP:
-        MmxHandleJump();
-        break;
-    case PL_S_HIGHJUMP:
-        RicHandleHighJump();
-        break;
-    case PL_S_HIT:
-        RicHandleHit(damageEffects, damageKind, playerStep);
-        break;
-    case PL_S_BOSS_GRAB:
-        RicHandleBossGrab();
-        break;
-    case PL_S_DEAD:
-        g_ChargeTimer = 0;
-        RicHandleDead(damageEffects, damageKind, playerStep, playerStepS);
-        break;
-    case PL_S_STAND_IN_AIR:
-        RicHandleStandInAir();
-        break;
-    case PL_S_FLAME_WHIP:
-        RicHandleEnableFlameWhip();
-        break;
-    case PL_S_HYDROSTORM:
-        RicHandleHydrostorm();
-        break;
-    case PL_S_THROW_DAGGERS:
-        RicHandleThrowDaggers();
-        break;
-    case PL_S_SUBWPN_CRASH:
-        RicHandleGenericSubwpnCrash();
-        break;
-    case PL_S_DEAD_PROLOGUE:
-        g_ChargeTimer = 0;
-        RicHandleDeadPrologue();
-        break;
-    case PL_S_SLIDE:
-        RicHandleSlide();
-        break;
-    case PL_S_RUN:
-        RicHandleRun();
-        break;
-    case PL_S_SLIDE_KICK:
-        RicHandleSlideKick();
-        break;
-    case PL_S_BLADEDASH:
-        RicHandleBladeDash();
-        break;
-    case PL_S_DASH:
-        MmxHandleDash();
-        break;
-    case PL_S_WALL:
-        MmxHandleWall();
-        break;
-    case PL_S_DASH_AIR:
-        MmxHandleDashAir();
-        break;
-    case PL_S_INIT:
-        func_8015BCD0();
-        break;
-    }
-    g_Player.unk08 = g_Player.status;
-    newStatus = 0;
-    switch (PLAYER.step) {
-    case PL_S_STAND:
-    case PL_S_WALK:
-        newStatus = NO_AFTERIMAGE;
-        break;
-    case PL_S_CROUCH:
-        newStatus = NO_AFTERIMAGE;
-        if (PLAYER.step_s != 2) {
-            newStatus = NO_AFTERIMAGE | PLAYER_STATUS_CROUCH;
-        }
-        break;
-    case PL_S_FALL:
-    case PL_S_JUMP:
-        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK2000;
-        break;
-    case PL_S_HIGHJUMP:
-        RicSetInvincibilityFrames(1, 4);
-        break;
-    case PL_S_HIT:
-        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK10000;
-    case PL_S_STAND_IN_AIR:
-        RicSetInvincibilityFrames(1, 16);
-        break;
-    case PL_S_BOSS_GRAB:
-        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK100000 |
-                    PLAYER_STATUS_UNK10000 | PLAYER_STATUS_UNK40;
-        RicSetInvincibilityFrames(1, 16);
-        break;
-    case PL_S_DEAD:
-        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_DEAD | PLAYER_STATUS_UNK10000;
-        if (PLAYER.step_s == 0x80) {
-            newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK80000 |
-                        PLAYER_STATUS_DEAD | PLAYER_STATUS_UNK10000;
-        }
-        RicSetInvincibilityFrames(1, 16);
-        break;
-    case PL_S_SLIDE:
-    case PL_S_SLIDE_KICK:
-        newStatus = 0x20;
-        break;
-    case PL_S_RUN:
-    case PL_S_BLADEDASH:
-        break;
-    case PL_S_FLAME_WHIP:
-    case PL_S_HYDROSTORM:
-    case PL_S_THROW_DAGGERS:
-    case PL_S_DEAD_PROLOGUE:
-    case PL_S_SUBWPN_CRASH:
-    case PL_S_INIT:
-        newStatus = NO_AFTERIMAGE;
-        RicSetInvincibilityFrames(1, 16);
-        break;
-    case PL_S_DASH_AIR:
-    case PL_S_DASH:
-        if (PLAYER.step_s != 2) {
-            newStatus = 0x20;
-        }
-        break;
-    case PL_S_WALL:
-        newStatus = NO_AFTERIMAGE;
-        break;
-    }
-    if (g_Player.timers[PL_T_ATTACK]) {
-        newStatus |= PLAYER_STATUS_UNK400;
-    }
-    if (g_Player.timers[PL_T_10]) {
-        newStatus |= PLAYER_STATUS_UNK800;
-    }
-    if (g_Player.timers[PL_T_12]) {
-        newStatus |= PLAYER_STATUS_UNK1000;
-    }
-    if (*D_80097448) {
-        newStatus |= PLAYER_STATUS_UNK20000;
-    }
-    newStatus |= PLAYER_STATUS_UNK10000000;
-    g_Player.status = newStatus;
-
-    // TODO move this stuff into the switch above
-    newStatus |= NO_AFTERIMAGE;
-    if (g_Player.unk44 & IS_DASHING) {
-        newStatus &= ~NO_AFTERIMAGE;
-    }
-
-    // should be able to charge at any time, hence why not in RicCheckInput
-    if (g_Player.padHeld & PAD_SQUARE) {
-        u32 effectTimerStart = g_ChargeTimer - CHARGE_TIMER_LV1;
-        bool changePalette = (effectTimerStart & 3) >= 2;
-        g_ChargeTimer++;
-        if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
-            if (!(effectTimerStart & 31)) {
-                RicCreateEntFactoryFromEntity(
-                    g_CurrentEntity, B_P_CHARGE_WEAPON, 0);
-            }
-        }
-        if (g_ChargeTimer >= CHARGE_TIMER_LV3) {
-            g_ChargeLevel = CHARGE_MMX1_LV3;
-            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV3 : PAL_PLAYER;
-        } else if (g_ChargeTimer >= CHARGE_TIMER_LV2) {
-            g_ChargeLevel = CHARGE_MMX1_LV2;
-            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV2 : PAL_PLAYER;
-        } else if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
-            g_ChargeLevel = CHARGE_MMX1_LV1;
-            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV1 : PAL_PLAYER;
-        }
-    } else {
-        // do not reset the charge until the projectile is thrown
-        if (g_ChargeTimer < CHARGE_TIMER_LV1) {
-            MmxResetChargeWeapon();
-        }
-    }
-
-    if (g_Player.unk08 & PLAYER_STATUS_UNK10000) {
-        if (!(newStatus & PLAYER_STATUS_UNK10000)) {
-            if (g_Player.unk5C != 0) {
-                if (g_Status.hp < 2) {
-                    RicSetDeadPrologue();
-                    RicSetInvincibilityFrames(1, 16);
-                }
-            } else {
-                RicSetInvincibilityFrames(1, 16);
-                g_Player.timers[PL_T_4] = 0x10;
-                PLAYER.palette = 0x8120;
-            }
-        }
-    }
-    if (newStatus & NO_AFTERIMAGE) {
-        DisableAfterImage(1, 4);
-    }
-    if (g_Player.timers[PL_T_INVINCIBLE_SCENE] |
-        g_Player.timers[PL_T_INVINCIBLE]) {
-        g_Player.status |= 0x100;
-    }
-    g_api.UpdateAnim(D_80155964, D_8015538C);
-    PLAYER.hitboxState = 1;
-    PLAYER.hitParams = 0;
-    PLAYER.hitPoints = 0;
-    g_Player.unk7A = 0;
-    if ((PLAYER.step == PL_S_DEAD) && (PLAYER.poseTimer < 0)) {
-        PLAYER.animCurFrame |= ANIM_FRAME_LOAD;
-    }
-    if (g_Player.status & 0x50) {
-        return;
-    }
-    func_8015C4AC();
-    if ((*D_80097448 >= 0x29) && (g_CurrentEntity->nFramesInvincibility == 0)) {
-        PLAYER.velocityY = PLAYER.velocityY * 3 / 4;
-        PLAYER.velocityX = PLAYER.velocityX * 3 / 4;
-    }
-    playerY = &PLAYER.posY.i;
-    temp_s0 = g_Player.vram_flag;
-    if ((abs(PLAYER.velocityY) > FIX(2)) || (abs(PLAYER.velocityX) > FIX(2))) {
-        PLAYER.velocityY = PLAYER.velocityY >> 2;
-        PLAYER.velocityX = PLAYER.velocityX >> 2;
-        if ((playerY->i.hi < 0) ||
-            (CheckStageCollision(1), (playerY->i.hi < 0)) ||
-            (CheckStageCollision(0), (playerY->i.hi < 0)) ||
-            (CheckStageCollision(0), (playerY->i.hi < 0)) ||
-            (CheckStageCollision(0), (playerY->i.hi < 0))) {
-            PLAYER.posY.val = FIX(-1);
-        }
-        PLAYER.velocityX *= 4;
-        PLAYER.velocityY *= 4;
-    } else {
-        CheckStageCollision(1);
-    }
-    g_Player.unk04 = temp_s0;
-    if ((*D_80097448 >= 0x29) && (g_CurrentEntity->nFramesInvincibility == 0)) {
-        PLAYER.velocityY = (PLAYER.velocityY * 4) / 3;
-        PLAYER.velocityX = (PLAYER.velocityX * 4) / 3;
-    }
-    g_CurrentEntity->nFramesInvincibility = 0;
-    func_8015C6D4();
 }
 
 static void RicDebugOff() { g_IsRicDebugEnter = false; }
@@ -890,7 +475,7 @@ static void RicDebugExit(void) {
     PLAYER.palette = g_RicDebugPalette;
 }
 
-int RicDebug(void) {
+static int RicDebug(void) {
     if (!g_IsRicDebugEnter) {
         if (g_Player.padTapped & PAD_L2) {
             if (g_Player.demo_timer == 0) {
@@ -945,7 +530,7 @@ int RicDebug(void) {
     if (PLAYER.animCurFrame <= 0) {
         PLAYER.animCurFrame = 1;
     }
-    if (PLAYER.animCurFrame < 212 == 0) {
+    if (PLAYER.animCurFrame > 211) {
         PLAYER.animCurFrame = 211;
     }
     FntPrint("charal:%02x\n", PLAYER.animCurFrame);
@@ -1862,10 +1447,6 @@ enum DeathKind {
     DEATH_BY_THUNDER,
     DEATH_BY_ICE,
 };
-static u8 dead_dissolve_bmp[0x1400];
-static s16 D_80174F68;
-static s16 D_80174F6C;
-static enum DeathKind death_kind;
 void RicHandleDead(s32 damageEffects, s32 arg1, s32 arg2, s32 arg3) {
     switch (PLAYER.step_s) {
     case 0:
@@ -2376,8 +1957,7 @@ static void RicHandleHighJump(void) {
 }
 
 // Same function in DRA is func_8010D59C
-void func_8015C4AC(void) {
-    byte stackpad[40];
+static void func_8015C4AC(void) {
     Primitive* prim;
     s32 i;
 
@@ -2429,8 +2009,7 @@ void func_8015C4AC(void) {
 }
 
 // Extremely similar to func_8010D800
-void func_8015C6D4(void) {
-    byte pad[0x28];
+static void func_8015C6D4(void) {
     PlayerDraw* plDraw;
     Primitive* prim;
     s32 entNum;
@@ -2569,8 +2148,8 @@ s32 RicCheckFacing(void) {
 }
 
 static bool MmxIsPressingBothLeftAndRight() {
-    return g_Player.padPressed &
-           (PAD_RIGHT | PAD_LEFT) == (PAD_RIGHT | PAD_LEFT);
+    return (g_Player.padPressed & (PAD_RIGHT | PAD_LEFT)) ==
+           (PAD_RIGHT | PAD_LEFT);
 }
 
 static bool MmxIsHuggingWall() {
@@ -2641,13 +2220,422 @@ void func_8015CC28(void) {
     entity->ext.afterImage.disableFlag = 0;
 }
 
-void RicSetDebug() { RicSetStep(PL_S_DEBUG); }
+bool func_8015885C(void);
+void RicHandleDead(s32 damageEffects, s32 arg1, s32 arg2, s32 arg3);
 
-void func_8015CC70(s16 arg0) {
-    PLAYER.step_s = arg0;
-    PLAYER.step = PL_S_INIT;
-    MmxSetAnimation(PL_A_STAND);
+static void UpdateTimers() {
+    s32 i;
+    PlayerDraw* playerDraw = g_PlayerDraw;
+
+    for (i = 0; i < LEN(g_Player.timers); i++) {
+        if (!g_Player.timers[i]) {
+            continue;
+        }
+        switch (i) {
+        case PL_T_POISON:
+        case PL_T_CURSE:
+        case PL_T_3:
+        case PL_T_5:
+        case PL_T_FALL:
+        case PL_T_7:
+        case PL_T_8:
+            break;
+        case PL_T_ATTACK:
+            ChangeAnimToAttack();
+            break;
+        case PL_T_10:
+        case PL_T_RUN:
+        case PL_T_12:
+        case PL_T_INVINCIBLE:
+            break;
+        case PL_T_2:
+            PLAYER.palette = g_Player.damagePalette;
+            break;
+        case PL_T_4: {
+            s32 temp_s0 = (g_GameTimer & 0xF) << 8;
+            playerDraw->r0 = playerDraw->b0 = playerDraw->g0 =
+                (rsin((s16)temp_s0) + 0x1000) / 64 + 0x60;
+            playerDraw->r1 = playerDraw->b1 = playerDraw->g1 =
+                (rsin(temp_s0 + 0x200) + 0x1000) / 64 + 0x60;
+            playerDraw->r3 = playerDraw->b3 = playerDraw->g3 =
+                (rsin(temp_s0 + 0x400) + 0x1000) / 64 + 0x60;
+            playerDraw->r2 = playerDraw->b2 = playerDraw->g2 =
+                (rsin(temp_s0 + 0x600) + 0x1000) / 64 + 0x60;
+            playerDraw->enableColorBlend = 1;
+            break;
+        }
+        case PL_T_INVINCIBLE_SCENE:
+            g_Player.timers[PL_T_INVINCIBLE_SCENE] = 4;
+            break;
+        case PL_T_AFTERIMAGE_DISABLE:
+            DisableAfterImage(false, 0);
+            break;
+        }
+        if (--g_Player.timers[i]) {
+            continue;
+        }
+        switch (i) {
+        case PL_T_POISON:
+            break;
+        case PL_T_2:
+            PLAYER.palette = 0x8120;
+            break;
+        case PL_T_4:
+            playerDraw->enableColorBlend = 0;
+            break;
+        case PL_T_ATTACK:
+            RevertAnimFromAttack();
+            break;
+        case PL_T_INVINCIBLE_SCENE:
+            RicSetInvincibilityFrames(1, 16);
+            break;
+        case PL_T_FALL:
+            if (PLAYER.step == PL_S_FALL) {
+                MmxSetAnimation(PL_A_FALL);
+                g_Player.unk44 &= ~0x10;
+            }
+            break;
+        case PL_T_AFTERIMAGE_DISABLE:
+            func_8015CC28();
+            break;
+        }
+    }
 }
+
+AnimationFrame mmx_anim_stand[] = {POSE(160, 3, 1), POSE_END};
+static AnimationFrame* D_8015538C[] = {mmx_anim_stand, mmx_anim_stand};
+static FrameProperty D_80155964[] = {
+    {0, 0, 0, 0},   {1, 3, 6, 20},  {2, 5, 7, 12},   {3, 12, 8, 12},
+    {0, -1, 6, 16}, {0, 1, 8, 8},   {0, -5, 7, 5},   {-64, -88, 0, 0},
+    {-4, 0, 6, 17}, {0, 0, 9, 16},  {-1, 17, 12, 7}, {-7, 10, 8, 5},
+    {-2, 6, 8, 8},  {-6, 6, 7, 17}, {4, 6, 10, 9},   {-3, 3, 9, 20},
+    {0, 8, 8, 8},   {-1, 10, 12, 7}};
+void MmxMain(void) {
+    DamageParam damage;
+    s32 temp_s0;
+    s32 newStatus;
+    s32 damageKind;
+    s32 damageEffects;
+    s16 playerStep;
+    s16 playerStepS;
+    s32 i;
+    bool isDamageTakenDeadly;
+    f32* playerY;
+
+    g_CurrentEntity = &PLAYER;
+    g_Player.unk4C = 0;
+    g_Player.unk72 = func_80156DE4();
+    UpdateTimers();
+    UpdateInput();
+
+    damageKind = 0;
+    damageEffects = 0;
+    playerStep = PLAYER.step;
+    if (PLAYER.step != PL_S_DEAD) {
+        // Reuse the i variable here even though we aren't iterating
+        i = GetTeleportToOtherCastle();
+        if (i != 0) {
+            func_8015CC70(i);
+        }
+        // Richter must use step #32 for something else, look into it!
+        if (PLAYER.step != PL_S_INIT) {
+            if (g_DebugPlayer && RicDebug()) {
+                return;
+            }
+            if (g_Player.unk60 >= 2) {
+                goto check_input_combo;
+            }
+            if (g_Player.unk60 == 1) {
+                playerStep = PLAYER.step;
+                playerStepS = PLAYER.step_s;
+                RicSetStep(PL_S_BOSS_GRAB);
+                goto skip_input_combo;
+            }
+            if ((g_Player.timers[PL_T_INVINCIBLE_SCENE] |
+                 g_Player.timers[PL_T_INVINCIBLE]) ||
+                !PLAYER.hitParams) {
+                goto check_input_combo;
+            }
+            // handle received damage
+            playerStep = PLAYER.step;
+            playerStepS = PLAYER.step_s;
+            damage.effects = PLAYER.hitParams & ~0x1F;
+            damage.damageKind = PLAYER.hitParams & 0x1F;
+            damage.damageTaken = PLAYER.hitPoints;
+            isDamageTakenDeadly = g_api.CalcPlayerDamage(&damage);
+            damageKind = damage.damageKind;
+            damageEffects = damage.effects;
+            g_Player.timers[PL_T_INVINCIBLE] = 106; // tested on MMX
+            if (isDamageTakenDeadly) {
+                if (!g_Player.unk5C) {
+                    RicSetStep(PL_S_DEAD);
+                } else {
+                    g_Status.hp = 1;
+                    RicSetStep(PL_S_HIT);
+                }
+            } else {
+                RicSetStep(PL_S_HIT);
+            }
+        }
+    } else {
+    check_input_combo:
+        // CheckBladeDashInput();
+        // CheckHighJumpInput();
+        CheckHadoukenInput();
+    }
+skip_input_combo:
+    g_Player.prev_step = PLAYER.step;
+    g_Player.prev_step_s = PLAYER.step_s;
+    switch (PLAYER.step) {
+    case PL_S_STAND:
+        RicHandleStand();
+        break;
+    case PL_S_WALK:
+        RicHandleWalk();
+        break;
+    case PL_S_CROUCH:
+        RicHandleCrouch();
+        break;
+    case PL_S_FALL:
+        RicHandleFall();
+        break;
+    case PL_S_JUMP:
+        MmxHandleJump();
+        break;
+    case PL_S_HIGHJUMP:
+        RicHandleHighJump();
+        break;
+    case PL_S_HIT:
+        RicHandleHit(damageEffects, damageKind, playerStep);
+        break;
+    case PL_S_BOSS_GRAB:
+        RicHandleBossGrab();
+        break;
+    case PL_S_DEAD:
+        g_ChargeTimer = 0;
+        RicHandleDead(damageEffects, damageKind, playerStep, playerStepS);
+        break;
+    case PL_S_STAND_IN_AIR:
+        RicHandleStandInAir();
+        break;
+    case PL_S_FLAME_WHIP:
+        RicHandleEnableFlameWhip();
+        break;
+    case PL_S_HYDROSTORM:
+        RicHandleHydrostorm();
+        break;
+    case PL_S_THROW_DAGGERS:
+        RicHandleThrowDaggers();
+        break;
+    case PL_S_SUBWPN_CRASH:
+        RicHandleGenericSubwpnCrash();
+        break;
+    case PL_S_DEAD_PROLOGUE:
+        g_ChargeTimer = 0;
+        RicHandleDeadPrologue();
+        break;
+    case PL_S_SLIDE:
+        RicHandleSlide();
+        break;
+    case PL_S_RUN:
+        RicHandleRun();
+        break;
+    case PL_S_SLIDE_KICK:
+        RicHandleSlideKick();
+        break;
+    case PL_S_BLADEDASH:
+        RicHandleBladeDash();
+        break;
+    case PL_S_DASH:
+        MmxHandleDash();
+        break;
+    case PL_S_WALL:
+        MmxHandleWall();
+        break;
+    case PL_S_DASH_AIR:
+        MmxHandleDashAir();
+        break;
+    case PL_S_INIT:
+        func_8015BCD0();
+        break;
+    }
+    g_Player.unk08 = g_Player.status;
+    newStatus = 0;
+    switch (PLAYER.step) {
+    case PL_S_STAND:
+    case PL_S_WALK:
+        newStatus = NO_AFTERIMAGE;
+        break;
+    case PL_S_CROUCH:
+        newStatus = NO_AFTERIMAGE;
+        if (PLAYER.step_s != 2) {
+            newStatus = NO_AFTERIMAGE | PLAYER_STATUS_CROUCH;
+        }
+        break;
+    case PL_S_FALL:
+    case PL_S_JUMP:
+        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK2000;
+        break;
+    case PL_S_HIGHJUMP:
+        RicSetInvincibilityFrames(1, 4);
+        break;
+    case PL_S_HIT:
+        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK10000;
+    case PL_S_STAND_IN_AIR:
+        RicSetInvincibilityFrames(1, 16);
+        break;
+    case PL_S_BOSS_GRAB:
+        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK100000 |
+                    PLAYER_STATUS_UNK10000 | PLAYER_STATUS_UNK40;
+        RicSetInvincibilityFrames(1, 16);
+        break;
+    case PL_S_DEAD:
+        newStatus = NO_AFTERIMAGE | PLAYER_STATUS_DEAD | PLAYER_STATUS_UNK10000;
+        if (PLAYER.step_s == 0x80) {
+            newStatus = NO_AFTERIMAGE | PLAYER_STATUS_UNK80000 |
+                        PLAYER_STATUS_DEAD | PLAYER_STATUS_UNK10000;
+        }
+        RicSetInvincibilityFrames(1, 16);
+        break;
+    case PL_S_SLIDE:
+    case PL_S_SLIDE_KICK:
+        newStatus = 0x20;
+        break;
+    case PL_S_RUN:
+    case PL_S_BLADEDASH:
+        break;
+    case PL_S_FLAME_WHIP:
+    case PL_S_HYDROSTORM:
+    case PL_S_THROW_DAGGERS:
+    case PL_S_DEAD_PROLOGUE:
+    case PL_S_SUBWPN_CRASH:
+    case PL_S_INIT:
+        newStatus = NO_AFTERIMAGE;
+        RicSetInvincibilityFrames(1, 16);
+        break;
+    case PL_S_DASH_AIR:
+    case PL_S_DASH:
+        if (PLAYER.step_s != 2) {
+            newStatus = 0x20;
+        }
+        break;
+    case PL_S_WALL:
+        newStatus = NO_AFTERIMAGE;
+        break;
+    }
+    if (g_Player.timers[PL_T_ATTACK]) {
+        newStatus |= PLAYER_STATUS_UNK400;
+    }
+    if (g_Player.timers[PL_T_10]) {
+        newStatus |= PLAYER_STATUS_UNK800;
+    }
+    if (g_Player.timers[PL_T_12]) {
+        newStatus |= PLAYER_STATUS_UNK1000;
+    }
+    if (*D_80097448) {
+        newStatus |= PLAYER_STATUS_UNK20000;
+    }
+    newStatus |= PLAYER_STATUS_UNK10000000;
+    g_Player.status = newStatus;
+
+    // TODO move this stuff into the switch above
+    newStatus |= NO_AFTERIMAGE;
+    if (g_Player.unk44 & IS_DASHING) {
+        newStatus &= ~NO_AFTERIMAGE;
+    }
+
+    // should be able to charge at any time, hence why not in RicCheckInput
+    if (g_Player.padHeld & PAD_SQUARE) {
+        u32 effectTimerStart = g_ChargeTimer - CHARGE_TIMER_LV1;
+        bool changePalette = (effectTimerStart & 3) >= 2;
+        g_ChargeTimer++;
+        if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
+            if (!(effectTimerStart & 31)) {
+                RicCreateEntFactoryFromEntity(
+                    g_CurrentEntity, B_P_CHARGE_WEAPON, 0);
+            }
+        }
+        if (g_ChargeTimer >= CHARGE_TIMER_LV3) {
+            g_ChargeLevel = CHARGE_MMX1_LV3;
+            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV3 : PAL_PLAYER;
+        } else if (g_ChargeTimer >= CHARGE_TIMER_LV2) {
+            g_ChargeLevel = CHARGE_MMX1_LV2;
+            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV2 : PAL_PLAYER;
+        } else if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
+            g_ChargeLevel = CHARGE_MMX1_LV1;
+            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV1 : PAL_PLAYER;
+        }
+    } else {
+        // do not reset the charge until the projectile is thrown
+        if (g_ChargeTimer < CHARGE_TIMER_LV1) {
+            MmxResetChargeWeapon();
+        }
+    }
+
+    if (g_Player.unk08 & PLAYER_STATUS_UNK10000) {
+        if (!(newStatus & PLAYER_STATUS_UNK10000)) {
+            if (g_Player.unk5C != 0) {
+                if (g_Status.hp < 2) {
+                    RicSetDeadPrologue();
+                    RicSetInvincibilityFrames(1, 16);
+                }
+            } else {
+                RicSetInvincibilityFrames(1, 16);
+                g_Player.timers[PL_T_4] = 0x10;
+                PLAYER.palette = 0x8120;
+            }
+        }
+    }
+    if (newStatus & NO_AFTERIMAGE) {
+        DisableAfterImage(1, 4);
+    }
+    if (g_Player.timers[PL_T_INVINCIBLE_SCENE] |
+        g_Player.timers[PL_T_INVINCIBLE]) {
+        g_Player.status |= 0x100;
+    }
+    g_api.UpdateAnim(D_80155964, D_8015538C);
+    PLAYER.hitboxState = 1;
+    PLAYER.hitParams = 0;
+    PLAYER.hitPoints = 0;
+    g_Player.unk7A = 0;
+    if ((PLAYER.step == PL_S_DEAD) && (PLAYER.poseTimer < 0)) {
+        PLAYER.animCurFrame |= ANIM_FRAME_LOAD;
+    }
+    if (g_Player.status & 0x50) {
+        return;
+    }
+    func_8015C4AC();
+    if ((*D_80097448 >= 0x29) && (g_CurrentEntity->nFramesInvincibility == 0)) {
+        PLAYER.velocityY = PLAYER.velocityY * 3 / 4;
+        PLAYER.velocityX = PLAYER.velocityX * 3 / 4;
+    }
+    playerY = (f32*)&PLAYER.posY.i;
+    temp_s0 = g_Player.vram_flag;
+    if ((abs(PLAYER.velocityY) > FIX(2)) || (abs(PLAYER.velocityX) > FIX(2))) {
+        PLAYER.velocityY = PLAYER.velocityY >> 2;
+        PLAYER.velocityX = PLAYER.velocityX >> 2;
+        if ((playerY->i.hi < 0) ||
+            (CheckStageCollision(1), (playerY->i.hi < 0)) ||
+            (CheckStageCollision(0), (playerY->i.hi < 0)) ||
+            (CheckStageCollision(0), (playerY->i.hi < 0)) ||
+            (CheckStageCollision(0), (playerY->i.hi < 0))) {
+            PLAYER.posY.val = FIX(-1);
+        }
+        PLAYER.velocityX *= 4;
+        PLAYER.velocityY *= 4;
+    } else {
+        CheckStageCollision(1);
+    }
+    g_Player.unk04 = temp_s0;
+    if ((*D_80097448 >= 0x29) && (g_CurrentEntity->nFramesInvincibility == 0)) {
+        PLAYER.velocityY = (PLAYER.velocityY * 4) / 3;
+        PLAYER.velocityX = (PLAYER.velocityX * 4) / 3;
+    }
+    g_CurrentEntity->nFramesInvincibility = 0;
+    func_8015C6D4();
+}
+
+void RicSetDebug() { RicSetStep(PL_S_DEBUG); }
 
 void RicSetCrouch(s32 kind, s32 velocityX) {
     RicSetStep(PL_S_CROUCH);
@@ -2839,9 +2827,6 @@ void MmxResetChargeWeapon(void) {
 }
 bool MmxPerformAttack(void) {
     s32 i;
-    s16 poisoned;
-    s32 temp_rand;
-    s16 randOf6;
 
     for (i = 16; i < 31; i++) {
         DestroyEntity(&g_Entities[i]);
@@ -2879,15 +2864,6 @@ bool MmxPerformAttack(void) {
         g_api.PlaySfx(0x6B5);
     } else {
         g_api.PlaySfx(0x706);
-    }
-    if (randOf6 == 0) {
-        g_api.PlaySfx(0x6F9);
-    }
-    if (randOf6 == 1) {
-        g_api.PlaySfx(0x6FA);
-    }
-    if (randOf6 == 2) {
-        g_api.PlaySfx(0x6FB);
     }
     switch (PLAYER.step) {
     case PL_S_STAND:
@@ -2929,7 +2905,9 @@ int RicDoCrash(void) {
     if ((subWpnID == 6) && (g_unkGraphicsStruct.D_800973FC != 0)) {
         return 0;
     }
-    if (subWpn.blueprintNum != 0) {
+
+    subWpnEnt = NULL;
+    if (subWpn.blueprintNum) {
         if (subWpnID == 1) {
             subWpnEnt = RicCreateEntFactoryFromEntity(
                 g_CurrentEntity, FACTORY(subWpn.blueprintNum, 0x100), 0);

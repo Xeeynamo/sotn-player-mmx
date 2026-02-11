@@ -252,7 +252,8 @@ STATIC_ASSERT(LEN(entity_functions) == NUM_ENTITIES, "entity array wrong size");
 void InitSettings() {
     // mainly used to expand the existing blueprint struct instead of totally
     // replace the existing one.
-    memcpy(g_RicFactoryBlueprints + B_DUMMY, blueprints, sizeof(blueprints));
+    __builtin_memcpy(
+        g_RicFactoryBlueprints + B_DUMMY, blueprints, sizeof(blueprints));
 }
 
 static Entity* RicGetFreeEntity(s16 start, s16 end) {
@@ -311,7 +312,7 @@ void RicEntityFactory(Entity* self) {
     u8* data_idx;
 
     if (self->step == 0) {
-        data_idx = &g_RicFactoryBlueprints[self->params];
+        data_idx = (u8*)&g_RicFactoryBlueprints[self->params];
         self->ext.factory.newEntityId = *data_idx++;
         self->ext.factory.amount = *data_idx++;         // index 1
         self->ext.factory.nPerCycle = *data_idx & 0x3F; // index 2, lower 6 bits
@@ -400,7 +401,7 @@ void RicEntityFactory(Entity* self) {
     for (i = 0; i < n; i++) {
         // !FAKE, this should probably be &entity_ranges[unk9C] or similar,
         // instead of doing &entity_ranges followed by +=
-        data_idx = entity_ranges;
+        data_idx = (u8*)entity_ranges;
         data_idx += self->ext.factory.kind * 2;
 
         startIndex = *data_idx;
@@ -504,7 +505,7 @@ void RicUpdatePlayerEntities(void) {
                          entity->posY.i.hi < -16 || entity->posY.i.hi > 256)) {
                         DestroyEntity(entity);
                     } else if (entity->flags & FLAG_UNK_100000) {
-                        g_api.UpdateAnim(0, D_80154674);
+                        g_api.UpdateAnim(0, (AnimationFrame**)D_80154674);
                     }
                 }
             }

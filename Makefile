@@ -17,11 +17,10 @@ CC        := $(CROSS)gcc
 LD        := $(CROSS)ld
 CPP       := $(CROSS)cpp
 OBJCOPY   := $(CROSS)objcopy
-CC_FLAGS  := -std=c11 -c -I$(INCLUDE_DIR) -G0 -O2 -g -funsigned-char -w -ffunction-sections -fdata-sections
-CC_FLAGS  += -DVERSION_PSX -DVERSION_US -DNO_LOGS
-CC_FLAGS  += -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -mfp32 -mno-llsc
-CC_FLAGS  += -fno-stack-protector -nostdlib
-CC_FLAGS  += -Wno-incompatible-pointer-types -Wno-implicit-function-declaration
+CC_FLAGS  := -std=c11 -c -isystem $(INCLUDE_DIR) -G0 -O2 -g -funsigned-char -ffunction-sections -fdata-sections
+CC_FLAGS  += -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -fno-stack-protector -nostdlib
+CC_FLAGS  += -Werror -Wall -Wno-unused-function -Wno-switch
+CC_FLAGS  += -D_internal_version_us -DVERSION_PSX -DNO_LOGS
 OBJS      := $(addprefix build/, $(addsuffix .o, $(FILES)))
 SRC_FILES := $(addsuffix .c, $(FILES))
 ASSETS_H  := $(addprefix src/assets/, $(addsuffix .inc, $(ASSETS)))

@@ -78,7 +78,7 @@ static AnimationFrame* lemon_anims[] = {
     anim_lemon_shoot,
     anim_lemon_impact,
 };
-static u8 lemon_hitboxes[][4] = {
+static s8 lemon_hitboxes[][4] = {
     {0, 0, 0, 0},
     {0, 0, 4, 3},
 };
@@ -131,7 +131,7 @@ void EntityLemon(Entity* self) {
         }
         break;
     }
-    g_api.PlayAnimation(lemon_hitboxes, lemon_anims);
+    g_api.PlayAnimation((s8*)lemon_hitboxes, lemon_anims);
 }
 
 static AnimationFrame anim_cucumber_shoot[] = {
@@ -144,7 +144,7 @@ static AnimationFrame* cucumber_anims[] = {
     anim_cucumber_shoot,
     anim_cucumber_impact,
 };
-static u8 cucumber_hitbox[][4] = {
+static s8 cucumber_hitbox[][4] = {
     {0, 0, 0, 0},   {28, 0, 6, 6}, {2, 0, 7, 7},
     {6, 0, 11, 11}, {16, 0, 6, 6}, {20, 0, 6, 6},
 };
@@ -177,7 +177,7 @@ void EntityCucumber(Entity* self) {
         // fall back to case 2 as we still want to check for collisions
     case 2:
         self->posX.val += self->velocityX;
-        if (self->hitFlags == 1 | self->hitFlags == 2) {
+        if (self->hitFlags == 1 || self->hitFlags == 2) {
             // if hitting an enemy, and it's not dead yet, dissolve the bullet
             if (self->unkB8 && self->unkB8->enemyId &&
                 self->unkB8->hitPoints > 0) {
@@ -204,7 +204,7 @@ void EntityCucumber(Entity* self) {
         }
         break;
     }
-    g_api.PlayAnimation(cucumber_hitbox, cucumber_anims);
+    g_api.PlayAnimation((s8*)cucumber_hitbox, cucumber_anims);
 }
 
 void EntityCharjelly(Entity* self) { DestroyEntity(self); }
@@ -229,13 +229,13 @@ static AnimationFrame* anim_charge_weapon_particles[] = {
     anim_charge_x1_lv2_particle,
     anim_charge_x1_lv3_particle,
 };
-static u8 anim_charge_weapon_hitboxes[][4] = {{0, 0, 0, 0}};
+static s8 anim_charge_weapon_hitboxes[][4] = {{0, 0, 0, 0}};
 struct ExtChargeWeapon {
     s32 timer;
     s32 startAngle;
 };
 void EntityChargeWeaponParticle(Entity* self) {
-    struct ExtChargeWeapon* ext = &self->ext;
+    struct ExtChargeWeapon* ext = (struct ExtChargeWeapon*)&self->ext;
 
     // if the player dies, kill all the charging particles
     switch (PLAYER.step) {
@@ -282,7 +282,7 @@ void EntityChargeWeaponParticle(Entity* self) {
         break;
     }
     g_api.PlayAnimation(
-        anim_charge_weapon_hitboxes, anim_charge_weapon_particles);
+        (s8*)anim_charge_weapon_hitboxes, anim_charge_weapon_particles);
 }
 
 static bool FallUntilFloorIsTouched(Entity* self) {
@@ -316,7 +316,7 @@ struct ExtPrizeDrop {
 };
 // return true if the prize is collected
 static bool PrizeDropHelper(
-    Entity* self, u8* hitboxes, AnimationFrame** anims) {
+    Entity* self, s8* hitboxes, AnimationFrame** anims) {
     struct ExtPrizeDrop* ext = (struct ExtPrizeDrop*)&self->ext;
     Collider col;
 
@@ -412,11 +412,11 @@ static AnimationFrame* power_capsule_small_anims[] = {
     anim_power_capsule_small_fall,
     anim_power_capsule_small_open,
 };
-static u8 power_capsule_small_hitboxes[][4] = {
+static s8 power_capsule_small_hitboxes[][4] = {
     {0, 0, 0, 0}, {0, -4, 4, 4}, {0, -4, 5, 4}};
 void EntityPowerCapsuleSmall(Entity* self) {
-    if (PrizeDropHelper(
-            self, power_capsule_small_hitboxes, power_capsule_small_anims)) {
+    if (PrizeDropHelper(self, (s8*)power_capsule_small_hitboxes,
+                        power_capsule_small_anims)) {
         IncreaseHealth(20);
         DestroyEntity(self);
     }
@@ -431,10 +431,10 @@ static AnimationFrame* power_capsule_big_anims[] = {
     anim_power_capsule_big_fall,
     anim_power_capsule_big_open,
 };
-static u8 power_capsule_big_hitboxes[][4] = {{0, 0, 0, 0}, {0, -6, 8, 6}};
+static s8 power_capsule_big_hitboxes[][4] = {{0, 0, 0, 0}, {0, -6, 8, 6}};
 void EntityPowerCapsuleBig(Entity* self) {
     if (PrizeDropHelper(
-            self, power_capsule_big_hitboxes, power_capsule_big_anims)) {
+            self, (s8*)power_capsule_big_hitboxes, power_capsule_big_anims)) {
         IncreaseHealth(80);
         DestroyEntity(self);
     }
@@ -447,10 +447,10 @@ static AnimationFrame* energy_capsule_small_anims[] = {
     anim_energy_capsule_small,
     anim_energy_capsule_small,
 };
-static u8 energy_capsule_small_hitboxes[][4] = {{0, 0, 0, 0}, {0, -4, 4, 4}};
+static s8 energy_capsule_small_hitboxes[][4] = {{0, 0, 0, 0}, {0, -4, 4, 4}};
 void EntityEnergyCapsuleSmall(Entity* self) {
-    if (PrizeDropHelper(
-            self, energy_capsule_small_hitboxes, energy_capsule_small_anims)) {
+    if (PrizeDropHelper(self, (s8*)energy_capsule_small_hitboxes,
+                        energy_capsule_small_anims)) {
         IncreaseWeaponEnergy(20);
         DestroyEntity(self);
     }
@@ -463,10 +463,10 @@ static AnimationFrame* energy_capsule_big_anims[] = {
     anim_energy_capsule_big,
     anim_energy_capsule_big,
 };
-static u8 energy_capsule_big_hitboxes[][4] = {{0, 0, 0, 0}, {0, -7, 7, 7}};
+static s8 energy_capsule_big_hitboxes[][4] = {{0, 0, 0, 0}, {0, -7, 7, 7}};
 void EntityEnergyCapsuleBig(Entity* self) {
     if (PrizeDropHelper(
-            self, energy_capsule_big_hitboxes, energy_capsule_big_anims)) {
+            self, (s8*)energy_capsule_big_hitboxes, energy_capsule_big_anims)) {
         IncreaseWeaponEnergy(80);
         DestroyEntity(self);
     }
@@ -478,9 +478,9 @@ static AnimationFrame* life_up_anims[] = {
     anim_life_up,
     anim_life_up,
 };
-static u8 life_up_hitboxes[][4] = {{0, 0, 0, 0}, {0, -8, 8, 8}};
+static s8 life_up_hitboxes[][4] = {{0, 0, 0, 0}, {0, -8, 8, 8}};
 void EntityLifeUp(Entity* self) {
-    if (PrizeDropHelper(self, life_up_hitboxes, life_up_anims)) {
+    if (PrizeDropHelper(self, (s8*)life_up_hitboxes, life_up_anims)) {
         IncreaseHealth(g_Status.hpMax - g_Status.hp);
         DestroyEntity(self);
     }
@@ -493,7 +493,7 @@ static AnimationFrame* anim_heart_tank_anims[] = {
     anim_heart_tank,
     anim_heart_tank,
 };
-static u8 heart_tank_hitboxes[][4] = {{0, 0, 0, 0}, {0, -8, 8, 8}};
+static s8 heart_tank_hitboxes[][4] = {{0, 0, 0, 0}, {0, -8, 8, 8}};
 void EntityHeartTank(Entity* self) {
     // life-up should not show if the health is already capped
     if (HasMaxHealth()) {
@@ -513,7 +513,8 @@ void EntityHeartTank(Entity* self) {
 
     // once spawned it should never disappear unless it is taken
     ((struct ExtPrizeDrop*)&self->ext)->disposeTimer = 99;
-    if (PrizeDropHelper(self, heart_tank_hitboxes, anim_heart_tank_anims)) {
+    if (PrizeDropHelper(
+            self, (s8*)heart_tank_hitboxes, anim_heart_tank_anims)) {
         // once taken it will disappear for the rest of the playthrough
         g_CastleFlags[(self->params >> 3) + 0x100] |= 1 << (self->params & 7);
         IncreaseMaxHealth(10);
@@ -529,14 +530,14 @@ static AnimationFrame anim_death_particle[] = {
 static AnimationFrame* anim_death_particle_anims[] = {
     anim_death_particle,
 };
-static u8 anim_death_particle_hitboxes[][4] = {{0, 0, 0, 0}};
+static s8 anim_death_particle_hitboxes[][4] = {{0, 0, 0, 0}};
 struct ExtDeathParticle {
     s32 timer;
     s32 startAngle;
     s16 originX, originY;
 };
 void EntityDeathParticle(Entity* self) {
-    struct ExtDeathParticle* ext = &self->ext;
+    struct ExtDeathParticle* ext = (struct ExtDeathParticle*)&self->ext;
     s32 angle;
     switch (self->step) {
     case 0:
@@ -563,7 +564,7 @@ void EntityDeathParticle(Entity* self) {
         break;
     }
     g_api.PlayAnimation(
-        anim_death_particle_hitboxes, anim_death_particle_anims);
+        (s8*)anim_death_particle_hitboxes, anim_death_particle_anims);
 }
 
 void EntityDeathScreenHandler(Entity* self) {

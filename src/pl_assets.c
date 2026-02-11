@@ -40,9 +40,9 @@ int __ctzsi2(unsigned int a) {
     return a;
 }
 static void InitPalette() {
-    memcpy(&g_Clut[1][0x200], palette, sizeof(palette));
+    __builtin_memcpy(&g_Clut[1][0x200], palette, sizeof(palette));
     RECT vramPalette = {0, 240, 256, 16};
-    LoadImage(&vramPalette, g_Clut[1]);
+    LoadImage(&vramPalette, (u_long*)g_Clut[1]);
 }
 void MmxInitGraphics() {
     // we divide Width by 2 because the bitmaps are 4bpp
@@ -57,7 +57,7 @@ void MmxInitGraphics() {
             continue;
         }
         RECT vramDst = {gfx_init[i].vramX, gfx_init[i].vramY, W >> 2, H};
-        LoadImage(&vramDst, dst);
+        LoadImage(&vramDst, (u_long*)dst);
     }
 
     InitPalette();

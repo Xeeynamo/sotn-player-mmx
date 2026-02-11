@@ -116,6 +116,21 @@
 #include "lz4.h"
 /* see also "memory routines" below */
 
+#if defined(VERSION_PSX)
+#include <psxsdk/libc.h>
+static void* psx_calloc(size_t num, size_t size) {
+    // implementation unnecessary
+    return NULL;
+}
+
+static void* psx_memset(void* s, int c, size_t n) {
+    // implementation unnecessary
+    return NULL;
+}
+#define calloc psx_calloc
+#define memset psx_memset
+#endif
+
 
 /*-************************************
 *  Compiler Options

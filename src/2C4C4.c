@@ -2,9 +2,6 @@
 #include "pl.h"
 #include "sfx.h"
 
-// Unused?
-static s16 D_80155D94[] = {16, 0, -1, 0};
-
 // Entity ID #7. Made by blueprint 6. Comes from subweapon 3. Holy water!
 // Not at all the same as DRA's.
 void RicEntitySubwpnHolyWater(Entity* self) {
@@ -165,7 +162,6 @@ static Point32 D_80155D9C[] = {{28, 0}, {28, 16}, {28, 32}, {28, 48},
 void RicEntitySubwpnHolyWaterFlame(Entity* self) {
     s16 sp10[5];
     s16 sp20[5];
-    s16 pad[2];
     Primitive* prim;
     s16 angleTemp;
     s32 angle;
@@ -176,10 +172,8 @@ void RicEntitySubwpnHolyWaterFlame(Entity* self) {
     u8 randB;
     u8 primUBase;
     u8 primVBase;
-    s16* primYPtr;
     s32 var_s4;
     s16 temp_v0_2;
-    s32 doubleparams;
 
     s16 upperParams = self->params >> 8;
 
@@ -323,16 +317,17 @@ static u16 crash_cross_img_data[] = {
     0xB18C, 0xAD6B, 0xA94A, 0xA529, 0xA108, 0x9CE7, 0x98C6, 0x94A5};
 static RECT crash_cross_img_vram = {0x0301, 0x01F8, 0x0030, 0x0001};
 void RicEntitySubwpnCrashCross(Entity* self) {
-    Primitive* prim;
+    s16 psp_s4;
+    s16 psp_s3;
     s16 right;
     s16 left;
-    s32 var_v0;
-    s32 temp_three;
-    u16 three = 3;
-    u16 one = 1;
+    Primitive* prim;
 
+    psp_s4 = 3;
+    psp_s3 = 1;
     self->posY.i.hi = 0x78;
     self->posX.i.hi = PLAYER.posX.i.hi;
+    left = right = 0;
     switch (self->step) {
     case 0:
         self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
@@ -346,66 +341,60 @@ void RicEntitySubwpnCrashCross(Entity* self) {
         self->zPriority = 0xC2;
         self->ext.crashcross.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
-        LoadImage(&crash_cross_img_vram, crash_cross_img_data);
-        g_api.PlaySfx(0x6DF);
+        LoadImage(&crash_cross_img_vram, (u_long*)crash_cross_img_data);
+        g_api.PlaySfx(SFX_CRASH_CROSS);
         g_api.PlaySfx(SFX_TELEPORT_BANG_B);
-        self->step += 1;
+        self->step++;
         break;
     case 1:
-        // FAKE, register reuse thing
-        one = three * 2;
-        self->ext.crashcross.unk7E.i.hi += three;
-        self->ext.crashcross.unk82 += one;
-        if ((u8)self->ext.crashcross.unk7E.i.hi >= 0x70U) {
+        self->ext.crashcross.unk7E.val += psp_s4;
+        self->ext.crashcross.unk82 += psp_s4 * 2;
+        if (self->ext.crashcross.unk7E.i.lo >= 0x70) {
             RicCreateEntFactoryFromEntity(self, BP_CRASH_CROSSES_ONLY, 0);
             RicCreateEntFactoryFromEntity(self, BP_CRASH_CROSS_PARTICLES, 0);
-            self->step += 1;
+            self->step++;
         }
         break;
     case 2:
         if (g_Timer & 1) {
-            self->ext.crashcross.unk80 += one * 2;
-            self->ext.crashcross.unk7C = one + self->ext.crashcross.unk7C;
-            if (self->ext.crashcross.unk80 >= 0x2CU) {
+            self->ext.crashcross.unk7C += psp_s3;
+            self->ext.crashcross.unk80 += psp_s3 * 2;
+            if (self->ext.crashcross.unk80 >= 0x2C) {
+                self->step++;
                 self->ext.crashcross.unk84 = 0x80;
-                self->step += 1;
             }
         }
         break;
     case 3:
         if (--self->ext.crashcross.unk84 == 0) {
-            g_api.SetFadeMode(0);
+            g_api.SetFadeMode(FADE_NONE);
             left = self->posX.i.hi - self->ext.crashcross.unk7C;
-            ;
             if (left < 0) {
                 left = 0;
             }
             right = self->posX.i.hi + self->ext.crashcross.unk7C;
-            if (right >= 0x100) {
+            if (right > 0xFF) {
                 right = 0xFF;
             }
             g_api.PlaySfx(SFX_WEAPON_APPEAR);
-            self->step += 1;
+            self->step++;
         }
         break;
     case 4:
-        temp_three = one * 2;
-        temp_three |= one;
-        var_v0 = self->posX.i.hi - 0x80;
-        self->ext.crashcross.unk7C =
-            (((temp_three) * ((s16)(var_v0 > 0 ? var_v0 : -var_v0) + 0x80)) /
-             112) +
-            self->ext.crashcross.unk7C;
+        psp_s3 *= 3;
+        left = abs(self->posX.i.hi - 0x80);
+        psp_s3 = psp_s3 * (left + 0x80) / 112;
+        self->ext.crashcross.unk7C += psp_s3;
 
         left = self->posX.i.hi - self->ext.crashcross.unk7C;
         if (left < 0) {
             left = 0;
         }
         right = self->posX.i.hi + self->ext.crashcross.unk7C;
-        if (right >= 0x100) {
+        if (right > 0xFF) {
             right = 0xFF;
         }
-        if ((right - left) >= 0xF9) {
+        if (right - left > 0xF8) {
             g_Player.unk4E = 1;
             DestroyEntity(self);
             return;
@@ -413,17 +402,17 @@ void RicEntitySubwpnCrashCross(Entity* self) {
         break;
     }
     self->hitboxOffY = 0;
-    self->hitboxHeight = self->ext.crashcross.unk7E.i.hi;
+    self->hitboxHeight = self->ext.crashcross.unk7E.val;
     if (self->step == 4) {
-        self->hitboxWidth = ((right - left) >> 1);
+        self->hitboxWidth = (right - left) >> 1;
         self->hitboxOffX = ((left + right) >> 1) - self->posX.i.hi;
     } else {
-        self->hitboxOffX = 0;
         self->hitboxWidth = self->ext.crashcross.unk7C;
+        self->hitboxOffX = 0;
     }
     prim = &g_PrimBuf[self->primIndex];
     prim->x0 = prim->x2 = self->posX.i.hi - self->ext.crashcross.unk7C;
-    prim->y1 = prim->y0 = self->posY.i.hi - self->ext.crashcross.unk7E.i.hi;
+    prim->y1 = prim->y0 = self->posY.i.hi - self->ext.crashcross.unk7E.val;
     prim->x1 = prim->x3 = prim->x0 + self->ext.crashcross.unk80;
     prim->y2 = prim->y3 = prim->y0 + self->ext.crashcross.unk82;
     prim->u0 = prim->u2 = 1;
@@ -457,7 +446,7 @@ void RicEntityRevivalColumn(Entity* self) {
         self->posY.i.hi = 0x78;
         self->ext.crashcross.unk80 = 1;
         self->zPriority = 0xC2;
-        LoadImage(&crash_cross_img_vram, crash_cross_img_data);
+        LoadImage(&crash_cross_img_vram, (u_long*)crash_cross_img_data);
         self->step += 1;
         break;
     case 1:
@@ -528,7 +517,7 @@ void RicEntitySubwpnCross(Entity* self) {
         self->flags = FLAG_POS_CAMERA_LOCKED | FLAG_KEEP_ALIVE_OFFCAMERA |
                       FLAG_UNK_100000;
         // gets used by shadow, must align with that entity
-        self->ext.crossBoomerang.unk84 = &D_80175088[D_80175888];
+        self->ext.crossBoomerang.unk84 = (Point16*)&D_80175088[D_80175888];
         D_80175888++;
         D_80175888 &= 3;
         RicCreateEntFactoryFromEntity(self, BP_5, 0);
@@ -747,7 +736,7 @@ void RicEntitySubwpnCrossTrail(Entity* self) {
     }
 
     // get the x and y position from the parent (must align)
-    temp = &self->ext.crossBoomerang.unk84[0];
+    temp = (s16*)&self->ext.crossBoomerang.unk84[0];
     temp += self->ext.crossBoomerang.unk80 * 2;
     self->posX.i.hi = *temp - g_Tilemap.scrollX.i.hi;
     temp++;
@@ -823,7 +812,7 @@ void RicEntitySubwpnCrashCrossParticles(Entity* self) {
         if (prim->r0 == 0) {
             continue;
         }
-        temp_a1 = &uv_anim_801548F4;
+        temp_a1 = (u8*)&uv_anim_801548F4;
         temp_a3 = prim->g0;
         temp_t0 = prim->g1;
         temp_a1 += prim->b0 * 8; // weird array indexing
@@ -1556,8 +1545,8 @@ void RicEntitySubwpnReboundStone(Entity* self) {
         }
         self->posY.i.hi -= 0x10;
         playerY = self->posY.i.hi;
-        for (i = 0, prim = &g_PrimBuf[self->primIndex]; prim != NULL;
-             prim = prim->next, i++) {
+        for (i = 0, prim = (PrimLineG2*)&g_PrimBuf[self->primIndex];
+             prim != NULL; prim = prim->next, i++) {
             prim->r0 = prim->g0 = prim->b0 = prim->r1 = prim->g1 = prim->b1 =
                 0xFF;
             prim->priority = PLAYER.zPriority + 2;
@@ -1769,7 +1758,7 @@ void RicEntitySubwpnReboundStone(Entity* self) {
         if (self->ext.reboundStone.lifeTimer == 0x20) {
             self->hitboxState = 0;
         }
-        prim = &g_PrimBuf[self->primIndex];
+        prim = (PrimLineG2*)&g_PrimBuf[self->primIndex];
         while (prim != NULL) {
             prim->timer = 0;
             prim = prim->next;
@@ -1778,7 +1767,7 @@ void RicEntitySubwpnReboundStone(Entity* self) {
     }
 
     i = 0;
-    prim = &g_PrimBuf[self->primIndex];
+    prim = (PrimLineG2*)&g_PrimBuf[self->primIndex];
     colliderFlags = self->step == 2 ? 4 : 2; // reused var, not colliderFlags
     // cleaner to use previous 3 lines than to put them in the for's initializer
     for (; prim != NULL; i++, prim = prim->next) {
@@ -1980,14 +1969,11 @@ s32 RicPrimDecreaseBrightness(Primitive* prim, u8 amount) {
 // RIC Entity #44. Blueprint 51. Subweapon 9. Agunea (non-crash). DRA
 // blueprint 25. DRA entity 21.
 void RicEntitySubwpnAgunea(Entity* self) {
-    Entity* ent;
     Primitive* prim;
-    s32 heartCost;
-    u16 tempY;
-    u16 tempX;
-    u32 heartBroachesWorn;
+    s16 tempX;
+    s16 tempY;
 
-    if (g_Player.status & 0x10007) {
+    if (g_Player.status & (PLAYER_STATUS_TRANSFORM | PLAYER_STATUS_UNK10000)) {
         DestroyEntity(self);
         return;
     }
@@ -1997,31 +1983,29 @@ void RicEntitySubwpnAgunea(Entity* self) {
         if (self->primIndex == -1) {
             DestroyEntity(self);
             return;
-        } else {
-            self->flags = FLAG_POS_CAMERA_LOCKED | FLAG_KEEP_ALIVE_OFFCAMERA |
-                          FLAG_HAS_PRIMS;
-            self->facingLeft = PLAYER.facingLeft;
-            self->ext.agunea.subweaponId = W_DUMMY;
-            RicSetSubweaponParams(self);
-            self->hitboxHeight = 4;
-            self->hitboxWidth = 4;
-            self->hitboxOffX = 4;
-            self->hitboxOffY = 0;
-            self->posY.i.hi = self->ext.agunea.unk82 =
-                PLAYER.posY.i.hi + PLAYER.hitboxOffY - 8;
-            self->posX.i.hi = self->ext.agunea.unk80 = PLAYER.posX.i.hi;
-            prim = &g_PrimBuf[self->primIndex];
-            prim->type = 2;
-            prim->priority = PLAYER.zPriority + 2;
-            prim->drawMode = DRAW_UNK_200 | DRAW_UNK_100 | DRAW_TPAGE2 |
-                             DRAW_TPAGE | DRAW_TRANSP;
-            prim->r1 = 0x60;
-            prim->g1 = 0;
-            prim->b1 = 0x80;
-            RicSetSpeedX(FIX(6));
-            g_api.PlaySfx(SFX_WEAPON_SWISH_C);
-            self->step++;
         }
+        self->flags =
+            FLAG_POS_CAMERA_LOCKED | FLAG_KEEP_ALIVE_OFFCAMERA | FLAG_HAS_PRIMS;
+        self->facingLeft = PLAYER.facingLeft;
+        self->ext.agunea.subweaponId = W_DUMMY;
+        RicSetSubweaponParams(self);
+        self->hitboxWidth = self->hitboxHeight = 4;
+        self->hitboxOffX = 4;
+        self->hitboxOffY = 0;
+        self->posY.i.hi = self->ext.agunea.unk82 =
+            PLAYER.posY.i.hi + PLAYER.hitboxOffY - 8;
+        self->posX.i.hi = self->ext.agunea.unk80 = PLAYER.posX.i.hi;
+        prim = &g_PrimBuf[self->primIndex];
+        prim->type = PRIM_LINE_G2;
+        prim->priority = PLAYER.zPriority + 2;
+        prim->drawMode = DRAW_UNK_200 | DRAW_UNK_100 | DRAW_TPAGE2 |
+                         DRAW_TPAGE | DRAW_TRANSP;
+        prim->r1 = 0x60;
+        prim->g1 = 0;
+        prim->b1 = 0x80;
+        RicSetSpeedX(FIX(6));
+        g_api.PlaySfx(SFX_WEAPON_SWISH_C);
+        self->step++;
         break;
     case 1:
         self->posX.val += self->velocityX;
@@ -2029,23 +2013,21 @@ void RicEntitySubwpnAgunea(Entity* self) {
             self->posY.i.hi < -0x20 || self->posY.i.hi > 0x120) {
             self->step = 2;
         }
-        if (self->hitFlags != 0) {
-            self->step = 3;
+        if (self->hitFlags) {
             self->ext.agunea.parent = self->unkB8;
+            self->step = 3;
         }
         break;
     case 4:
         self->posX.i.hi = self->ext.agunea.parent->posX.i.hi;
         self->posY.i.hi = self->ext.agunea.parent->posY.i.hi;
-        if (++self->ext.agunea.unk7C >= 16) {
-            if (g_PrimBuf[self->primIndex].r1 < 5) {
-                DestroyEntity(self);
-                return;
-            }
+        if (++self->ext.agunea.unk7C < 16) {
+            break;
         }
-        break;
+        // Fallthrough
     case 2:
-        if (g_PrimBuf[self->primIndex].r1 < 5) {
+        prim = &g_PrimBuf[self->primIndex];
+        if (prim->r1 < 5) {
             DestroyEntity(self);
             return;
         }
@@ -2055,11 +2037,14 @@ void RicEntitySubwpnAgunea(Entity* self) {
             (PAD_UP + PAD_SQUARE)) {
             self->step = 4;
         }
-        ent = self->ext.agunea.parent;
-        if (ent->entityId == 0 ||
-            self->ext.agunea.unk7C != 0 &&
-                (ent->hitPoints > 0x7000 || ent->hitPoints == 0 ||
-                 ent->hitboxState == 0)) {
+        if (!self->ext.agunea.parent->entityId) {
+            self->step = 2;
+            return;
+        }
+        if (self->ext.agunea.unk7C &&
+            (self->ext.agunea.parent->hitPoints > 0x7000 ||
+             !self->ext.agunea.parent->hitPoints ||
+             !self->ext.agunea.parent->hitboxState)) {
             self->step = 2;
             return;
         }
@@ -2067,9 +2052,8 @@ void RicEntitySubwpnAgunea(Entity* self) {
         tempX = self->posX.i.hi = self->ext.agunea.parent->posX.i.hi;
         tempY = self->posY.i.hi = self->ext.agunea.parent->posY.i.hi;
         if ((self->ext.agunea.unk7C % 12) == 0) {
-            self->posX.i.hi += ((rand() & 0xF) - 8);
-            self->posY.i.hi += ((rand() & 0xF) - 8);
-
+            self->posX.i.hi += (rand() & 0xF) - 8;
+            self->posY.i.hi += (rand() & 0xF) - 8;
             if (g_Status.hearts >= 5) {
                 g_Status.hearts -= 5;
                 RicCreateEntFactoryFromEntity(self, BP_AGUNEA_HIT_ENEMY, 0);
@@ -2097,15 +2081,13 @@ void RicEntitySubwpnAgunea(Entity* self) {
     if (prim->b1 >= 4) {
         prim->b1 -= 4;
     }
-    tempX = prim->b1;
-    if (tempX < 5) {
+    if (prim->b1 < 5) {
         prim->drawMode |= DRAW_HIDE;
     }
     prim->x0 = self->ext.agunea.unk80;
     prim->y0 = self->ext.agunea.unk82;
     prim->x1 = self->posX.i.hi;
     prim->y1 = self->posY.i.hi;
-    return;
 }
 
 // RIC entity 45. Blueprint 52. That blueprint comes from RIC
@@ -2114,7 +2096,6 @@ void RicEntityAguneaHitEnemy(Entity* self) {
     Entity* temp_s6;
     Primitive* prim;
     Primitive* temp_s3;
-    Primitive* var_a0;
     s16 somethingY;
     s16 somethingX;
     s16 angle;
@@ -2145,7 +2126,6 @@ void RicEntityAguneaHitEnemy(Entity* self) {
     case 0:
         self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 0x28);
         if (self->primIndex == -1) {
-        block_71:
             DestroyEntity(self);
             break;
         }
@@ -2385,7 +2365,7 @@ void RicEntityCrashVibhuti(Entity* self) {
         }
         self->flags =
             FLAG_KEEP_ALIVE_OFFCAMERA | FLAG_HAS_PRIMS | FLAG_UNK_20000;
-        prim = &g_PrimBuf[self->primIndex];
+        prim = (FakePrim*)&g_PrimBuf[self->primIndex];
         for (i = 0; i < 9; i++) {
             prim->r0 = prim->g0 = prim->b0 = 0xFF;
             prim->w = prim->h = 1;
@@ -2407,7 +2387,7 @@ void RicEntityCrashVibhuti(Entity* self) {
                 if (self->ext.vibhutiCrash.unk80 >= 0x30) {
                     self->step += 1;
                 }
-                prim = &g_PrimBuf[self->primIndex];
+                prim = (FakePrim*)&g_PrimBuf[self->primIndex];
                 for (i = 0; i < 9; i++) {
                     if (prim->drawMode & 8) {
                         break;
@@ -2429,7 +2409,7 @@ void RicEntityCrashVibhuti(Entity* self) {
         if (!(++crash_vibhuti_timer & 7)) {
             g_api.PlaySfx(SFX_NOISE_SWEEP_DOWN_A);
         }
-        prim = &g_PrimBuf[self->primIndex];
+        prim = (FakePrim*)&g_PrimBuf[self->primIndex];
         for (i = 0; i < 9; i++) {
             if (!(prim->drawMode & DRAW_HIDE)) {
                 if (--prim->delay == 0) {

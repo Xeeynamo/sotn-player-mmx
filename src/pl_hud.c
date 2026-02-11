@@ -39,7 +39,7 @@ static s32 AllocHighPriorityPrimitives(u8 type, s32 count) {
     i = LEN(g_PrimBuf) - 1;
     while (i >= 0) {
         if (prim->type == 0) {
-            memset(prim, 0, sizeof(Primitive));
+            __builtin_memset(prim, 0, sizeof(Primitive));
             if (count == 1) {
                 prim->type = type;
                 prim->next = NULL;

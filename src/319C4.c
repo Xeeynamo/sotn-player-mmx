@@ -9,10 +9,13 @@
 // entity spawned from the rebound stone crash.
 static s32 angles_80155EE0[] = {0x00000F80, 0x00000100, 0x00000700, 0x00000880};
 void func_8016D9C4(Entity* self) {
-    Primitive* prim;
-    PrimLineG2* primLine;
+    PrimLineG2* prim;
+    Primitive* prim2;
     s32 i;
-    s32 angleChange;
+    long angle;
+    s32 var_s6;
+    s32 var_s5;
+    s32 var_s7;
     s32 brightness;
 
     switch (self->step) {
@@ -23,49 +26,48 @@ void func_8016D9C4(Entity* self) {
             return;
         }
         self->flags = FLAG_KEEP_ALIVE_OFFCAMERA | FLAG_HAS_PRIMS;
-        primLine = (PrimLineG2*)&g_PrimBuf[self->primIndex];
+        prim = (PrimLineG2*)&g_PrimBuf[self->primIndex];
         for (i = 0; i < 4; i++) {
-            primLine->preciseX.val = PLAYER.posX.val;
-            primLine->preciseY.val = PLAYER.posY.val - FIX(40);
-            primLine->priority = 194;
-            primLine->drawMode = DRAW_HIDE;
-            primLine->x0 = primLine->x1 = PLAYER.posX.i.hi;
-            primLine->y0 = primLine->y1 = PLAYER.posY.i.hi - 0x1C;
-            primLine->r0 = primLine->g0 = primLine->b0 = 0x80;
-            primLine->r1 = primLine->g1 = primLine->b1 = 0x70;
-            primLine->angle = angles_80155EE0[i];
-            primLine->delay = 1;
-            primLine = (PrimLineG2*)primLine->next;
+            prim->preciseX.val = PLAYER.posX.val;
+            prim->preciseY.val = PLAYER.posY.val - FIX(40);
+            prim->priority = 194;
+            prim->drawMode = DRAW_HIDE;
+            prim->x0 = prim->x1 = PLAYER.posX.i.hi;
+            prim->y0 = prim->y1 = PLAYER.posY.i.hi - 0x1C;
+            prim->r0 = prim->g0 = prim->b0 = 0x80;
+            prim->r1 = prim->g1 = prim->b1 = 0x70;
+            prim->angle = angles_80155EE0[i];
+            prim->delay = 1;
+            prim = (PrimLineG2*)prim->next;
         }
         for (brightness = 0x80; i < 20; i++) {
-            if ((i & 3) == 0) {
+            if (!(i % 4)) {
                 brightness -= 0x10;
                 switch (i / 4) {
                 case 1:
-                    self->ext.et_8016D9C4.lines[0] = primLine;
+                    self->ext.et_8016D9C4.lines[0] = prim;
                     break;
                 case 2:
-                    self->ext.et_8016D9C4.lines[1] = primLine;
+                    self->ext.et_8016D9C4.lines[1] = prim;
                     break;
                 case 3:
-                    self->ext.et_8016D9C4.lines[2] = primLine;
+                    self->ext.et_8016D9C4.lines[2] = prim;
                     break;
                 case 4:
-                    self->ext.et_8016D9C4.lines[3] = primLine;
+                    self->ext.et_8016D9C4.lines[3] = prim;
                     break;
                 }
             }
-            primLine->priority = 0xC2;
-            primLine->drawMode = DRAW_HIDE;
-            primLine->x0 = primLine->x1 = PLAYER.posX.i.hi;
-            primLine->y0 = primLine->y1 = PLAYER.posY.i.hi - 0x1C;
-            primLine->r0 = primLine->g0 = primLine->b0 = brightness;
-            primLine->r1 = primLine->g1 = primLine->b1 = brightness - 0x10;
-            primLine = (PrimLineG2*)primLine->next;
+            prim->priority = 0xC2;
+            prim->drawMode = DRAW_HIDE;
+            prim->x0 = prim->x1 = PLAYER.posX.i.hi;
+            prim->y0 = prim->y1 = PLAYER.posY.i.hi - 0x1C;
+            prim->r0 = prim->g0 = prim->b0 = brightness;
+            prim->r1 = prim->g1 = prim->b1 = brightness - 0x10;
+            prim = (PrimLineG2*)prim->next;
         }
         self->ext.et_8016D9C4.unk90 = 4;
-        self->ext.et_8016D9C4.unk8E = 0;
-        self->ext.et_8016D9C4.unk8C = 0;
+        self->ext.et_8016D9C4.unk8C = self->ext.et_8016D9C4.unk8E = 0;
         g_api.PlaySfx(SFX_RIC_RSTONE_TINK);
         self->step++;
         break;
@@ -73,96 +75,107 @@ void func_8016D9C4(Entity* self) {
         self->ext.et_8016D9C4.unk8E = 1;
         switch (self->ext.et_8016D9C4.unk8C) {
         case 0:
-            primLine = (PrimLineG2*)&g_PrimBuf[self->primIndex];
+        default:
+            prim = (PrimLineG2*)&g_PrimBuf[self->primIndex];
             break;
         case 1:
-            primLine = self->ext.et_8016D9C4.lines[0];
+            prim = self->ext.et_8016D9C4.lines[0];
             break;
         case 2:
-            primLine = self->ext.et_8016D9C4.lines[1];
+            prim = self->ext.et_8016D9C4.lines[1];
             break;
         case 3:
-            primLine = self->ext.et_8016D9C4.lines[2];
+            prim = self->ext.et_8016D9C4.lines[2];
             break;
         case 4:
-            primLine = self->ext.et_8016D9C4.lines[3];
+            prim = self->ext.et_8016D9C4.lines[3];
             break;
         }
         for (i = 0; i < 4; i++) {
-            primLine->drawMode &= ~DRAW_HIDE;
-            primLine = (PrimLineG2*)primLine->next;
+            prim->drawMode &= ~DRAW_HIDE;
+            prim = (PrimLineG2*)prim->next;
         }
-        if (++self->ext.et_8016D9C4.unk8C >= 5) {
+        self->ext.et_8016D9C4.unk8C++;
+        if (self->ext.et_8016D9C4.unk8C > 4) {
             self->step++;
         }
         break;
     case 2:
-        if (self->ext.et_8016D9C4.unk90 == 0) {
+        if (!self->ext.et_8016D9C4.unk90) {
             self->step++;
             break;
         }
         break;
     case 3:
-        if (++self->ext.et_8016D9C4.unk90 >= 5) {
+        self->ext.et_8016D9C4.unk90++;
+        if (self->ext.et_8016D9C4.unk90 > 4) {
             DestroyEntity(self);
             return;
         }
         break;
     }
-    if (self->ext.et_8016D9C4.unk8E == 0) {
+    if (!self->ext.et_8016D9C4.unk8E) {
         return;
     }
-    primLine = (PrimLineG2*)&g_PrimBuf[self->primIndex];
+    prim = (PrimLineG2*)&g_PrimBuf[self->primIndex];
     for (i = 0; i < 4; i++) {
-        if (primLine->delay != 0) {
-            primLine->x1 = primLine->x0;
-            primLine->y1 = primLine->y0;
-            primLine->x0 = primLine->preciseX.i.hi;
-            primLine->y0 = primLine->preciseY.i.hi;
-            angleChange =
-                primLine->angle - (ratan2(primLine->preciseY.val,
-                                          FIX(128) - primLine->preciseX.val) &
-                                   0xFFF);
-            if (abs(angleChange) > 0x800) {
-                if (angleChange < 0) {
-                    angleChange += 0x1000;
+        if (prim->delay) {
+            prim->x1 = prim->x0;
+            prim->y1 = prim->y0;
+            prim->x0 = prim->preciseX.i.hi;
+            prim->y0 = prim->preciseY.i.hi;
+            var_s7 = ratan2(prim->preciseY.val, FIX(128) - prim->preciseX.val) &
+                     0xFFF;
+            angle = prim->angle - var_s7;
+            if (abs(angle) > 0x800) {
+                if (angle < 0) {
+                    angle += 0x1000;
                 } else {
-                    angleChange -= 0x1000;
+                    angle -= 0x1000;
                 }
             }
-            if (angleChange >= 0) {
-                if (angleChange >= 0x81) {
-                    angleChange = 0x80;
+            if (angle >= 0) {
+                if (angle > 0x80) {
+                    var_s6 = 0x80;
+                } else {
+                    var_s6 = angle;
                 }
-            } else if (angleChange < -0x80) {
-                angleChange = -0x80;
+                angle = var_s6;
+            } else {
+                if (angle < -0x80) {
+                    var_s5 = -0x80;
+                } else {
+                    var_s5 = angle;
+                }
+                angle = var_s5;
             }
-            primLine->angle = (primLine->angle - angleChange) & 0xFFF;
-            primLine->velocityX.val = (rcos(primLine->angle) << 8);
-            primLine->velocityY.val = -(rsin(primLine->angle) << 8);
-            primLine->preciseX.val += primLine->velocityX.val;
-            primLine->preciseY.val += primLine->velocityY.val;
-            self->posX.i.hi = primLine->preciseX.i.hi;
-            self->posY.i.hi = primLine->preciseY.i.hi;
+            prim->angle = prim->angle - angle;
+            prim->angle &= 0xFFF;
+            prim->velocityX.val = (rcos(prim->angle) << 4 << 4);
+            prim->velocityY.val = -(rsin(prim->angle) << 4 << 4);
+            prim->preciseX.val += prim->velocityX.val;
+            prim->preciseY.val += prim->velocityY.val;
+            self->posX.i.hi = prim->preciseX.i.hi;
+            self->posY.i.hi = prim->preciseY.i.hi;
             RicCreateEntFactoryFromEntity(
                 self, BP_CRASH_REBOUND_STONE_PARTICLES, 0);
-            if (primLine->preciseY.val < 0) {
-                primLine->delay = 0;
-                primLine->drawMode |= 8;
+            if (prim->preciseY.val < 0) {
+                prim->delay = 0;
+                prim->drawMode |= DRAW_HIDE;
                 self->ext.et_8016D9C4.unk90--;
             }
         }
-        primLine = (PrimLineG2*)primLine->next;
+        prim = (PrimLineG2*)prim->next;
     }
-    primLine = self->ext.et_8016D9C4.lines[0];
-    prim = &g_PrimBuf[self->primIndex];
+    prim = self->ext.et_8016D9C4.lines[0];
+    prim2 = &g_PrimBuf[self->primIndex];
     for (i = 0; i < 16; i++) {
-        primLine->x1 = primLine->x0;
-        primLine->y1 = primLine->y0;
-        primLine->x0 = prim->x1;
-        primLine->y0 = prim->y1;
-        primLine = (PrimLineG2*)primLine->next;
-        prim = prim->next;
+        prim->x1 = prim->x0;
+        prim->y1 = prim->y0;
+        prim->x0 = prim2->x1;
+        prim->y0 = prim2->y1;
+        prim = (PrimLineG2*)prim->next;
+        prim2 = prim2->next;
     }
 }
 
@@ -317,8 +330,6 @@ void RicEntityCrashBibleBeam(Entity* self) {
     Primitive* prim;
     s16 var_s7;
     s16 hitboxOffX;
-    s32 temp_s0;
-    s32 temp_s0_2;
     s32 halfwidth;
     s32 var_s3;
     s32 i;
@@ -1221,7 +1232,7 @@ void RicEntityAguneaLightning(Entity* self) {
             srand(randomSeed);
             sp10[1] = self->posX.i.hi;
             sp10[3] = self->posY.i.hi;
-            angle = GetAguneaLightningAngle(&sp10, sp20, i, &sp18);
+            angle = GetAguneaLightningAngle(sp10, sp20, i, &sp18);
             xCoord = sp10[0];
             yCoord = sp10[2];
             var_s6 = (i == 0) ? 2 : 8;
@@ -2005,28 +2016,20 @@ void RicEntitySubpwnBibleTrail(Entity* entity) {
 
 void RicEntitySubwpnBible(Entity* self) {
     Primitive* prim;
-    s16 left;
-    s16 top;
-    s16 bottom;
-    s16 right;
+    s32 sp48;
+    s32 sp44;
+    s32 sp40;
+    s16 selfX;
+    s16 selfY;
+    s32 psp_s7;
+    s32 psp_s6;
+    s32 psp_s5;
+    s32 psp_s4;
+    s32 psp_s3;
+    s32 psp_s2;
+    s32 psp_s1;
 
-    s32 sine;
-    s32 cosine;
-    s32 cos_s2;
-    s32 sin_s3;
-    s32 cos_s3;
-    s32 sin_s2;
-
-    s32 temp_a3;
-    s32 temp_s2;
-    s32 temp_s3;
-    s32 temp_a1;
-
-    s32 temp_v0;
-    // Note: Not initialized in this function! will retain
-    // value already held (due to being a saved register)
-    s32 var_s4;
-
+    psp_s4 = 0;
     switch (self->step) {
     case 0:
         self->primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
@@ -2045,7 +2048,12 @@ void RicEntitySubwpnBible(Entity* self) {
         prim->v2 = prim->v3 = 0xF0;
         prim->priority = PLAYER.zPriority + 1;
         prim->drawMode = DRAW_UNK_100 | DRAW_HIDE;
-        self->ext.et_BibleSubwpn.unk84 = self->facingLeft ? 0x20 : -0x20;
+        if (self->facingLeft) {
+            sp44 = 0x20;
+        } else {
+            sp44 = -0x20;
+        }
+        self->ext.et_BibleSubwpn.unk84 = sp44;
         self->ext.et_BibleSubwpn.subweaponId = W_DUMMY;
         RicSetSubweaponParams(self);
         self->hitboxWidth = 6;
@@ -2059,16 +2067,23 @@ void RicEntitySubwpnBible(Entity* self) {
         self->step++;
     case 2:
         self->ext.et_BibleSubwpn.unk7C++;
-        if (++self->ext.et_BibleSubwpn.unk7E >= 0x30) {
+        self->ext.et_BibleSubwpn.unk7E++;
+        if (self->ext.et_BibleSubwpn.unk7E >= 0x30) {
             self->step++;
         }
         break;
     case 3:
-        if (++self->ext.et_BibleSubwpn.unk7C >= 0x12C) {
+        self->ext.et_BibleSubwpn.unk7C++;
+        if (self->ext.et_BibleSubwpn.unk7C >= 0x12C) {
             self->flags &= ~FLAG_KEEP_ALIVE_OFFCAMERA;
-            self->velocityX = self->facingLeft ? FIX(-12) : FIX(12);
+            if (self->facingLeft) {
+                sp40 = FIX(-12);
+            } else {
+                sp40 = FIX(12);
+            }
+            self->velocityX = sp40;
             self->velocityY = FIX(-12);
-            g_api.PlaySfx(0x6B2);
+            g_api.PlaySfx(SFX_BIBLE_SCRAPE);
             self->ext.et_BibleSubwpn.unk86++;
             self->step++;
         }
@@ -2079,39 +2094,33 @@ void RicEntitySubwpnBible(Entity* self) {
         break;
     case 1:
         // All this logic is a mess, could use a cleanup
-        sine = rsin(self->ext.et_BibleSubwpn.unk80);
-        cosine = rcos(self->ext.et_BibleSubwpn.unk80);
-        temp_s2 = (sine * self->ext.et_BibleSubwpn.unk7E) >> 0xC;
-        temp_s3 = (cosine * self->ext.et_BibleSubwpn.unk7E) >> 0xC;
-        cos_s2 = cosine * temp_s2;
-        sin_s3 = sine * temp_s3;
-        cos_s3 = cosine * temp_s3;
-        temp_a1 = cos_s2 + sin_s3;
-        sin_s2 = sine * temp_s2;
-        temp_s2 = temp_a1 >> 0xC;
-        temp_s3 = (cos_s3 - sin_s2) >> 0xC;
-        sine = rsin(self->ext.et_BibleSubwpn.unk82);
-        cosine = rcos(self->ext.et_BibleSubwpn.unk82);
-        temp_a1 = ((cosine * temp_s2) + (sine * var_s4)) >> 0xC;
-        temp_a3 = ((cosine * var_s4) - (sine * temp_s2)) >> 0xC;
+        psp_s2 = rsin(self->ext.et_BibleSubwpn.unk80);
+        psp_s1 = rcos(self->ext.et_BibleSubwpn.unk80);
+        psp_s5 = (psp_s2 * self->ext.et_BibleSubwpn.unk7E) >> 0xC;
+        psp_s3 = (psp_s1 * self->ext.et_BibleSubwpn.unk7E) >> 0xC;
+        psp_s7 = (psp_s1 * psp_s5 + psp_s2 * psp_s3);
+        sp48 = (psp_s1 * psp_s3 - psp_s2 * psp_s5);
+        psp_s5 = psp_s7 >> 0xC;
+        psp_s3 = sp48 >> 0xC;
+        psp_s2 = rsin(self->ext.et_BibleSubwpn.unk82);
+        psp_s1 = rcos(self->ext.et_BibleSubwpn.unk82);
+        psp_s7 = ((psp_s1 * psp_s5) + (psp_s2 * psp_s4)) >> 0xC;
+        psp_s6 = ((psp_s1 * psp_s4) - (psp_s2 * psp_s5)) >> 0xC;
+        psp_s4 = psp_s6;
         if (self->facingLeft) {
-            temp_a3 = ((cosine * temp_a3) + (sine * temp_s3)) >> 0xC;
+            psp_s6 = ((psp_s1 * psp_s4) + (psp_s2 * psp_s3)) >> 0xC;
         } else {
-            temp_a3 = ((cosine * temp_a3) - (sine * temp_s3)) >> 0xC;
+            psp_s6 = ((psp_s1 * psp_s4) - (psp_s2 * psp_s3)) >> 0xC;
         }
-
-        self->ext.et_BibleSubwpn.unk80 += (self->facingLeft ? 0x80 : -0x80);
+        self->ext.et_BibleSubwpn.unk80 += self->facingLeft ? 0x80 : -0x80;
         self->ext.et_BibleSubwpn.unk80 &= 0xFFF;
         self->ext.et_BibleSubwpn.unk82 += self->ext.et_BibleSubwpn.unk84;
         if (abs(self->ext.et_BibleSubwpn.unk82) >= 0x200) {
-            // temp_v0 needed because otherwise unk84 gets loaded with lhu
-            // instead of lh
-            temp_v0 = -self->ext.et_BibleSubwpn.unk84;
-            self->ext.et_BibleSubwpn.unk84 = temp_v0;
+            self->ext.et_BibleSubwpn.unk84 *= -1;
         }
-        self->posX.i.hi = PLAYER.posX.i.hi + temp_a1;
-        self->posY.i.hi = PLAYER.posY.i.hi + temp_a3;
-        self->zPriority = PLAYER.zPriority + (temp_s3 < 0 ? 2 : -2);
+        self->posX.i.hi = PLAYER.posX.i.hi + psp_s7;
+        self->posY.i.hi = PLAYER.posY.i.hi + psp_s6;
+        self->zPriority = PLAYER.zPriority + (psp_s3 < 0 ? 2 : -2);
         break;
     case 2:
         self->posX.val += self->velocityX;
@@ -2119,16 +2128,14 @@ void RicEntitySubwpnBible(Entity* self) {
         self->velocityY += FIX(-2);
         break;
     }
-    if (self->ext.et_BibleSubwpn.unk86 != 0) {
+    if (self->ext.et_BibleSubwpn.unk86) {
+        selfX = self->posX.i.hi;
+        selfY = self->posY.i.hi;
         prim = &g_PrimBuf[self->primIndex];
-        left = self->posX.i.hi - 8;
-        right = self->posX.i.hi + 8;
-        top = self->posY.i.hi - 12;
-        bottom = self->posY.i.hi + 12;
-        prim->x0 = prim->x2 = left;
-        prim->x1 = prim->x3 = right;
-        prim->y0 = prim->y1 = top;
-        prim->y2 = prim->y3 = bottom;
+        prim->x0 = prim->x2 = selfX - 8;
+        prim->x1 = prim->x3 = selfX + 8;
+        prim->y0 = prim->y1 = selfY - 12;
+        prim->y2 = prim->y3 = selfY + 12;
         prim->priority = self->zPriority;
         RicCreateEntFactoryFromEntity(self, BP_BIBLE_TRAIL, 0);
         if (g_GameTimer % 10 == 0) {

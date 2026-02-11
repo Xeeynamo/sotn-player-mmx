@@ -49,9 +49,9 @@ u32 g_DashTimer = 0;
 u32 g_DashAirUsed = 0;
 enum MmxChargeLevel g_ChargeLevel = CHARGE_NONE;
 
-static void InitSpritesheet(u_long* ptr, size_t num) {
+static void InitSpritesheet(u8** ptr, size_t num) {
 #ifdef VERSION_PC
-    memcpy(g_PlOvlSpritesheet, ptr, sizeof(u_long*) * num);
+    __builtin_memcpy(g_PlOvlSpritesheet, ptr, sizeof(u8*) * num);
 #endif
 }
 
@@ -91,8 +91,7 @@ static void DebugDrawRect(int x, int y, int w, int h, int color) {
 extern s32 g_DebugHitboxViewMode;
 extern s32 g_DebugEnabled;
 void InitSettings();
-void RicInit(s16 isPrologue);
-void PlayerInit(s16 isPrologue) {
+void PlayerInit(u16 isPrologue) {
     RicInit(isPrologue);
     InitSpritesheet(pl_sprites, LEN(pl_sprites));
     InitAnimations();
