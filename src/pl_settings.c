@@ -62,17 +62,12 @@ void RicEntityDummy(Entity* self) {}
 void RicEntityDummy(Entity* self);
 void RicEntityFactory(Entity* self);
 void RicEntitySmokePuff(Entity* self);
-void RicEntitySubwpnCross(Entity* self);
 void func_80169C10(Entity* self);
 void RicEntityHitByCutBlood(Entity* self);
-void RicEntitySubwpnCrossTrail(Entity* self);
-void RicEntitySubwpnHolyWater(Entity* self);
-void RicEntitySubwpnHolyWaterFlame(Entity* self);
 void func_80161C2C(Entity* self);
 void RicEntityWhip(Entity* self);
 void RicEntityCrashHydroStorm(Entity* self);
 void RicEntityGiantSpinningCross(Entity* self);
-void RicEntitySubwpnCrashCross(Entity* self);
 void RicEntityNotImplemented1(Entity* self);
 void RicEntityNotImplemented2(Entity* self);
 void RicEntityArmBrandishWhip(Entity* self);
@@ -80,7 +75,6 @@ void func_80167964(Entity* self);
 void RicEntityDummy(Entity* self);
 void func_80161EF8(Entity* self);
 void RicEntityNotImplemented3(Entity* self);
-void RicEntityRevivalColumn(Entity* self);
 void RicEntityApplyMariaPowerAnim(Entity* self);
 void RicEntitySlideKick(Entity* self);
 void RicEntityBladeDash(Entity* self);
@@ -91,40 +85,21 @@ void RicEntityMariaPowers(Entity* self);
 void func_80160F0C(Entity* self);
 void RicEntityNotImplemented4(Entity* self);
 void RicEntityPlayerBlinkWhite(Entity* self);
-void RicEntitySubwpnCrashCrossParticles(Entity* self);
 void func_801641A0(Entity* self);
 void RicEntityShrinkingPowerUpRing(Entity* self);
 void func_80167A70(Entity* self);
-void RicEntitySubwpnAxe(Entity* self);
-void RicEntityCrashAxe(Entity* self);
-void RicEntitySubwpnDagger(Entity* self);
 void func_80160D2C(Entity* self);
 void RicEntityHitByIce(Entity* self);
 void RicEntityHitByLightning(Entity* self);
 void RicEntitySubwpnReboundStone(Entity* self);
 void RicEntitySubwpnThrownVibhuti(Entity* self);
-void RicEntitySubwpnAgunea(Entity* self);
-void RicEntityAguneaHitEnemy(Entity* self);
 void RicEntityCrashVibhuti(Entity* self);
 void RicEntityVibhutiCrashCloud(Entity* self);
-void RicEntityCrashReboundStone(Entity* self);
 void func_8016D9C4(Entity* self);
-void RicEntityCrashReboundStoneExplosion(Entity* self);
-void RicEntityCrashBible(Entity* self);
-void RicEntityCrashBibleBeam(Entity* self);
-void RicEntitySubwpnBible(Entity* self);
-void RicEntitySubpwnBibleTrail(Entity* self);
-void RicEntitySubwpnStopwatch(Entity* self);
-void RicEntitySubwpnStopwatchCircle(Entity* self);
 void func_801705EC(Entity* self);
 void func_8016F198(Entity* self);
-void RicEntityAguneaCircle(Entity* self);
-void RicEntityAguneaLightning(Entity* self);
-void RicEntityCrashReboundStoneParticles(Entity* self);
 void RicEntityHitByDark(Entity* self);
 void RicEntityHitByHoly(Entity* self);
-void RicEntityCrashStopwatchDoneSparkle(Entity* self);
-void RicEntityStopwatchCrashLightning(Entity* self);
 void RicEntityTeleport(Entity* self);
 void RicEntityDummy(Entity* self);
 
@@ -157,17 +132,17 @@ static PfnEntityUpdate entity_functions[] = {
     RicEntityDummy,
     RicEntityFactory,
     RicEntitySmokePuff,
-    RicEntitySubwpnCross,
+    RicEntityDummy,
     func_80169C10,
     RicEntityHitByCutBlood,
-    RicEntitySubwpnCrossTrail,
-    RicEntitySubwpnHolyWater,
-    RicEntitySubwpnHolyWaterFlame,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
     func_80161C2C,
     RicEntityWhip,
-    RicEntityCrashHydroStorm,
     RicEntityDummy,
-    RicEntitySubwpnCrashCross,
+    RicEntityDummy,
+    RicEntityDummy,
     RicEntityNotImplemented1,
     RicEntityNotImplemented2,
     RicEntityArmBrandishWhip,
@@ -175,51 +150,51 @@ static PfnEntityUpdate entity_functions[] = {
     RicEntityDummy,
     func_80161EF8,
     RicEntityNotImplemented3,
-    RicEntityRevivalColumn,
+    RicEntityDummy,
     RicEntityApplyMariaPowerAnim,
     RicEntitySlideKick,
     RicEntityBladeDash,
     func_801623E0,
     func_80162604,
     RicEntityMaria,
-    RicEntityMariaPowers,
+    RicEntityDummy,
     func_80160F0C,
     RicEntityNotImplemented4,
     RicEntityPlayerBlinkWhite,
-    RicEntitySubwpnCrashCrossParticles,
+    RicEntityDummy,
     func_801641A0,
     RicEntityShrinkingPowerUpRing,
     func_80167A70,
-    RicEntitySubwpnAxe,
-    RicEntityCrashAxe,
-    RicEntitySubwpnDagger,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
     func_80160D2C,
     RicEntityHitByIce,
     RicEntityHitByLightning,
-    RicEntitySubwpnReboundStone,
-    RicEntitySubwpnThrownVibhuti,
-    RicEntitySubwpnAgunea,
-    RicEntityAguneaHitEnemy,
-    RicEntityCrashVibhuti,
-    RicEntityVibhutiCrashCloud,
-    RicEntityCrashReboundStone,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
     func_8016D9C4,
-    RicEntityCrashReboundStoneExplosion,
-    RicEntityCrashBible,
-    RicEntityCrashBibleBeam,
-    RicEntitySubwpnBible,
-    RicEntitySubpwnBibleTrail,
-    RicEntitySubwpnStopwatch,
-    RicEntitySubwpnStopwatchCircle,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
     func_801705EC,
     func_8016F198,
-    RicEntityAguneaCircle,
-    RicEntityAguneaLightning,
-    RicEntityCrashReboundStoneParticles,
+    RicEntityDummy,
+    RicEntityDummy,
+    RicEntityDummy,
     RicEntityHitByDark,
     RicEntityHitByHoly,
-    RicEntityCrashStopwatchDoneSparkle,
-    RicEntityStopwatchCrashLightning,
+    RicEntityDummy,
+    RicEntityDummy,
     RicEntityTeleport,
     RicEntityDummy,
 

@@ -857,7 +857,7 @@ static void RicHandleFall(void) {
         // one set when moving in the air
         // if pressing the same directional button of the direction where the
         // player is falling to, we want to keep maintaining the highest speed
-        const int FALL_MOV_X_SPEED = FIX(0.75);
+        const int FALL_MOV_X_SPEED = FIX(1.5);
         if (!PLAYER.facingLeft && g_Player.padPressed & PAD_RIGHT) {
             if (PLAYER.velocityX < FALL_MOV_X_SPEED) {
                 RicSetSpeedX(FALL_MOV_X_SPEED);
@@ -1348,8 +1348,8 @@ void RicHandleHit(s32 damageEffect, u32 damageKind, s16 prevStep) {
         } else if (g_Player.vram_flag & 0xC) {
             if (!(g_Player.vram_flag & 0xFF03)) {
                 PLAYER.velocityY += FIX(12.0 / 128);
-                if (PLAYER.velocityY > FIX(7)) {
-                    PLAYER.velocityY = FIX(7);
+                if (PLAYER.velocityY > MMX_FALL_MAX_VELOCITY) {
+                    PLAYER.velocityY = MMX_FALL_MAX_VELOCITY;
                 }
                 if (!(g_GameTimer & 3)) {
                     RicCreateEntFactoryFromEntity(

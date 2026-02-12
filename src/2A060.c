@@ -193,13 +193,13 @@ void RicEntityTeleport(Entity* self) {
     }
     prim->x1 = prim->x3 = xVar;
     prim->x0 = prim->x2 = xVar - selfUnk7C;
-    func_80165DD8(
-        (POLY_GT4*)prim, self->ext.teleport.colorIntensity, yVar, selfUnk80, upperParams);
+    func_80165DD8((POLY_GT4*)prim, self->ext.teleport.colorIntensity, yVar,
+                  selfUnk80, upperParams);
     prim = prim->next;
     prim->x1 = prim->x3 = xVar;
     prim->x0 = prim->x2 = xVar + selfUnk7C;
-    func_80165DD8(
-        (POLY_GT4*)prim, self->ext.teleport.colorIntensity, yVar, selfUnk80, upperParams);
+    func_80165DD8((POLY_GT4*)prim, self->ext.teleport.colorIntensity, yVar,
+                  selfUnk80, upperParams);
     prim = prim->next;
     if (showParticles) {
         for (i = 0; i < LEN(D_80175000); i++) {
@@ -244,8 +244,7 @@ void func_80167964(Entity* entity) {
                             FLAG_KEEP_ALIVE_OFFCAMERA | FLAG_UNK_10000;
         }
         if (!(entity->params & 0xFF00)) {
-            g_Entities[D_80155D30[entity->poseTimer]].palette =
-                PAL_FLAG(0x140);
+            g_Entities[D_80155D30[entity->poseTimer]].palette = PAL_FLAG(0x140);
         }
         g_Entities[D_80155D30[entity->poseTimer]].ext.player.unkA4 = 4;
         entity->poseTimer++;
@@ -374,177 +373,44 @@ void func_80167A70(Entity* self) {
     }
 }
 
-// Entity ID #11. Created by blueprint 12.
-// This is blueprintNum for subweapon ID 16.
-// That is the crash for subweapon 3. That's holy water!
-void RicEntityCrashHydroStorm(Entity* self) {
-    PrimLineG2* line;
-    s16 primcount;
-    s32 trigresult;
-    s32 trigtemp;
+void func_80169C10(Entity* entity) {
+    Primitive* prim;
+    s16 primIndex;
+    s32 PosX = 8;
+    s32 PosY = 4;
 
-    if (self->params < 40) {
-        primcount = 32;
-    } else {
-        primcount = 33 - ((self->params - 32) * 2);
-    }
-
-    switch (self->step) {
+    switch (entity->step) {
     case 0:
-        self->primIndex = g_api.AllocPrimitives(PRIM_LINE_G2, primcount);
-        if (self->primIndex == -1) {
-            DestroyEntity(self);
-            return;
-        }
-        self->ext.subweapon.subweaponId = W_DUMMY;
-        RicSetSubweaponParams(self);
-        self->flags = FLAG_POS_CAMERA_LOCKED | FLAG_KEEP_ALIVE_OFFCAMERA |
-                      FLAG_HAS_PRIMS | FLAG_UNK_20000;
-        line = (PrimLineG2*)&g_PrimBuf[self->primIndex];
-        self->facingLeft = 0;
-        while (line != NULL) {
-            line->r0 = 0x1F;
-            line->g0 = 0x1F;
-            line->b0 = 0x30;
-            line->r1 = 0x3F;
-            line->g1 = 0x50;
-            line->b1 = 0x7F;
-            line->x1 = line->x0 = rand() & 0x1FF;
-            line->y0 = line->y1 = -(rand() & 0xF);
-            line->preciseX.i.hi = line->x1;
-            line->preciseY.i.hi = line->y1;
-
-            // This whole block is weird. Why are we calculating rcos
-            // and rsin on a fixed value at runtime? And why aren't
-            // these simple multiplications?
-            trigresult = rcos(0xB80);
-            trigtemp = trigresult * 16;
-            line->velocityX.val = (trigresult * 32 + trigtemp) * 4;
-            trigresult = rsin(0xB80);
-            trigtemp = trigresult * -16;
-            line->velocityY.val = trigtemp * 12;
-
-            line->timer = 0;
-            line->delay = (rand() & 0xF) + 12;
-            if (rand() & 1) {
-                line->priority = PLAYER.zPriority + 2;
-            } else {
-                line->priority = PLAYER.zPriority - 2;
-            }
-            line->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
-            line = line->next;
-        }
-        if (self->params == 1) {
-            g_api.SetFadeMode(3);
-        }
-        self->ext.subweapon.timer = 0x160;
-        if ((self->params < 32) && !(self->params & 3)) {
-            g_api.PlaySfx(0x708);
-        }
-        self->step++;
-        break;
-
-    case 1:
-        line = (PrimLineG2*)&g_PrimBuf[self->primIndex];
-        while (line != NULL) {
-            if (line->timer == 0) {
-                line->preciseX.i.hi = line->x1;
-                line->preciseY.i.hi = line->y1;
-                line->preciseX.val += line->velocityX.val;
-                line->preciseY.val += line->velocityY.val;
-                line->x1 = line->preciseX.i.hi;
-                line->y1 = line->preciseY.i.hi;
-                if (line->delay < line->y1) {
-                    line->timer++;
-                    line->xLength = line->x0 - line->x1;
-                    line->yLength = line->y0 - line->y1;
-                }
-            } else {
-                line->preciseX.i.hi = line->x1;
-                line->preciseY.i.hi = line->y1;
-                line->preciseX.val += line->velocityX.val;
-                line->preciseY.val += line->velocityY.val;
-                line->x1 = line->preciseX.i.hi;
-                line->y1 = line->preciseY.i.hi;
-                line->y0 = line->y1 + line->yLength;
-                line->x0 = line->x1 + line->xLength;
-                if (line->y0 >= 0xD8) {
-                    self->step = 2;
-                }
-            }
-            line = line->next;
-        }
-        self->ext.subweapon.timer++;
-        break;
-
-    case 2:
-        DestroyEntity(self);
-        break;
-    }
-    g_Player.timers[PL_T_3] = 16;
-}
-
-// Copy of DRA function
-s32 RicCheckHolyWaterCollision(s32 baseY, s32 baseX) {
-    s16 x;
-    s16 y;
-    Collider res1;
-    Collider res2;
-    s16 colRes1;
-    s16 colRes2;
-
-    const u32 colFullSet =
-        (EFFECT_UNK_8000 | EFFECT_UNK_4000 | EFFECT_UNK_2000 | EFFECT_UNK_1000 |
-         EFFECT_UNK_0800 | EFFECT_SOLID);
-    const u32 colSetNo800 = (EFFECT_UNK_8000 | EFFECT_UNK_4000 |
-                             EFFECT_UNK_2000 | EFFECT_UNK_1000 | EFFECT_SOLID);
-    const u32 colSet1 = (EFFECT_UNK_8000 | EFFECT_UNK_0800 | EFFECT_SOLID);
-    const u32 colSet2 = (EFFECT_UNK_8000 | EFFECT_SOLID);
-    x = baseX + g_CurrentEntity->posX.i.hi;
-    y = baseY + g_CurrentEntity->posY.i.hi;
-
-    g_api.CheckCollision(x, y, &res1, 0);
-    colRes1 = res1.effects & colFullSet;
-    g_api.CheckCollision(x, (s16)(y - 1 + res1.unk18), &res2, 0);
-    y = baseY + (g_CurrentEntity->posY.i.hi + res1.unk18);
-
-    if ((colRes1 & colSet1) == EFFECT_SOLID ||
-        (colRes1 & colSet1) == (EFFECT_UNK_0800 | EFFECT_SOLID)) {
-        colRes2 = res2.effects & colSetNo800;
-        if (!((s16)res2.effects & 1)) {
-            g_CurrentEntity->posY.i.hi = y;
-            return 1;
-        }
-        if ((res2.effects & colSet2) == colSet2) {
-            g_CurrentEntity->posY.i.hi = y + (s16)(res2.unk18 - 1);
-            return colRes2;
-        }
-    } else if ((colRes1 & colSet2) == colSet2) {
-        g_CurrentEntity->posY.i.hi = y;
-        return colRes1 & colSetNo800;
-    }
-    return 0;
-}
-
-s32 func_8016840C(s16 x, s16 y) {
-    Collider collider;
-    u16 temp;
-
-    if (g_CurrentEntity->velocityX != 0) {
-        g_api.CheckCollision(g_CurrentEntity->posX.i.hi + y,
-                             g_CurrentEntity->posY.i.hi + x, &collider, 0);
-        if (g_CurrentEntity->velocityX > 0) {
-            temp = collider.unk14;
+        primIndex = g_api.AllocPrimitives(PRIM_GT4, 1);
+        entity->primIndex = primIndex;
+        if (primIndex != -1) {
+            entity->flags = FLAG_POS_CAMERA_LOCKED | FLAG_HAS_PRIMS;
+            entity->velocityY = FIX(0.5);
+            entity->posX.i.hi =
+                ((u16)entity->posX.i.hi - PosX) + (rand() & 0xF);
+            entity->posY.i.hi =
+                ((u16)entity->posY.i.hi - PosY) + (rand() & 0xF);
+            prim = &g_PrimBuf[entity->primIndex];
+            prim->clut = 0x1B0;
+            prim->tpage = 0x1A;
+            prim->b0 = 0;
+            prim->b1 = 0;
+            prim->priority = entity->zPriority;
+            prim->priority = prim->priority + 4;
+            prim->drawMode = DRAW_TPAGE2 | DRAW_TPAGE | DRAW_TRANSP;
+            func_8015FDB0(prim, entity->posX.i.hi, entity->posY.i.hi);
+            entity->step++;
         } else {
-            temp = collider.unk1C;
+            DestroyEntity(entity);
         }
-        if (!(collider.effects & EFFECT_UNK_0002)) {
-            return 0;
+        break;
+
+    default:
+        entity->posY.val += entity->velocityY;
+        prim = &g_PrimBuf[entity->primIndex];
+        if (func_8015FDB0(prim, entity->posX.i.hi, entity->posY.i.hi) != 0) {
+            DestroyEntity(entity);
         }
-    } else {
-        return 0;
+        break;
     }
-    g_CurrentEntity->posX.i.lo = 0;
-    g_CurrentEntity->posX.i.hi += temp;
-    return 2;
 }

@@ -2,7 +2,7 @@
 #include "pl.h"
 
 // same as DRA/func_8011BD48
-bool func_80162E9C(Entity* entity) {
+static bool func_80162E9C(Entity* entity) {
     s32 i = 16;
     s16 objId = entity->entityId;
     s16 params = entity->params;
@@ -1084,9 +1084,4 @@ void func_80165DD8(
 void func_80166024() {
     PLAYER.palette = 0x815E;
     PLAYER.drawMode = DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE;
-}
-
-void func_80166044() {
-    PLAYER.palette = 0x8120;
-    PLAYER.drawMode = DRAW_DEFAULT;
 }

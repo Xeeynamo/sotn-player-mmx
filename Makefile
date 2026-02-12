@@ -4,7 +4,7 @@ FILES     := pl_header pl_sprites pl pl_assets pl_anims pl_settings
 FILES     += pl_hud pl_entities
 FILES     += lz4/lz4
 FILES     += d_18568 spriteparts
-FILES     += 1AC60 21250 24788 26C84 2A060 2C4C4 319C4 bss
+FILES     += 1AC60 21250 24788 26C84 2A060 319C4 bss
 ASSETS	  += hud.png items.png particles.png
 
 SOTN_DIR     := sotn-decomp
@@ -18,7 +18,7 @@ LD        := $(CROSS)ld
 CPP       := $(CROSS)cpp
 OBJCOPY   := $(CROSS)objcopy
 CC_FLAGS  := -std=c11 -c -isystem $(INCLUDE_DIR) -G0 -O2 -g -funsigned-char -ffunction-sections -fdata-sections
-CC_FLAGS  += -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -fno-stack-protector -nostdlib
+CC_FLAGS  += -march=mips1 -mabi=32 -EL -mfp32 -fno-pic -mno-shared -mno-abicalls -fno-stack-protector -nostdlib
 CC_FLAGS  += -Werror -Wall -Wno-unused-function -Wno-switch
 CC_FLAGS  += -D_internal_version_us -DVERSION_PSX -DNO_LOGS
 OBJS      := $(addprefix build/, $(addsuffix .o, $(FILES)))

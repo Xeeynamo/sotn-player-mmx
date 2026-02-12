@@ -171,8 +171,8 @@ bool RicCheckInput(s32 checks) {
         velYChange /= 4;
     }
     PLAYER.velocityY += velYChange;
-    if (PLAYER.velocityY > FIX(7)) {
-        PLAYER.velocityY = FIX(7);
+    if (PLAYER.velocityY > MMX_FALL_MAX_VELOCITY) {
+        PLAYER.velocityY = MMX_FALL_MAX_VELOCITY;
     }
     if ((checks & CHECK_80) && (g_Player.vram_flag & 2) &&
         (PLAYER.velocityY < FIX(-1))) {
@@ -193,7 +193,7 @@ bool RicCheckInput(s32 checks) {
                         g_CurrentEntity, BP_SKID_SMOKE, 0);
                     return true;
                 }
-                if (PLAYER.velocityY > FIX(6.875)) {
+                if (PLAYER.velocityY > MMX_FALL_MAX_VELOCITY) {
                     RicSetWalkFromJump(1, 0);
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
                     RicCreateEntFactoryFromEntity(
@@ -205,7 +205,7 @@ bool RicCheckInput(s32 checks) {
                 }
                 return true;
             case 1: // this seems to be related when landing while attacking?
-                if (PLAYER.velocityY > FIX(6.875)) {
+                if (PLAYER.velocityY > MMX_FALL_MAX_VELOCITY) {
                     PLAYER.step = PL_S_CROUCH;
                     MmxSetAnimation(PL_A_DUMMY);
                     g_api.PlaySfx(SFX_STOMP_HARD_B);
@@ -226,7 +226,7 @@ bool RicCheckInput(s32 checks) {
                 g_Player.unk44 = 0;
                 return true;
             case 2:
-                if (PLAYER.velocityY > FIX(6.875)) {
+                if (PLAYER.velocityY > MMX_FALL_MAX_VELOCITY) {
                     PLAYER.step = PL_S_CROUCH;
                     MmxSetAnimation(PL_A_DUMMY);
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
@@ -248,7 +248,8 @@ bool RicCheckInput(s32 checks) {
                 g_Player.unk44 = 0;
                 return true;
             case 3:
-                if ((PLAYER.velocityY > FIX(6.875)) || (g_Player.unk44 & 8)) {
+                if ((PLAYER.velocityY > MMX_FALL_MAX_VELOCITY) ||
+                    (g_Player.unk44 & 8)) {
                     g_api.PlaySfx(SFX_STOMP_SOFT_A);
                     RicCreateEntFactoryFromEntity(
                         g_CurrentEntity, BP_SKID_SMOKE, 0);
@@ -410,71 +411,6 @@ static void DebugInputWait(const char* msg) {
         DebugShowWaitInfo(msg);
     while (PadRead(0) == 0)
         DebugShowWaitInfo(msg);
-}
-
-void func_8015E484(void) {
-    s32 i;
-    s32 collision = 0;
-    s16 startingPosY = PLAYER.posY.i.hi;
-
-    if (g_Player.vram_flag & 1 || g_IsRicDebugEnter || g_Player.unk78 == 1) {
-        return;
-    }
-    if (PLAYER.posY.i.hi < 0x30) {
-        PLAYER.posY.i.hi -= 0x10;
-        while (true) {
-            for (i = 0; i < 4; ++i) {
-                g_api.CheckCollision(
-                    (s16)(PLAYER.posX.i.hi + g_MmxSensorsFloor[i].x),
-                    (s16)(PLAYER.posY.i.hi + g_MmxSensorsFloor[i].y),
-                    &g_Player.colFloor[i], 0);
-            }
-
-            if ((g_Player.colFloor[1].effects & 0x81) == 1 ||
-                (g_Player.colFloor[2].effects & 0x81) == 1 ||
-                (g_Player.colFloor[3].effects & 0x81) == 1) {
-                PLAYER.velocityY = 0;
-                PLAYER.posY.i.hi -= 1;
-                collision = 1;
-            } else if (collision == 0) {
-                PLAYER.posY.i.hi += 8;
-                if (PLAYER.posY.i.hi >= 0x30) {
-                    PLAYER.posY.i.hi = startingPosY;
-                    return;
-                }
-            } else {
-                return;
-            }
-        }
-
-    } else if (PLAYER.posY.i.hi >= 0xB1) {
-        PLAYER.posY.i.hi += 0x20;
-        while (true) {
-            for (i = 0; i < 4; ++i) {
-                g_api.CheckCollision(
-                    (s16)(PLAYER.posX.i.hi + g_MmxSensorsCeiling[i].x),
-                    (s16)(PLAYER.posY.i.hi + g_MmxSensorsCeiling[i].y),
-                    &g_Player.colCeiling[i], 0);
-            }
-
-            if ((g_Player.colCeiling[1].effects & 0x41) == 1 ||
-                (g_Player.colCeiling[2].effects & 0x41) == 1 ||
-                (g_Player.colCeiling[3].effects & 0x41) == 1) {
-                PLAYER.velocityY = 0;
-                PLAYER.posY.i.hi += 1;
-                collision = 1;
-            } else if (collision != 0) {
-                PLAYER.posY.i.hi -= 1;
-                return;
-            } else {
-                PLAYER.posY.i.hi -= 8;
-                if (PLAYER.posY.i.hi < 0xB1) {
-                    PLAYER.posY.i.hi = startingPosY;
-                    return;
-                }
-            }
-        }
-    }
 }
 
 void RicGetPlayerSensor(Collider* col) {
