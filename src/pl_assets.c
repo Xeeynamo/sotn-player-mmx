@@ -4,7 +4,7 @@
 #include "lz4/lz4.h"
 
 static unsigned short palette[][16] = {
-#include "assets/pal.inc"
+#include "assets/palettes.inc"
 };
 
 static unsigned char img_hud[] = {

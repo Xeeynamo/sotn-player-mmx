@@ -1,0 +1,51 @@
+palettes:
+  - id: PAL_PLAYER
+    name: palettes/x.pal
+  - id: PAL_HUD
+    name: palettes/hud.pal
+  - id: PAL_PARTICLES
+    name: palettes/w_buster.pal
+  - id: PAL_HEART
+    name: palettes/heart_tank.pal
+  - id: PAL_MMX1_CHARGE_LV1
+    name: palettes/x_charge1.pal
+  - id: PAL_MMX1_CHARGE_LV2
+    name: palettes/x_charge2.pal
+  - id: PAL_MMX1_CHARGE_LV3
+    name: palettes/x_charge2.pal
+  - id: PAL_MMX1_SHOTGUN_ICE
+    name: palettes/x_shotgun_ice.pal
+  - id: PAL_MMX1_ELECTRIC_SPARK
+    name: palettes/x_electric_spark.pal
+  - id: PAL_MMX1_ROLLING_SHIELD
+    name: palettes/x_rolling_shield.pal
+  - id: PAL_MMX1_HOMING_TORPEDO
+    name: palettes/x_homing_torpedo.pal
+  - id: PAL_MMX1_BOOMERANG_CUTTER
+    name: palettes/x_boomerang_cutter.pal
+  - id: PAL_MMX1_CHAMELEON_STING
+    name: palettes/x_chameleon_sting.pal
+  - id: PAL_MMX1_STORM_TORNADO
+    name: palettes/x_storm_tornado.pal
+  - id: PAL_MMX1_FIRE_WAVE
+    name: palettes/x_fire_wave.pal
+  - id: PAL_W_SHOTGUN_ICE
+    name: palettes/w_shotgun_ice.pal
+  - id: PAL_W_ELECTRIC_SPARK
+    name: palettes/w_electric_spark.pal
+  - id: PAL_W_ROLLING_SHIELD
+    name: palettes/w_rolling_shield.pal
+  - id: PAL_W_HOMING_TORPEDO
+    name: palettes/w_homing_torpedo.pal
+  - id: PAL_W_BOOMERANG_CUTTER
+    name: palettes/w_boomerang_cutter.pal
+  - id: PAL_W_CHAMELEON_STING
+    name: palettes/w_chameleon_sting.pal
+  - id: PAL_W_STORM_TORNADO
+    name: palettes/w_storm_tornado.pal
+  - id: PAL_W_FIRE_WAVE
+    name: palettes/w_fire_wave.pal
+  - id: PAL_ZERO
+    name: palettes/zero.pal
+  - id: PAL_ZERO_CHARGE
+    name: palettes/zero_charge.pal

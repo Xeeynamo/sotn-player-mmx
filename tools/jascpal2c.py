@@ -23,7 +23,8 @@ def convert_32bit_to_16bit_color(rgb_tuple):
 
 config = yaml.safe_load(sys.stdin.buffer)
 palettes = []
-for pal_file_name in config["palettes"]:
+for palette_entry in config["palettes"]:
+    pal_file_name = os.path.join("assets", palette_entry["name"])
     palettes.extend(parse_jasc_pal(pal_file_name))
 for i in range(0, len(palettes) >> 4):
     pal = palettes[i * 16 :]
