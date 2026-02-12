@@ -71,17 +71,7 @@ static void SetWeaponParams(Entity* e, int weaponId) {
     }
 }
 
-static AnimationFrame anim_lemon_shoot[] = {POSE(64, 1, 1), POSE_END};
-static AnimationFrame anim_lemon_impact[] = {
-    POSE(2, 2, 0), POSE(2, 3, 0), POSE(2, 4, 0), POSE_END};
-static AnimationFrame* lemon_anims[] = {
-    anim_lemon_shoot,
-    anim_lemon_impact,
-};
-static s8 lemon_hitboxes[][4] = {
-    {0, 0, 0, 0},
-    {0, 0, 4, 3},
-};
+#include "assets/anims_buster.inc"
 void EntityLemon(Entity* self) {
     const int Width = 8;
     Collider col;
@@ -90,7 +80,7 @@ void EntityLemon(Entity* self) {
     switch (self->step) {
     case 0:
         self->animSet = ANIMSET_OVL(0x11);
-        self->ext.player.anim = 0;
+        self->ext.player.anim = Buster_Shot;
         self->drawFlags = 0;
         self->flags |= FLAG_POS_CAMERA_LOCKED;
         self->posX.i.hi += self->facingLeft ? -16 : 16;
@@ -117,7 +107,7 @@ void EntityLemon(Entity* self) {
         }
         break;
     dispose:
-        self->ext.player.anim = 1;
+        self->ext.player.anim = Buster_Impact;
         self->poseTimer = 0;
         self->pose = 0;
         self->hitboxState = 0;
@@ -131,23 +121,10 @@ void EntityLemon(Entity* self) {
         }
         break;
     }
-    g_api.PlayAnimation((s8*)lemon_hitboxes, lemon_anims);
+    g_api.PlayAnimation((s8*)buster_hitboxes, buster_anims);
 }
 
-static AnimationFrame anim_cucumber_shoot[] = {
-    POSE(2, 15, 2), POSE(2, 16, 3), POSE(2, 17, 4), POSE(4, 18, 5),
-    POSE(1, 19, 1), POSE(1, 20, 1), POSE(2, 21, 1), POSE(1, 20, 1),
-    POSE(1, 19, 1), POSE_LOOP(4)};
-static AnimationFrame anim_cucumber_impact[] = {
-    POSE(2, 15, 0), POSE(4, 16, 0), POSE(4, 15, 0), POSE_END};
-static AnimationFrame* cucumber_anims[] = {
-    anim_cucumber_shoot,
-    anim_cucumber_impact,
-};
-static s8 cucumber_hitbox[][4] = {
-    {0, 0, 0, 0},   {28, 0, 6, 6}, {2, 0, 7, 7},
-    {6, 0, 11, 11}, {16, 0, 6, 6}, {20, 0, 6, 6},
-};
+#include "assets/anims_charge_lv1.inc"
 void EntityCucumber(Entity* self) {
     // PLAYER.anim = mmx_anims[PL_A_STAND_W];
     // PLAYER.poseTimer = 0;
@@ -158,7 +135,7 @@ void EntityCucumber(Entity* self) {
     switch (self->step) {
     case 0:
         self->animSet = ANIMSET_OVL(0x11);
-        self->ext.player.anim = 0;
+        self->ext.player.anim = ChargeLv1_Shot;
         self->drawFlags = 0;
         self->flags |= FLAG_POS_CAMERA_LOCKED;
         self->posX.i.hi += self->facingLeft ? -16 : 16;
@@ -187,7 +164,7 @@ void EntityCucumber(Entity* self) {
                     self->posX.i.hi += 24;
                 }
                 self->facingLeft = !self->facingLeft; // animation is flipped
-                self->ext.player.anim = 1;
+                self->ext.player.anim = ChargeLv1_Impact;
                 self->poseTimer = 0;
                 self->pose = 0;
                 self->hitboxState = 0;
@@ -204,7 +181,7 @@ void EntityCucumber(Entity* self) {
         }
         break;
     }
-    g_api.PlayAnimation((s8*)cucumber_hitbox, cucumber_anims);
+    g_api.PlayAnimation((s8*)charge_lv1_hitboxes, charge_lv1_anims);
 }
 
 void EntityCharjelly(Entity* self) { DestroyEntity(self); }
@@ -218,18 +195,7 @@ void EntityStormTornado(Entity* self) { DestroyEntity(self); }
 void EntityFireWave(Entity* self) { DestroyEntity(self); }
 void EntityHadouken(Entity* self) { DestroyEntity(self); }
 
-static AnimationFrame anim_charge_x1_lv1_particle[] = {
-    POSE(8, 5, 0), POSE(8, 6, 0), POSE_END};
-static AnimationFrame anim_charge_x1_lv2_particle[] = {
-    POSE(4, 7, 0), POSE(4, 8, 0), POSE(4, 9, 0), POSE(4, 10, 0), POSE_END};
-static AnimationFrame anim_charge_x1_lv3_particle[] = {
-    POSE(4, 11, 0), POSE(4, 12, 0), POSE(4, 13, 0), POSE(4, 14, 0), POSE_END};
-static AnimationFrame* anim_charge_weapon_particles[] = {
-    anim_charge_x1_lv1_particle,
-    anim_charge_x1_lv2_particle,
-    anim_charge_x1_lv3_particle,
-};
-static s8 anim_charge_weapon_hitboxes[][4] = {{0, 0, 0, 0}};
+#include "assets/anims_charging.inc"
 struct ExtChargeWeapon {
     s32 timer;
     s32 startAngle;
@@ -254,7 +220,18 @@ void EntityChargeWeaponParticle(Entity* self) {
     switch (self->step) {
     case 0:
         self->animSet = ANIMSET_OVL(0x11);
-        self->ext.player.anim = (u8)g_ChargeLevel;
+        switch (g_ChargeLevel) {
+        default:
+        case CHARGE_MMX1_LV1:
+            self->ext.player.anim = Charging_ChargingType1;
+            break;
+        case CHARGE_MMX1_LV2:
+            self->ext.player.anim = Charging_ChargingType2;
+            break;
+        case CHARGE_MMX1_LV3:
+            self->ext.player.anim = Charging_ChargingType3;
+            break;
+        }
         self->flags = FLAG_UNK_2000 | FLAG_UNK_00200000 | FLAG_NOT_AN_ENEMY |
                       FLAG_POS_CAMERA_LOCKED;
         self->zPriority++;
@@ -281,8 +258,7 @@ void EntityChargeWeaponParticle(Entity* self) {
         DestroyEntity(self);
         break;
     }
-    g_api.PlayAnimation(
-        (s8*)anim_charge_weapon_hitboxes, anim_charge_weapon_particles);
+    g_api.PlayAnimation((s8*)charging_hitboxes, charging_anims);
 }
 
 static bool FallUntilFloorIsTouched(Entity* self) {

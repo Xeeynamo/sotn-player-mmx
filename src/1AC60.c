@@ -166,7 +166,7 @@ void RicInit(u16 isPrologue) {
     spriteptr = g_api.o.spriteBanks;
     spriteptr += 0x10;
     *spriteptr++ = (SpriteParts*)g_MmxPlSprites;
-    *spriteptr++ = (SpriteParts*)g_SpritesWeapons;
+    *spriteptr++ = (SpriteParts*)sprite_particles;
     *spriteptr++ = (SpriteParts*)g_SpritesItems;
     *spriteptr++ = (SpriteParts*)D_801541A8;
     for (e = &g_Entities[1], i = 0; i < 3; i++, e++) {

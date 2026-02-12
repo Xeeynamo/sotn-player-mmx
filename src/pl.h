@@ -407,7 +407,7 @@ extern enum MmxChargeLevel g_ChargeLevel;
 extern MmxJumpState g_JumpState;
 
 extern s16* g_MmxPlSprites[];
-extern SpriteParts* g_SpritesWeapons[];
+extern SpriteParts* sprite_particles[];
 extern SpriteParts* g_SpritesItems[];
 extern SpriteParts* D_801541A8[];
 extern s16 D_80154568[];

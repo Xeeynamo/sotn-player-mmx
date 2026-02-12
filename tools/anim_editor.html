@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprite Particle Animation Editor</title>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #1e1e2e; --bg2: #2a2a3e; --bg3: #35354a;
+  --fg: #cdd6f4; --fg2: #a6adc8; --accent: #89b4fa;
+  --red: #f38ba8; --green: #a6e3a1; --yellow: #f9e2af;
+  --border: #45475a; --input-bg: #313244;
+}
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--fg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-size: 13px; }
+button { background: var(--bg3); color: var(--fg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+button:hover { background: var(--accent); color: var(--bg); }
+button:active { transform: scale(0.97); }
+input[type=number], select { background: var(--input-bg); color: var(--fg); border: 1px solid var(--border); padding: 3px 6px; border-radius: 3px; font-size: 12px; }
+input[type=number] { width: 68px; }
+select { min-width: 120px; }
+label { color: var(--fg2); font-size: 12px; }
+
+/* Toolbar */
+#toolbar { display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; }
+#toolbar .sep { width: 1px; height: 20px; background: var(--border); }
+
+/* Main area */
+#main { display: flex; flex: 1; overflow: hidden; }
+
+/* Canvas */
+#canvas-wrap { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+#canvas-wrap canvas { image-rendering: pixelated; }
+#zoom-label { position: absolute; bottom: 8px; left: 8px; font-size: 11px; color: var(--fg2); background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 3px; pointer-events: none; }
+
+/* Right panel */
+#panel { width: 380px; min-width: 320px; background: var(--bg2); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+.panel-section { border-bottom: 1px solid var(--border); padding: 8px 10px; }
+.panel-section h3 { font-size: 12px; color: var(--accent); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Sprite list */
+#sprite-list { max-height: 200px; overflow-y: auto; }
+.sprite-item { display: flex; align-items: center; gap: 6px; padding: 3px 4px; cursor: pointer; border-radius: 3px; font-size: 12px; }
+.sprite-item:hover { background: var(--bg3); }
+.sprite-item.selected { background: var(--accent); color: var(--bg); }
+.sprite-item canvas { width: 24px; height: 24px; image-rendering: pixelated; border: 1px solid var(--border); background: #000; flex-shrink: 0; }
+.sprite-item .sprite-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.sprite-item .sprite-idx { color: var(--fg2); font-size: 10px; min-width: 20px; }
+
+/* Sprite editor fields */
+.field-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.field-row label { min-width: 40px; }
+.sprite-grid { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 4px 6px; align-items: center; margin: 4px 0; }
+.sprite-grid label { min-width: 24px; text-align: right; }
+
+/* Pose list */
+#pose-list { max-height: 200px; overflow-y: auto; }
+.pose-row { display: flex; align-items: center; gap: 4px; padding: 3px 4px; border-radius: 3px; font-size: 12px; color: var(--fg); }
+.pose-row:hover { background: var(--bg3); }
+.pose-row.active { background: var(--accent); color: #fff; }
+.pose-row.active input { color: #fff; }
+.pose-row .pose-idx { min-width: 18px; color: var(--fg2); font-size: 10px; }
+.pose-row.active .pose-idx { color: #ffffffcc; }
+.pose-row input[type=number] { width: 52px; }
+.pose-row button { padding: 1px 5px; font-size: 10px; }
+
+/* Hitbox list */
+.hitbox-row { display: flex; align-items: center; gap: 4px; padding: 2px 4px; font-size: 12px; border-radius: 3px; }
+.hitbox-row.selected { background: var(--accent); color: var(--bg); }
+.hitbox-row input[type=number] { width: 50px; }
+.hitbox-row .hb-idx { min-width: 18px; color: var(--fg2); font-size: 10px; }
+.hitbox-row.selected .hb-idx { color: var(--bg); }
+
+/* Playback bar */
+#playback { display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: var(--bg2); border-top: 1px solid var(--border); flex-shrink: 0; }
+#playback button { font-size: 14px; padding: 2px 8px; }
+#frame-info { font-size: 12px; color: var(--fg2); min-width: 100px; }
+#speed-slider { width: 100px; }
+#speed-label { font-size: 11px; color: var(--fg2); min-width: 40px; }
+#undo-redo { margin-left: auto; display: flex; gap: 4px; }
+
+/* Loop indicator */
+.loop-marker { color: var(--yellow); font-size: 10px; margin-left: 2px; }
+
+/* Modal / Dialog */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 20px; min-width: 320px; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+.modal h2 { font-size: 16px; color: var(--accent); margin-bottom: 12px; }
+.modal .close-btn { float: right; background: none; border: none; color: var(--fg2); font-size: 18px; cursor: pointer; padding: 0 4px; }
+.modal .close-btn:hover { color: var(--fg); background: none; }
+.modal table { width: 100%; border-collapse: collapse; }
+.modal td { padding: 4px 8px; font-size: 12px; border-bottom: 1px solid var(--border); }
+.modal td:first-child { color: var(--accent); font-family: monospace; white-space: nowrap; }
+.yaml-pick-item { padding: 8px 12px; cursor: pointer; border-radius: 4px; margin: 2px 0; }
+.yaml-pick-item:hover { background: var(--bg3); }
+.modal input[type=text] { background: var(--input-bg); color: var(--fg); border: 1px solid var(--border); padding: 6px 10px; border-radius: 4px; font-size: 13px; width: 100%; margin-bottom: 10px; }
+.modal .btn-row { display: flex; gap: 6px; justify-content: flex-end; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div id="toolbar">
+  <button id="btn-load">Load Assets Directory</button>
+  <button id="btn-save">Save YAML</button>
+  <div class="sep"></div>
+  <label>Zoom:</label>
+  <button id="btn-zoom-out">-</button>
+  <button id="btn-zoom-in">+</button>
+  <div class="sep"></div>
+  <label><input type="checkbox" id="chk-hitbox" checked> Show Hitboxes</label>
+  <label><input type="checkbox" id="chk-light-bg"> Light Background</label>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="canvas-wrap">
+    <canvas id="preview" width="400" height="400"></canvas>
+    <div id="zoom-label">8x</div>
+  </div>
+  <div id="panel">
+    <!-- Sprites -->
+    <div class="panel-section">
+      <h3>Sprites</h3>
+      <div id="sprite-list"></div>
+      <div id="sprite-editor" style="display:none; margin-top:6px;">
+        <div class="sprite-grid">
+          <label>cx:</label><input type="number" id="ed-cx">
+          <label>cy:</label><input type="number" id="ed-cy">
+          <label>flipx:</label><span><input type="checkbox" id="ed-flipx"></span>
+          <label>pal:</label><span id="ed-pal" style="font-size:12px;color:var(--fg2)"></span>
+        </div>
+        <button id="btn-center" style="margin-top:4px;">Center</button>
+      </div>
+    </div>
+    <!-- Animations -->
+    <div class="panel-section">
+      <h3>Animations</h3>
+      <div class="field-row">
+        <label>Group:</label><select id="sel-group"></select>
+        <button id="btn-add-group" title="Add group">+</button>
+        <button id="btn-rm-group" title="Remove group">-</button>
+      </div>
+      <div class="field-row">
+        <label>Anim:</label><select id="sel-anim"></select>
+        <button id="btn-add-anim" title="Add animation">+</button>
+        <button id="btn-rm-anim" title="Remove animation">-</button>
+      </div>
+    </div>
+    <!-- Hitboxes -->
+    <div class="panel-section">
+      <h3>Hitboxes</h3>
+      <div id="hitbox-list"></div>
+      <button id="btn-add-hitbox" style="margin-top:4px;">+ Add Hitbox</button>
+    </div>
+    <!-- Poses -->
+    <div class="panel-section">
+      <h3>Poses</h3>
+      <div id="pose-list"></div>
+      <div class="field-row" style="margin-top:6px;">
+        <button id="btn-add-pose">+ Add Pose</button>
+        <button id="btn-rm-pose">- Remove Pose</button>
+      </div>
+      <div class="field-row">
+        <label>Loop at:</label><input type="number" id="ed-loop" min="-1" style="width:60px;" placeholder="none">
+        <span style="font-size:11px;color:var(--fg2)">(blank/-1 = no loop)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Playback -->
+<div id="playback">
+  <button id="btn-prev" title="Previous frame (Left)">&#9664;</button>
+  <button id="btn-stop" title="Stop">&#9632;</button>
+  <button id="btn-play" title="Play/Pause (Space)">&#9654;</button>
+  <button id="btn-next" title="Next frame (Right)">&#9654;</button>
+  <span id="frame-info">Frame: - / -</span>
+  <div class="sep"></div>
+  <label>Speed:</label>
+  <input type="range" id="speed-slider" min="0.25" max="4" step="0.25" value="1">
+  <span id="speed-label">1x</span>
+  <div id="undo-redo">
+    <button id="btn-undo" title="Undo (Ctrl+Z)">Undo</button>
+    <button id="btn-redo" title="Redo (Ctrl+Y)">Redo</button>
+    <button id="btn-help" title="Keyboard shortcuts (?)">?</button>
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────
+let data = null;
+let loadedFileMap = null;    // saved for reloading sprites
+let loadedYamlPrefix = '';
+let loadedYamlName = '';
+let spriteImages = [];
+let selectedSprite = -1;
+let selectedGroup = -1;
+let selectedAnim = -1;
+let selectedHitbox = -1;
+let currentPose = 0;
+let zoom = 8;
+let playing = false;
+let speed = 1;
+let showHitboxes = true;
+let lightBg = false;
+let animTimer = 0;
+let lastTime = 0;
+
+// Drag state
+let dragMode = null; // 'sprite' | 'hb-move' | 'hb-n' | 'hb-s' | 'hb-e' | 'hb-w' | 'hb-ne' | 'hb-nw' | 'hb-se' | 'hb-sw'
+let dragStartX = 0, dragStartY = 0;
+let dragStartVals = null;
+
+// Undo/Redo
+const undoStack = [];
+const redoStack = [];
+const MAX_UNDO = 100;
+
+// ─── DOM refs ────────────────────────────────────────────────────────
+const canvas = document.getElementById('preview');
+const ctx = canvas.getContext('2d');
+const spriteListEl = document.getElementById('sprite-list');
+const spriteEditorEl = document.getElementById('sprite-editor');
+const edCx = document.getElementById('ed-cx');
+const edCy = document.getElementById('ed-cy');
+const edFlipx = document.getElementById('ed-flipx');
+const edPal = document.getElementById('ed-pal');
+const selGroup = document.getElementById('sel-group');
+const selAnim = document.getElementById('sel-anim');
+const hitboxListEl = document.getElementById('hitbox-list');
+const poseListEl = document.getElementById('pose-list');
+const edLoop = document.getElementById('ed-loop');
+const frameInfo = document.getElementById('frame-info');
+const speedSlider = document.getElementById('speed-slider');
+const speedLabel = document.getElementById('speed-label');
+const zoomLabel = document.getElementById('zoom-label');
+const chkHitbox = document.getElementById('chk-hitbox');
+const chkLightBg = document.getElementById('chk-light-bg');
+
+// ─── Helpers ─────────────────────────────────────────────────────────
+function getGroup() { return data && selectedGroup >= 0 && data.animations ? data.animations[selectedGroup] : null; }
+function getAnim() { const g = getGroup(); return g && selectedAnim >= 0 && g.anims ? g.anims[selectedAnim] : null; }
+
+// frame index in YAML is 1-based (0 = nil/no sprite). Sprite array is 0-based.
+function frameToSpriteIdx(frame) { return frame - 1; }
+function spriteIdxToFrame(idx) { return idx + 1; }
+
+// ─── Undo/Redo ───────────────────────────────────────────────────────
+function pushUndo(desc, undoFn, redoFn) {
+  undoStack.push({ desc, undo: undoFn, redo: redoFn });
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  redoStack.length = 0;
+}
+function doUndo() {
+  if (!undoStack.length) return;
+  const cmd = undoStack.pop();
+  cmd.undo();
+  redoStack.push(cmd);
+  refreshAll();
+}
+function doRedo() {
+  if (!redoStack.length) return;
+  const cmd = redoStack.pop();
+  cmd.redo();
+  undoStack.push(cmd);
+  refreshAll();
+}
+
+// ─── Modal helpers ───────────────────────────────────────────────────
+function showModal(contentHtml) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">${contentHtml}</div>`;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function showPromptModal(title, placeholder, callback) {
+  const overlay = showModal(`
+    <button class="close-btn" data-close>&times;</button>
+    <h2>${title}</h2>
+    <input type="text" id="modal-input" placeholder="${placeholder}" autofocus>
+    <div class="btn-row">
+      <button data-cancel>Cancel</button>
+      <button data-ok>OK</button>
+    </div>
+  `);
+  const inp = overlay.querySelector('#modal-input');
+  const close = () => overlay.remove();
+  overlay.querySelector('[data-close]').addEventListener('click', close);
+  overlay.querySelector('[data-cancel]').addEventListener('click', close);
+  overlay.querySelector('[data-ok]').addEventListener('click', () => {
+    const val = inp.value.trim();
+    if (val) { callback(val); }
+    close();
+  });
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { overlay.querySelector('[data-ok]').click(); }
+    if (e.key === 'Escape') { close(); }
+  });
+  inp.focus();
+}
+
+function showErrorModal(title, message) {
+  const overlay = showModal(`
+    <button class="close-btn" data-close>&times;</button>
+    <h2>${title}</h2>
+    <p style="font-size:13px;color:var(--fg);white-space:pre-wrap;">${message}</p>
+    <div class="btn-row"><button data-close2>OK</button></div>
+  `);
+  overlay.querySelector('[data-close]').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('[data-close2]').addEventListener('click', () => overlay.remove());
+}
+
+// ─── Help dialog ─────────────────────────────────────────────────────
+function showHelp() {
+  showModal(`
+    <button class="close-btn" data-close>&times;</button>
+    <h2>Keyboard Shortcuts</h2>
+    <table>
+      <tr><td>Space</td><td>Play / Pause animation</td></tr>
+      <tr><td>Left Arrow</td><td>Previous pose</td></tr>
+      <tr><td>Right Arrow</td><td>Next pose</td></tr>
+      <tr><td>+ / =</td><td>Zoom in</td></tr>
+      <tr><td>- / _</td><td>Zoom out</td></tr>
+      <tr><td>Ctrl+Z</td><td>Undo</td></tr>
+      <tr><td>Ctrl+Y</td><td>Redo</td></tr>
+      <tr><td>Ctrl+Shift+Z</td><td>Redo (alt)</td></tr>
+      <tr><td>?</td><td>Show this help</td></tr>
+    </table>
+    <h2 style="margin-top:14px;">Mouse Controls</h2>
+    <table>
+      <tr><td>Scroll wheel</td><td>Zoom in/out on canvas</td></tr>
+      <tr><td>Drag sprite</td><td>Move sprite (changes cx/cy)</td></tr>
+      <tr><td>Drag hitbox edge</td><td>Resize hitbox (half-width/height)</td></tr>
+      <tr><td>Drag hitbox interior</td><td>Move hitbox origin</td></tr>
+    </table>
+  `);
+  const overlay = document.querySelector('.modal-overlay:last-child');
+  overlay.querySelector('[data-close]').addEventListener('click', () => overlay.remove());
+}
+document.getElementById('btn-help').addEventListener('click', showHelp);
+
+// ─── File I/O ────────────────────────────────────────────────────────
+document.getElementById('btn-load').addEventListener('click', () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.webkitdirectory = true;
+  input.addEventListener('change', e => loadDirectory(e.target.files));
+  input.click();
+});
+
+async function loadDirectory(files) {
+  const fileMap = {};
+  for (const f of files) {
+    const rel = f.webkitRelativePath || f.name;
+    fileMap[rel] = f;
+  }
+  loadedFileMap = fileMap;
+
+  // Find all YAML files
+  const yamlFiles = [];
+  for (const [path, f] of Object.entries(fileMap)) {
+    if (path.endsWith('.yaml') || path.endsWith('.yml')) {
+      yamlFiles.push({ path, file: f });
+    }
+  }
+
+  if (yamlFiles.length === 0) {
+    showErrorModal('Error', 'No YAML files found in selected directory.');
+    return;
+  }
+
+  if (yamlFiles.length === 1) {
+    await loadYamlFile(yamlFiles[0].path, yamlFiles[0].file);
+    return;
+  }
+
+  // Show picker dialog
+  const listHtml = yamlFiles.map((yf, i) =>
+    `<div class="yaml-pick-item" data-idx="${i}">${yf.path}</div>`
+  ).join('');
+  const overlay = showModal(`
+    <button class="close-btn" data-close>&times;</button>
+    <h2>Select YAML File</h2>
+    <div>${listHtml}</div>
+  `);
+  overlay.querySelector('[data-close]').addEventListener('click', () => overlay.remove());
+  overlay.querySelectorAll('.yaml-pick-item').forEach(el => {
+    el.addEventListener('click', async () => {
+      const idx = parseInt(el.dataset.idx);
+      overlay.remove();
+      await loadYamlFile(yamlFiles[idx].path, yamlFiles[idx].file);
+    });
+  });
+}
+
+async function loadYamlFile(path, file) {
+  const yamlPrefix = path.substring(0, path.lastIndexOf('/') + 1);
+  loadedYamlPrefix = yamlPrefix;
+  loadedYamlName = path.substring(path.lastIndexOf('/') + 1);
+
+  const yamlText = await file.text();
+  data = jsyaml.load(yamlText);
+
+  // Load sprite images
+  spriteImages = [];
+  const promises = (data.sprites || []).map((spr, i) => {
+    return new Promise((resolve) => {
+      const imgPath = yamlPrefix + spr.name;
+      const f = loadedFileMap[imgPath];
+      if (!f) {
+        console.warn(`Missing sprite: ${imgPath}`);
+        spriteImages[i] = null;
+        resolve();
+        return;
+      }
+      const img = new Image();
+      img.onload = () => { spriteImages[i] = img; resolve(); };
+      img.onerror = () => { spriteImages[i] = null; resolve(); };
+      img.src = URL.createObjectURL(f);
+    });
+  });
+  await Promise.all(promises);
+
+  selectedSprite = data.sprites && data.sprites.length > 0 ? 0 : -1;
+  selectedGroup = data.animations && data.animations.length > 0 ? 0 : -1;
+  selectedAnim = -1;
+  selectedHitbox = -1;
+  currentPose = 0;
+  playing = false;
+
+  if (selectedGroup >= 0) {
+    const grp = data.animations[selectedGroup];
+    if (grp.anims && grp.anims.length > 0) selectedAnim = 0;
+  }
+
+  refreshAll();
+}
+
+document.getElementById('btn-save').addEventListener('click', () => {
+  if (!data) return;
+  const out = buildYamlOutput();
+  const blob = new Blob([out], { type: 'text/yaml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = loadedYamlName || 'sprite_particles.yaml';
+  a.click();
+});
+
+function buildYamlOutput() {
+  const clean = JSON.parse(JSON.stringify(data));
+  for (const spr of (clean.sprites || [])) {
+    if (spr.cx === 0 || spr.cx === undefined) delete spr.cx;
+    if (spr.cy === 0 || spr.cy === undefined) delete spr.cy;
+    if (!spr.flipx) delete spr.flipx;
+    if (!spr.pal) delete spr.pal;
+  }
+  for (const grp of (clean.animations || [])) {
+    for (const anim of (grp.anims || [])) {
+      if (anim.loop === undefined || anim.loop === null || anim.loop < 0) delete anim.loop;
+    }
+  }
+  // Dump fully block-style
+  let out = jsyaml.dump(clean, { lineWidth: -1, flowLevel: -1, sortKeys: false });
+  // Post-process: convert hitbox sub-arrays from block to inline [x, y, w, h]
+  // Block form looks like:
+  //   - - 0
+  //     - 0
+  //     - 4
+  //     - 3
+  // Convert to:
+  //   - [0, 0, 4, 3]
+  out = out.replace(/([ ]*)- - (-?\d+)\n\1  - (-?\d+)\n\1  - (-?\d+)\n\1  - (-?\d+)\n/g,
+    (_, indent, a, b, c, d) => `${indent}- [${a}, ${b}, ${c}, ${d}]\n`);
+  return out;
+}
+
+// ─── Refresh all panels ──────────────────────────────────────────────
+function refreshAll() {
+  refreshSpriteList();
+  refreshSpriteEditor();
+  refreshGroupSelect();
+  refreshAnimSelect();
+  refreshHitboxList();
+  refreshPoseList();
+  refreshLoopEditor();
+  render();
+}
+
+// ─── Sprite list ─────────────────────────────────────────────────────
+function refreshSpriteList() {
+  spriteListEl.innerHTML = '';
+  if (!data || !data.sprites) return;
+  data.sprites.forEach((spr, i) => {
+    const div = document.createElement('div');
+    div.className = 'sprite-item' + (i === selectedSprite ? ' selected' : '');
+
+    const thumb = document.createElement('canvas');
+    thumb.width = 24; thumb.height = 24;
+    const tc = thumb.getContext('2d');
+    tc.imageSmoothingEnabled = false;
+    if (spriteImages[i]) {
+      const img = spriteImages[i];
+      const scale = Math.min(24 / img.width, 24 / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      tc.drawImage(img, (24 - w) / 2, (24 - h) / 2, w, h);
+    }
+    div.appendChild(thumb);
+
+    const idx = document.createElement('span');
+    idx.className = 'sprite-idx';
+    idx.textContent = spriteIdxToFrame(i);
+    div.appendChild(idx);
+
+    const name = document.createElement('span');
+    name.className = 'sprite-name';
+    name.textContent = spr.name.replace('particles/', '');
+    div.appendChild(name);
+
+    div.addEventListener('click', () => {
+      selectedSprite = i;
+      // Also update the current pose's frame to match this sprite
+      const anim = getAnim();
+      if (anim && anim.poses && anim.poses.length > 0 && currentPose < anim.poses.length) {
+        const pose = anim.poses[currentPose];
+        const oldFrame = pose.frame;
+        const newFrame = spriteIdxToFrame(i);
+        if (oldFrame !== newFrame) {
+          const gi = selectedGroup, ai = selectedAnim, pi = currentPose;
+          pushUndo('frame', () => { data.animations[gi].anims[ai].poses[pi].frame = oldFrame; }, () => { data.animations[gi].anims[ai].poses[pi].frame = newFrame; });
+          pose.frame = newFrame;
+        }
+      }
+      refreshSpriteList();
+      refreshSpriteEditor();
+      refreshPoseList();
+      render();
+    });
+    spriteListEl.appendChild(div);
+  });
+}
+
+// ─── Sprite editor ───────────────────────────────────────────────────
+function refreshSpriteEditor() {
+  if (!data || selectedSprite < 0) { spriteEditorEl.style.display = 'none'; return; }
+  spriteEditorEl.style.display = 'block';
+  const spr = data.sprites[selectedSprite];
+  edCx.value = spr.cx || 0;
+  edCy.value = spr.cy || 0;
+  edFlipx.checked = !!spr.flipx;
+  edPal.textContent = spr.pal || data.palette || '';
+}
+
+edCx.addEventListener('change', () => {
+  if (!data || selectedSprite < 0) return;
+  const spr = data.sprites[selectedSprite];
+  const old = spr.cx || 0;
+  const val = parseInt(edCx.value) || 0;
+  if (old === val) return;
+  const idx = selectedSprite;
+  pushUndo('cx', () => { data.sprites[idx].cx = old; }, () => { data.sprites[idx].cx = val; });
+  spr.cx = val;
+  render();
+});
+edCy.addEventListener('change', () => {
+  if (!data || selectedSprite < 0) return;
+  const spr = data.sprites[selectedSprite];
+  const old = spr.cy || 0;
+  const val = parseInt(edCy.value) || 0;
+  if (old === val) return;
+  const idx = selectedSprite;
+  pushUndo('cy', () => { data.sprites[idx].cy = old; }, () => { data.sprites[idx].cy = val; });
+  spr.cy = val;
+  render();
+});
+edFlipx.addEventListener('change', () => {
+  if (!data || selectedSprite < 0) return;
+  const spr = data.sprites[selectedSprite];
+  const old = !!spr.flipx;
+  const val = edFlipx.checked;
+  const idx = selectedSprite;
+  pushUndo('flipx', () => { data.sprites[idx].flipx = old; }, () => { data.sprites[idx].flipx = val; });
+  spr.flipx = val;
+  render();
+});
+
+// Center button
+document.getElementById('btn-center').addEventListener('click', () => {
+  if (!data || selectedSprite < 0) return;
+  const spr = data.sprites[selectedSprite];
+  const img = spriteImages[selectedSprite];
+  if (!img) return;
+  const oldCx = spr.cx || 0;
+  const oldCy = spr.cy || 0;
+  const newCx = -Math.floor(img.width / 2);
+  const newCy = -Math.floor(img.height / 2);
+  if (oldCx === newCx && oldCy === newCy) return;
+  const idx = selectedSprite;
+  pushUndo('center',
+    () => { data.sprites[idx].cx = oldCx; data.sprites[idx].cy = oldCy; },
+    () => { data.sprites[idx].cx = newCx; data.sprites[idx].cy = newCy; }
+  );
+  spr.cx = newCx;
+  spr.cy = newCy;
+  refreshSpriteEditor();
+  render();
+});
+
+// ─── Animation group/anim selectors ──────────────────────────────────
+function refreshGroupSelect() {
+  selGroup.innerHTML = '';
+  if (!data || !data.animations) return;
+  data.animations.forEach((grp, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = grp.name;
+    if (i === selectedGroup) opt.selected = true;
+    selGroup.appendChild(opt);
+  });
+}
+selGroup.addEventListener('change', () => {
+  selectedGroup = parseInt(selGroup.value);
+  const grp = data.animations[selectedGroup];
+  selectedAnim = (grp.anims && grp.anims.length > 0) ? 0 : -1;
+  selectedHitbox = -1;
+  currentPose = 0;
+  playing = false;
+  animTimer = 0;
+  refreshAnimSelect();
+  refreshHitboxList();
+  refreshPoseList();
+  refreshLoopEditor();
+  syncSpriteFromPose();
+  render();
+});
+
+// Add group
+document.getElementById('btn-add-group').addEventListener('click', () => {
+  if (!data) return;
+  showPromptModal('New Animation Group', 'Group name...', (name) => {
+    if (!data.animations) data.animations = [];
+    const newGrp = { name, hitboxes: [[0,0,0,0]], anims: [] };
+    data.animations.push(newGrp);
+    const idx = data.animations.length - 1;
+    pushUndo('add group',
+      () => { data.animations.splice(idx, 1); },
+      () => { data.animations.splice(idx, 0, JSON.parse(JSON.stringify(newGrp))); }
+    );
+    selectedGroup = idx;
+    selectedAnim = -1;
+    selectedHitbox = -1;
+    currentPose = 0;
+    refreshAll();
+  });
+});
+
+// Remove group
+document.getElementById('btn-rm-group').addEventListener('click', () => {
+  const grp = getGroup();
+  if (!grp) return;
+  const idx = selectedGroup;
+  const removed = JSON.parse(JSON.stringify(grp));
+  data.animations.splice(idx, 1);
+  pushUndo('rm group',
+    () => { data.animations.splice(idx, 0, JSON.parse(JSON.stringify(removed))); },
+    () => { data.animations.splice(idx, 1); }
+  );
+  selectedGroup = data.animations.length > 0 ? Math.min(idx, data.animations.length - 1) : -1;
+  selectedAnim = -1;
+  selectedHitbox = -1;
+  currentPose = 0;
+  if (selectedGroup >= 0) {
+    const g = data.animations[selectedGroup];
+    if (g.anims && g.anims.length > 0) selectedAnim = 0;
+  }
+  refreshAll();
+});
+
+function refreshAnimSelect() {
+  selAnim.innerHTML = '';
+  if (!data || selectedGroup < 0) return;
+  const grp = data.animations[selectedGroup];
+  if (!grp || !grp.anims) return;
+  grp.anims.forEach((anim, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = anim.name;
+    if (i === selectedAnim) opt.selected = true;
+    selAnim.appendChild(opt);
+  });
+}
+selAnim.addEventListener('change', () => {
+  selectedAnim = parseInt(selAnim.value);
+  currentPose = 0;
+  playing = false;
+  animTimer = 0;
+  refreshPoseList();
+  refreshLoopEditor();
+  syncSpriteFromPose();
+  refreshHitboxList();
+  render();
+});
+
+// Add anim
+document.getElementById('btn-add-anim').addEventListener('click', () => {
+  const grp = getGroup();
+  if (!grp) return;
+  showPromptModal('New Animation', 'Animation name...', (name) => {
+    if (!grp.anims) grp.anims = [];
+    const newAnim = { name, poses: [] };
+    grp.anims.push(newAnim);
+    const gi = selectedGroup;
+    const idx = grp.anims.length - 1;
+    pushUndo('add anim',
+      () => { data.animations[gi].anims.splice(idx, 1); },
+      () => { data.animations[gi].anims.splice(idx, 0, JSON.parse(JSON.stringify(newAnim))); }
+    );
+    selectedAnim = idx;
+    currentPose = 0;
+    refreshAll();
+  });
+});
+
+// Remove anim
+document.getElementById('btn-rm-anim').addEventListener('click', () => {
+  const grp = getGroup();
+  const anim = getAnim();
+  if (!grp || !anim) return;
+  const gi = selectedGroup;
+  const idx = selectedAnim;
+  const removed = JSON.parse(JSON.stringify(anim));
+  grp.anims.splice(idx, 1);
+  pushUndo('rm anim',
+    () => { data.animations[gi].anims.splice(idx, 0, JSON.parse(JSON.stringify(removed))); },
+    () => { data.animations[gi].anims.splice(idx, 1); }
+  );
+  selectedAnim = grp.anims.length > 0 ? Math.min(idx, grp.anims.length - 1) : -1;
+  currentPose = 0;
+  refreshAll();
+});
+
+// ─── Sync sprite selection from current pose ─────────────────────────
+function syncSpriteFromPose() {
+  const anim = getAnim();
+  if (!anim || !anim.poses || anim.poses.length === 0) return;
+  if (currentPose >= anim.poses.length) return;
+  const pose = anim.poses[currentPose];
+  const sprIdx = frameToSpriteIdx(pose.frame);
+  if (sprIdx >= 0 && data && data.sprites && sprIdx < data.sprites.length) {
+    selectedSprite = sprIdx;
+    refreshSpriteList();
+    refreshSpriteEditor();
+  }
+  // Also highlight the hitbox
+  selectedHitbox = pose.hitbox !== undefined ? pose.hitbox : -1;
+}
+
+// ─── Hitbox list ─────────────────────────────────────────────────────
+function refreshHitboxList() {
+  hitboxListEl.innerHTML = '';
+  const grp = getGroup();
+  if (!grp || !grp.hitboxes) return;
+
+  // Determine active hitbox from current pose
+  const anim = getAnim();
+  let activeHb = selectedHitbox;
+  if (anim && anim.poses && currentPose < anim.poses.length) {
+    activeHb = anim.poses[currentPose].hitbox;
+    selectedHitbox = activeHb;
+  }
+
+  grp.hitboxes.forEach((hb, i) => {
+    const row = document.createElement('div');
+    row.className = 'hitbox-row' + (i === activeHb ? ' selected' : '');
+    row.innerHTML = `<span class="hb-idx">${i}</span>`;
+    ['ox','oy','hw','hh'].forEach((label, j) => {
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.value = hb[j];
+      inp.title = label;
+      inp.addEventListener('change', () => {
+        const old = hb[j];
+        const val = parseInt(inp.value) || 0;
+        if (old === val) return;
+        const gi = selectedGroup, hi = i, ci = j;
+        pushUndo('hitbox', () => { data.animations[gi].hitboxes[hi][ci] = old; }, () => { data.animations[gi].hitboxes[hi][ci] = val; });
+        hb[j] = val;
+        render();
+      });
+      row.appendChild(inp);
+    });
+
+    // Only show delete button on the last hitbox
+    if (i === grp.hitboxes.length - 1) {
+      const rmBtn = document.createElement('button');
+      rmBtn.textContent = 'x'; rmBtn.title = 'Remove last hitbox';
+      rmBtn.addEventListener('click', () => {
+        // Check if this hitbox is used by any animation
+        const usedBy = findHitboxUsages(selectedGroup, i);
+        if (usedBy.length > 0) {
+          const list = usedBy.map(u => `  - ${u.animName} > ${u.subAnimName}, pose ${u.poseIdx}`).join('\n');
+          showErrorModal('Cannot Delete Hitbox',
+            `Hitbox ${i} is in use by the following animations:\n\n${list}\n\nRemove or reassign these references first.`);
+          return;
+        }
+        const gi = selectedGroup;
+        const removed = grp.hitboxes.splice(i, 1)[0];
+        pushUndo('rm hitbox',
+          () => { data.animations[gi].hitboxes.splice(i, 0, [...removed]); },
+          () => { data.animations[gi].hitboxes.splice(i, 1); }
+        );
+        refreshHitboxList();
+        refreshPoseList();
+        render();
+      });
+      row.appendChild(rmBtn);
+    }
+    hitboxListEl.appendChild(row);
+  });
+}
+
+function findHitboxUsages(groupIdx, hitboxIdx) {
+  const usages = [];
+  const grp = data.animations[groupIdx];
+  if (!grp || !grp.anims) return usages;
+  for (const anim of grp.anims) {
+    if (!anim.poses) continue;
+    for (let pi = 0; pi < anim.poses.length; pi++) {
+      if (anim.poses[pi].hitbox === hitboxIdx) {
+        usages.push({ animName: grp.name, subAnimName: anim.name, poseIdx: pi });
+      }
+    }
+  }
+  return usages;
+}
+
+document.getElementById('btn-add-hitbox').addEventListener('click', () => {
+  const grp = getGroup();
+  if (!grp) return;
+  if (!grp.hitboxes) grp.hitboxes = [];
+  const newHb = [0, 0, 8, 8];
+  grp.hitboxes.push(newHb);
+  const gi = selectedGroup;
+  const idx = grp.hitboxes.length - 1;
+  pushUndo('add hitbox',
+    () => { data.animations[gi].hitboxes.splice(idx, 1); },
+    () => { data.animations[gi].hitboxes.splice(idx, 0, [0, 0, 8, 8]); }
+  );
+  refreshHitboxList();
+  refreshPoseList();
+});
+
+// ─── Pose list ───────────────────────────────────────────────────────
+function refreshPoseList() {
+  poseListEl.innerHTML = '';
+  const anim = getAnim();
+  if (!anim || !anim.poses) return;
+  const grp = getGroup();
+  const loopIdx = (anim.loop !== undefined && anim.loop !== null && anim.loop >= 0) ? anim.loop : -1;
+
+  anim.poses.forEach((pose, i) => {
+    const row = document.createElement('div');
+    row.className = 'pose-row' + (i === currentPose ? ' active' : '');
+
+    let marker = '';
+    if (i === loopIdx) marker = '<span class="loop-marker" title="Loop point">&#8634;</span>';
+
+    row.innerHTML = `<span class="pose-idx">${i}${marker}</span>`;
+
+    // Frame (1-based in YAML)
+    const fInp = document.createElement('input');
+    fInp.type = 'number'; fInp.value = pose.frame; fInp.title = 'frame (1-based, 0=nil)'; fInp.min = 0;
+    fInp.addEventListener('change', () => {
+      const old = pose.frame;
+      const val = parseInt(fInp.value) || 0;
+      if (old === val) return;
+      const gi = selectedGroup, ai = selectedAnim, pi = i;
+      pushUndo('frame', () => { data.animations[gi].anims[ai].poses[pi].frame = old; }, () => { data.animations[gi].anims[ai].poses[pi].frame = val; });
+      pose.frame = val;
+      if (i === currentPose) syncSpriteFromPose();
+      refreshSpriteList();
+      render();
+    });
+    row.appendChild(document.createTextNode('f:'));
+    row.appendChild(fInp);
+
+    // Duration
+    const dInp = document.createElement('input');
+    dInp.type = 'number'; dInp.value = pose.duration; dInp.title = 'duration (half-frames)'; dInp.min = 1;
+    dInp.addEventListener('change', () => {
+      const old = pose.duration;
+      const val = parseInt(dInp.value) || 1;
+      if (old === val) return;
+      const gi = selectedGroup, ai = selectedAnim, pi = i;
+      pushUndo('dur', () => { data.animations[gi].anims[ai].poses[pi].duration = old; }, () => { data.animations[gi].anims[ai].poses[pi].duration = val; });
+      pose.duration = val;
+    });
+    row.appendChild(document.createTextNode(' d:'));
+    row.appendChild(dInp);
+
+    // Hitbox
+    const hInp = document.createElement('input');
+    hInp.type = 'number'; hInp.value = pose.hitbox; hInp.title = 'hitbox index'; hInp.min = 0;
+    hInp.max = grp && grp.hitboxes ? grp.hitboxes.length - 1 : 0;
+    hInp.addEventListener('change', () => {
+      const old = pose.hitbox;
+      const val = parseInt(hInp.value) || 0;
+      if (old === val) return;
+      const gi = selectedGroup, ai = selectedAnim, pi = i;
+      pushUndo('hitbox', () => { data.animations[gi].anims[ai].poses[pi].hitbox = old; }, () => { data.animations[gi].anims[ai].poses[pi].hitbox = val; });
+      pose.hitbox = val;
+      if (i === currentPose) {
+        selectedHitbox = val;
+        refreshHitboxList();
+      }
+      render();
+    });
+    row.appendChild(document.createTextNode(' hb:'));
+    row.appendChild(hInp);
+
+    // Click to select pose
+    row.addEventListener('click', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+      currentPose = i;
+      animTimer = 0;
+      syncSpriteFromPose();
+      refreshPoseList();
+      refreshHitboxList();
+      refreshSpriteList();
+      refreshSpriteEditor();
+      render();
+    });
+
+    poseListEl.appendChild(row);
+  });
+
+  updateFrameInfo();
+}
+
+document.getElementById('btn-add-pose').addEventListener('click', () => {
+  const anim = getAnim();
+  if (!anim) return;
+  if (!anim.poses) anim.poses = [];
+  const newPose = { frame: 1, duration: 4, hitbox: 0 };
+  anim.poses.push(newPose);
+  const gi = selectedGroup, ai = selectedAnim;
+  const idx = anim.poses.length - 1;
+  pushUndo('add pose',
+    () => { data.animations[gi].anims[ai].poses.splice(idx, 1); },
+    () => { data.animations[gi].anims[ai].poses.splice(idx, 0, { ...newPose }); }
+  );
+  currentPose = idx;
+  syncSpriteFromPose();
+  refreshPoseList();
+  refreshHitboxList();
+  refreshSpriteList();
+  render();
+});
+
+document.getElementById('btn-rm-pose').addEventListener('click', () => {
+  const anim = getAnim();
+  if (!anim || !anim.poses || anim.poses.length === 0) return;
+  const idx = currentPose;
+  if (idx < 0 || idx >= anim.poses.length) return;
+  const removed = anim.poses.splice(idx, 1)[0];
+  const gi = selectedGroup, ai = selectedAnim;
+  pushUndo('rm pose',
+    () => { data.animations[gi].anims[ai].poses.splice(idx, 0, { ...removed }); },
+    () => { data.animations[gi].anims[ai].poses.splice(idx, 1); }
+  );
+  if (currentPose >= anim.poses.length) currentPose = Math.max(0, anim.poses.length - 1);
+  syncSpriteFromPose();
+  refreshPoseList();
+  refreshHitboxList();
+  refreshSpriteList();
+  render();
+});
+
+// ─── Loop editor ─────────────────────────────────────────────────────
+function refreshLoopEditor() {
+  const anim = getAnim();
+  if (!anim) { edLoop.value = ''; return; }
+  edLoop.value = (anim.loop !== undefined && anim.loop !== null && anim.loop >= 0) ? anim.loop : '';
+}
+
+edLoop.addEventListener('change', () => {
+  const anim = getAnim();
+  if (!anim) return;
+  const old = anim.loop;
+  const raw = edLoop.value.trim();
+  const val = (raw === '' || parseInt(raw) < 0) ? undefined : parseInt(raw);
+  const gi = selectedGroup, ai = selectedAnim;
+  pushUndo('loop',
+    () => { data.animations[gi].anims[ai].loop = old; },
+    () => { data.animations[gi].anims[ai].loop = val; }
+  );
+  anim.loop = val;
+  refreshPoseList();
+});
+
+// ─── Playback ────────────────────────────────────────────────────────
+function updateFrameInfo() {
+  const anim = getAnim();
+  if (!anim || !anim.poses || anim.poses.length === 0) {
+    frameInfo.textContent = 'Pose: - / -';
+    return;
+  }
+  frameInfo.textContent = `Pose: ${currentPose + 1} / ${anim.poses.length}`;
+}
+
+document.getElementById('btn-play').addEventListener('click', togglePlay);
+document.getElementById('btn-stop').addEventListener('click', () => {
+  playing = false; currentPose = 0; animTimer = 0;
+  syncSpriteFromPose();
+  refreshPoseList(); refreshHitboxList(); refreshSpriteList(); refreshSpriteEditor();
+  render();
+});
+document.getElementById('btn-prev').addEventListener('click', () => stepFrame(-1));
+document.getElementById('btn-next').addEventListener('click', () => stepFrame(1));
+
+speedSlider.addEventListener('input', () => {
+  speed = parseFloat(speedSlider.value);
+  speedLabel.textContent = speed + 'x';
+});
+
+function togglePlay() {
+  playing = !playing;
+  if (playing) { animTimer = 0; lastTime = performance.now(); requestAnimationFrame(animLoop); }
+}
+
+function stepFrame(dir) {
+  const anim = getAnim();
+  if (!anim || !anim.poses || anim.poses.length === 0) return;
+  playing = false;
+  currentPose = Math.max(0, Math.min(anim.poses.length - 1, currentPose + dir));
+  animTimer = 0;
+  syncSpriteFromPose();
+  refreshPoseList();
+  refreshHitboxList();
+  refreshSpriteList();
+  refreshSpriteEditor();
+  render();
+}
+
+function animLoop(time) {
+  if (!playing) return;
+  const anim = getAnim();
+  if (!anim || !anim.poses || anim.poses.length === 0) { playing = false; return; }
+
+  const dt = (time - lastTime) / 1000;
+  lastTime = time;
+  animTimer += dt * 60 * speed;
+
+  const pose = anim.poses[currentPose];
+  if (pose && animTimer >= pose.duration) {
+    animTimer -= pose.duration;
+    const nextPose = currentPose + 1;
+    if (nextPose >= anim.poses.length) {
+      const loopIdx = (anim.loop !== undefined && anim.loop !== null && anim.loop >= 0) ? anim.loop : -1;
+      if (loopIdx >= 0 && loopIdx < anim.poses.length) {
+        currentPose = loopIdx;
+      } else {
+        currentPose = anim.poses.length - 1;
+        playing = false;
+      }
+    } else {
+      currentPose = nextPose;
+    }
+    syncSpriteFromPose();
+    refreshPoseList();
+    refreshHitboxList();
+    refreshSpriteList();
+  }
+
+  render();
+  if (playing) requestAnimationFrame(animLoop);
+}
+
+// ─── Zoom ────────────────────────────────────────────────────────────
+document.getElementById('btn-zoom-in').addEventListener('click', () => setZoom(zoom * 2));
+document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(zoom / 2));
+document.getElementById('canvas-wrap').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  setZoom(e.deltaY < 0 ? zoom * 1.5 : zoom / 1.5);
+});
+
+function setZoom(z) {
+  zoom = Math.max(1, Math.min(32, z));
+  zoomLabel.textContent = Math.round(zoom) + 'x';
+  render();
+}
+
+chkHitbox.addEventListener('change', () => { showHitboxes = chkHitbox.checked; render(); });
+chkLightBg.addEventListener('change', () => { lightBg = chkLightBg.checked; render(); });
+
+// ─── Canvas rendering ────────────────────────────────────────────────
+function resizeCanvas() {
+  const wrap = document.getElementById('canvas-wrap');
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  render();
+}
+window.addEventListener('resize', resizeCanvas);
+
+function render() {
+  if (!ctx) return;
+  const w = canvas.width, h = canvas.height;
+  ctx.imageSmoothingEnabled = false;
+
+  const centerX = Math.floor(w / 2);
+  const centerY = Math.floor(h / 2);
+
+  // Background: checkerboard 4x4 pattern (in zoomed pixels), aligned to grid origin
+  const checkSize = Math.max(1, Math.round(zoom * 4));
+  const lightColor1 = lightBg ? '#d0d0d0' : '#1c1c2c';
+  const lightColor2 = lightBg ? '#c0c0c0' : '#1a1a28';
+  // Align checkerboard so that origin (centerX, centerY) sits on a cell boundary
+  const chkOffX = ((centerX % checkSize) + checkSize) % checkSize;
+  const chkOffY = ((centerY % checkSize) + checkSize) % checkSize;
+  for (let y = -checkSize + chkOffY; y < h; y += checkSize) {
+    for (let x = -checkSize + chkOffX; x < w; x += checkSize) {
+      const ci = Math.floor((x - chkOffX) / checkSize);
+      const cj = Math.floor((y - chkOffY) / checkSize);
+      ctx.fillStyle = ((ci + cj) & 1) ? lightColor2 : lightColor1;
+      ctx.fillRect(x, y, checkSize, checkSize);
+    }
+  }
+
+  // Draw 8x8 grid
+  const gridSize = Math.round(zoom * 8);
+  if (gridSize >= 4) {
+    ctx.strokeStyle = lightBg ? '#00000010' : '#ffffff08';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const offX = ((centerX % gridSize) + gridSize) % gridSize;
+    const offY = ((centerY % gridSize) + gridSize) % gridSize;
+    for (let x = offX; x < w; x += gridSize) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
+    for (let y = offY; y < h; y += gridSize) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
+    ctx.stroke();
+  }
+
+  // Origin crosshair (2px thick)
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = lightBg ? '#e0505080' : '#f38ba860';
+  ctx.beginPath(); ctx.moveTo(0, centerY); ctx.lineTo(w, centerY); ctx.stroke();
+  ctx.strokeStyle = lightBg ? '#40a04080' : '#a6e3a160';
+  ctx.beginPath(); ctx.moveTo(centerX, 0); ctx.lineTo(centerX, h); ctx.stroke();
+  ctx.lineWidth = 1;
+
+  // Determine sprite to show (frame is 1-based)
+  let sprIdx = selectedSprite;
+  let poseHitbox = -1;
+  const anim = getAnim();
+  const grp = getGroup();
+  if (anim && anim.poses && anim.poses.length > 0 && currentPose < anim.poses.length) {
+    const pose = anim.poses[currentPose];
+    sprIdx = frameToSpriteIdx(pose.frame);
+    poseHitbox = pose.hitbox;
+  }
+
+  // Draw sprite
+  if (data && sprIdx >= 0 && sprIdx < data.sprites.length && spriteImages[sprIdx]) {
+    const spr = data.sprites[sprIdx];
+    const img = spriteImages[sprIdx];
+    const ox = (spr.cx || 0) * zoom;
+    const oy = (spr.cy || 0) * zoom;
+    const sw = img.width * zoom;
+    const sh = img.height * zoom;
+
+    ctx.save();
+    if (spr.flipx) {
+      ctx.translate(centerX, centerY);
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, ox, oy, sw, sh);
+    } else {
+      ctx.drawImage(img, centerX + ox, centerY + oy, sw, sh);
+    }
+    ctx.restore();
+  }
+
+  // Draw hitbox: format is [origin_x, origin_y, half_width, half_height]
+  // Visual rect spans from (ox - hw, oy - hh) to (ox + hw, oy + hh)
+  if (showHitboxes && grp && grp.hitboxes && poseHitbox >= 0 && poseHitbox < grp.hitboxes.length) {
+    const hb = grp.hitboxes[poseHitbox];
+    if (hb[2] > 0 && hb[3] > 0) {
+      const ox = centerX + hb[0] * zoom;
+      const oy = centerY + hb[1] * zoom;
+      const halfW = hb[2] * zoom;
+      const halfH = hb[3] * zoom;
+      const rx = ox - halfW;
+      const ry = oy - halfH;
+      const rw = halfW * 2;
+      const rh = halfH * 2;
+      ctx.fillStyle = 'rgba(137, 180, 250, 0.2)';
+      ctx.fillRect(rx, ry, rw, rh);
+      ctx.strokeStyle = '#89b4fa';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
+
+      // Draw origin marker (small + at hitbox origin)
+      ctx.strokeStyle = '#f9e2af80';
+      ctx.beginPath();
+      ctx.moveTo(ox - 3, oy + 0.5); ctx.lineTo(ox + 4, oy + 0.5);
+      ctx.moveTo(ox + 0.5, oy - 3); ctx.lineTo(ox + 0.5, oy + 4);
+      ctx.stroke();
+
+      // Draw resize handles (small squares at corners and edges)
+      const hs = 5;
+      ctx.fillStyle = '#89b4fa';
+      // corners
+      ctx.fillRect(rx - hs/2, ry - hs/2, hs, hs);
+      ctx.fillRect(rx + rw - hs/2, ry - hs/2, hs, hs);
+      ctx.fillRect(rx - hs/2, ry + rh - hs/2, hs, hs);
+      ctx.fillRect(rx + rw - hs/2, ry + rh - hs/2, hs, hs);
+      // edge midpoints
+      ctx.fillRect(rx + rw/2 - hs/2, ry - hs/2, hs, hs);
+      ctx.fillRect(rx + rw/2 - hs/2, ry + rh - hs/2, hs, hs);
+      ctx.fillRect(rx - hs/2, ry + rh/2 - hs/2, hs, hs);
+      ctx.fillRect(rx + rw - hs/2, ry + rh/2 - hs/2, hs, hs);
+    }
+  }
+
+  updateFrameInfo();
+}
+
+// ─── Keyboard shortcuts ──────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+  // Don't capture if a modal is open
+  if (document.querySelector('.modal-overlay')) return;
+
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); stepFrame(-1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); stepFrame(1); }
+  else if (e.key === '+' || e.key === '=') { e.preventDefault(); setZoom(zoom * 1.5); }
+  else if (e.key === '-' || e.key === '_') { e.preventDefault(); setZoom(zoom / 1.5); }
+  else if (e.key === '?') { e.preventDefault(); showHelp(); }
+  else if (e.ctrlKey && !e.shiftKey && e.key === 'z') { e.preventDefault(); doUndo(); }
+  else if (e.ctrlKey && (e.key === 'y' || (e.shiftKey && e.key === 'Z') || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); doRedo(); }
+});
+
+// ─── Canvas mouse interaction: sprite drag + hitbox resize ───────────
+const HANDLE_SIZE = 8; // pixel radius for hit testing handles
+
+function getCanvasCenter() {
+  return { x: Math.floor(canvas.width / 2), y: Math.floor(canvas.height / 2) };
+}
+
+// Returns the visual rect for the current hitbox.
+// Hitbox format: [origin_x, origin_y, half_width, half_height]
+// Visual rect: from (ox - hw, oy - hh) to (ox + hw, oy + hh)
+function getCurrentHitboxRect() {
+  const grp = getGroup();
+  const anim = getAnim();
+  if (!showHitboxes || !grp || !grp.hitboxes) return null;
+  let hbIdx = -1;
+  if (anim && anim.poses && currentPose < anim.poses.length) {
+    hbIdx = anim.poses[currentPose].hitbox;
+  }
+  if (hbIdx < 0 || hbIdx >= grp.hitboxes.length) return null;
+  const hb = grp.hitboxes[hbIdx];
+  if (hb[2] <= 0 || hb[3] <= 0) return null;
+  const c = getCanvasCenter();
+  const ox = c.x + hb[0] * zoom;
+  const oy = c.y + hb[1] * zoom;
+  const halfW = hb[2] * zoom;
+  const halfH = hb[3] * zoom;
+  return {
+    idx: hbIdx,
+    // Visual rect (top-left corner and full dimensions)
+    x: ox - halfW, y: oy - halfH,
+    w: halfW * 2, h: halfH * 2,
+    data: hb
+  };
+}
+
+function getSpriteRect() {
+  let sprIdx = selectedSprite;
+  const anim = getAnim();
+  if (anim && anim.poses && anim.poses.length > 0 && currentPose < anim.poses.length) {
+    sprIdx = frameToSpriteIdx(anim.poses[currentPose].frame);
+  }
+  if (!data || sprIdx < 0 || sprIdx >= data.sprites.length || !spriteImages[sprIdx]) return null;
+  const spr = data.sprites[sprIdx];
+  const img = spriteImages[sprIdx];
+  const c = getCanvasCenter();
+  return {
+    idx: sprIdx,
+    x: c.x + (spr.cx || 0) * zoom, y: c.y + (spr.cy || 0) * zoom,
+    w: img.width * zoom, h: img.height * zoom
+  };
+}
+
+function hitTestHitboxHandles(mx, my) {
+  const r = getCurrentHitboxRect();
+  if (!r) return null;
+  const hs = HANDLE_SIZE;
+  const points = {
+    'hb-nw': [r.x, r.y], 'hb-n': [r.x + r.w/2, r.y], 'hb-ne': [r.x + r.w, r.y],
+    'hb-w':  [r.x, r.y + r.h/2], 'hb-e': [r.x + r.w, r.y + r.h/2],
+    'hb-sw': [r.x, r.y + r.h], 'hb-s': [r.x + r.w/2, r.y + r.h], 'hb-se': [r.x + r.w, r.y + r.h]
+  };
+  for (const [mode, [px, py]] of Object.entries(points)) {
+    if (Math.abs(mx - px) <= hs && Math.abs(my - py) <= hs) return mode;
+  }
+  // Interior = move hitbox
+  if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) return 'hb-move';
+  return null;
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  if (!data) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  // First check hitbox handles
+  const hbMode = hitTestHitboxHandles(mx, my);
+  if (hbMode) {
+    const r = getCurrentHitboxRect();
+    dragMode = hbMode;
+    dragStartX = mx; dragStartY = my;
+    // Store raw hitbox values: [origin_x, origin_y, half_width, half_height]
+    dragStartVals = { hbIdx: r.idx, x: r.data[0], y: r.data[1], w: r.data[2], h: r.data[3] };
+    e.preventDefault();
+    return;
+  }
+
+  // Then check sprite
+  const sr = getSpriteRect();
+  if (sr && mx >= sr.x && mx <= sr.x + sr.w && my >= sr.y && my <= sr.y + sr.h) {
+    const spr = data.sprites[sr.idx];
+    dragMode = 'sprite';
+    dragStartX = mx; dragStartY = my;
+    dragStartVals = { sprIdx: sr.idx, cx: spr.cx || 0, cy: spr.cy || 0 };
+    e.preventDefault();
+    return;
+  }
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  if (!dragMode) {
+    // Update cursor based on what's under mouse
+    const hbMode = hitTestHitboxHandles(mx, my);
+    if (hbMode) {
+      const cursors = {
+        'hb-nw': 'nw-resize', 'hb-ne': 'ne-resize', 'hb-sw': 'sw-resize', 'hb-se': 'se-resize',
+        'hb-n': 'n-resize', 'hb-s': 's-resize', 'hb-w': 'w-resize', 'hb-e': 'e-resize',
+        'hb-move': 'move'
+      };
+      canvas.style.cursor = cursors[hbMode] || 'crosshair';
+    } else {
+      const sr = getSpriteRect();
+      canvas.style.cursor = (sr && mx >= sr.x && mx <= sr.x + sr.w && my >= sr.y && my <= sr.y + sr.h) ? 'grab' : 'crosshair';
+    }
+    return;
+  }
+
+  const dx = mx - dragStartX;
+  const dy = my - dragStartY;
+
+  if (dragMode === 'sprite') {
+    canvas.style.cursor = 'grabbing';
+    const spr = data.sprites[dragStartVals.sprIdx];
+    spr.cx = dragStartVals.cx + Math.round(dx / zoom);
+    spr.cy = dragStartVals.cy + Math.round(dy / zoom);
+    edCx.value = spr.cx;
+    edCy.value = spr.cy;
+    render();
+    return;
+  }
+
+  // Hitbox drag: format is [origin_x, origin_y, half_width, half_height]
+  // Visual rect: left = ox - hw, right = ox + hw, top = oy - hh, bottom = oy + hh
+  const grp = getGroup();
+  if (!grp || !grp.hitboxes) return;
+  const hb = grp.hitboxes[dragStartVals.hbIdx];
+  const dpx = Math.round(dx / zoom);
+  const dpy = Math.round(dy / zoom);
+  const startOx = dragStartVals.x, startOy = dragStartVals.y;
+  const startHw = dragStartVals.w, startHh = dragStartVals.h;
+
+  if (dragMode === 'hb-move') {
+    // Move origin directly
+    hb[0] = startOx + dpx;
+    hb[1] = startOy + dpy;
+  } else {
+    // Resize by moving edges. Compute visual edges first.
+    let left   = startOx - startHw;
+    let right  = startOx + startHw;
+    let top    = startOy - startHh;
+    let bottom = startOy + startHh;
+
+    if (dragMode.includes('w')) left  = (startOx - startHw) + dpx;
+    if (dragMode.includes('e')) right = (startOx + startHw) + dpx;
+    if (dragMode.includes('n')) top   = (startOy - startHh) + dpy;
+    if (dragMode.includes('s')) bottom = (startOy + startHh) + dpy;
+
+    // Enforce minimum half-size of 1 (visual size of 2)
+    if (right - left < 2) {
+      if (dragMode.includes('w')) left = right - 2;
+      else right = left + 2;
+    }
+    if (bottom - top < 2) {
+      if (dragMode.includes('n')) top = bottom - 2;
+      else bottom = top + 2;
+    }
+
+    // Convert back to origin + half-size
+    // Origin is the center of the rect; half-sizes are distances from center to edge
+    // To keep integer values: new_hw = (right - left) / 2, new_ox = left + new_hw
+    const newHw = Math.round((right - left) / 2);
+    const newHh = Math.round((bottom - top) / 2);
+    hb[2] = newHw;
+    hb[3] = newHh;
+    hb[0] = left + newHw;
+    hb[1] = top + newHh;
+  }
+  refreshHitboxList();
+  render();
+});
+
+window.addEventListener('mouseup', () => {
+  if (!dragMode) return;
+
+  if (dragMode === 'sprite' && dragStartVals) {
+    const spr = data.sprites[dragStartVals.sprIdx];
+    const endCx = spr.cx, endCy = spr.cy;
+    const startCx = dragStartVals.cx, startCy = dragStartVals.cy;
+    if (startCx !== endCx || startCy !== endCy) {
+      const idx = dragStartVals.sprIdx;
+      pushUndo('drag sprite',
+        () => { data.sprites[idx].cx = startCx; data.sprites[idx].cy = startCy; },
+        () => { data.sprites[idx].cx = endCx; data.sprites[idx].cy = endCy; }
+      );
+    }
+  } else if (dragMode.startsWith('hb-') && dragStartVals) {
+    const grp = getGroup();
+    if (grp && grp.hitboxes) {
+      const hb = grp.hitboxes[dragStartVals.hbIdx];
+      const end = [hb[0], hb[1], hb[2], hb[3]];
+      const start = [dragStartVals.x, dragStartVals.y, dragStartVals.w, dragStartVals.h];
+      if (start[0] !== end[0] || start[1] !== end[1] || start[2] !== end[2] || start[3] !== end[3]) {
+        const gi = selectedGroup, hi = dragStartVals.hbIdx;
+        pushUndo('drag hitbox',
+          () => { const h = data.animations[gi].hitboxes[hi]; h[0]=start[0]; h[1]=start[1]; h[2]=start[2]; h[3]=start[3]; },
+          () => { const h = data.animations[gi].hitboxes[hi]; h[0]=end[0]; h[1]=end[1]; h[2]=end[2]; h[3]=end[3]; }
+        );
+      }
+    }
+  }
+
+  dragMode = null;
+  dragStartVals = null;
+  canvas.style.cursor = 'crosshair';
+});
+
+// ─── Init ────────────────────────────────────────────────────────────
+resizeCanvas();
+</script>
+</body>
+</html>
