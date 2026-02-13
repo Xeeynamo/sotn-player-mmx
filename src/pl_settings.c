@@ -27,10 +27,10 @@ static FactoryBlueprint blueprints[] = {
     B_MAKE(E_SMOKE_PUFF, 5, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF_WHEN_SLIDING, 1, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF, 1, 1, true, true, 2, 0, 0, 0),
-    B_MAKE(E_W_LEMON, 1, 1, false, true, 1, B_WEAPON, 0, 0),
-    B_MAKE(E_W_CUCUMBER, 1, 1, false, true, 1, B_WEAPON, 0, 0),
-    B_MAKE(E_W_CHARJELLY, 1, 1, false, true, 1, B_WEAPON, 0, 0),
-    // TODO: add here lv3 projectile
+    B_MAKE(E_W_BUSTER, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_BUSTER_CHARGE_LV1, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_BUSTER_CHARGE_X1_LV2, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_BUSTER_CHARGE_X1_LV3, 1, 1, false, true, 1, B_WEAPON, 0, 0),
     B_MAKE(E_W_SHOTGUN_ICE, 1, 1, false, true, 1, B_WEAPON, 0, 0),
     B_MAKE(E_W_ELECTRIC_SPARK, 1, 1, false, true, 1, B_WEAPON, 0, 0),
     B_MAKE(E_W_ROLLING_SHIELD, 1, 1, false, true, 1, B_WEAPON, 0, 0),
@@ -104,9 +104,10 @@ void RicEntityTeleport(Entity* self);
 void RicEntityDummy(Entity* self);
 
 void RicEntitySmokePuffWhenSliding(Entity* self);
-void EntityLemon(Entity* self);
-void EntityCucumber(Entity* self);
-void EntityCharjelly(Entity* self);
+void EntityBuster(Entity* self);
+void EntityBusterChargeLv1(Entity* self);
+void EntityBusterChargeX1Lv2(Entity* self);
+void EntityBusterChargeX1Lv3(Entity* self);
 void EntityShotgunIce(Entity* self);
 void EntityElectricSpark(Entity* self);
 void EntityRollingShield(Entity* self);
@@ -199,9 +200,10 @@ static PfnEntityUpdate entity_functions[] = {
     RicEntityDummy,
 
     RicEntitySmokePuffWhenSliding,
-    EntityLemon,
-    EntityCucumber,
-    EntityCharjelly,
+    EntityBuster,
+    EntityBusterChargeLv1,
+    EntityBusterChargeX1Lv2,
+    EntityBusterChargeX1Lv3,
     EntityShotgunIce,
     EntityElectricSpark,
     EntityRollingShield,

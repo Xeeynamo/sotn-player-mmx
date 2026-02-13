@@ -88,41 +88,79 @@ sprites:
   - name: particles/charge_lv1_10.png
   - name: particles/charge_lv1_11.png
   - name: particles/charge_x1_lv2_0.png
-    cx: -5
+    cx: -8
     cy: -10
   - name: particles/charge_x1_lv2_1.png
-    cx: -6
+    cx: -8
     cy: -8
   - name: particles/charge_x1_lv2_2.png
-    cx: -6
+    cx: -20
     cy: -16
   - name: particles/charge_x1_lv2_3.png
-    cx: -3
+    cx: -16
     cy: -12
   - name: particles/charge_x1_lv2_4.png
-    cx: -7
+    cx: -22
     cy: -16
   - name: particles/charge_x1_lv2_5.png
+    cx: -11
+    cy: -11
   - name: particles/charge_x1_lv2_6.png
+    cx: -14
+    cy: -14
   - name: particles/charge_x1_lv2_7.png
+    cx: -13
+    cy: -13
   - name: particles/charge_x1_lv2_8.png
+    cx: -15
+    cy: -15
   - name: particles/charge_x1_lv2_9.png
+    cx: -16
+    cy: -16
   - name: particles/charge_x1_lv2_10.png
+    cx: -16
+    cy: -16
   - name: particles/charge_x1_lv2_0.png
     flipx: true
   - name: particles/charge_x1_lv3_0.png
-  - name: particles/charge_x1_lv3_10.png
-  - name: particles/charge_x1_lv3_11.png
-  - name: particles/charge_x1_lv3_12.png
+    cx: -8
+    cy: -6
   - name: particles/charge_x1_lv3_1.png
+    cx: -5
+    cy: -5
   - name: particles/charge_x1_lv3_2.png
+    cx: -6
+    cy: -6
   - name: particles/charge_x1_lv3_3.png
+    cx: -7
+    cy: -7
   - name: particles/charge_x1_lv3_4.png
+    cx: -6
+    cy: -6
   - name: particles/charge_x1_lv3_5.png
+    cx: -6
+    cy: -6
   - name: particles/charge_x1_lv3_6.png
+    cx: -7
+    cy: -7
   - name: particles/charge_x1_lv3_7.png
+    cx: -6
+    cy: -6
   - name: particles/charge_x1_lv3_8.png
+    cx: -16
+    cy: -14
   - name: particles/charge_x1_lv3_9.png
+    cx: -12
+    cy: -12
+  - name: particles/charge_x1_lv3_10.png
+    cx: -6
+    cy: -5
+  - name: particles/charge_x1_lv3_11.png
+    cx: -7
+    cy: -7
+  - name: particles/charge_x1_lv3_12.png
+    cx: -6
+    cy: -6
 animations:
   - name: buster
     hitboxes:
@@ -238,25 +276,82 @@ animations:
   - name: charge_x1_lv2
     hitboxes:
       - [0, 0, 0, 0]
-      - [3, 0, 6, 9]
-      - [7, 0, 8, 8]
-      - [15, 0, 16, 11]
+      - [2, 0, 8, 8]
+      - [0, 0, 4, 8]
     anims:
       - name: shot
         poses:
           - frame: 27
-            duration: 4
-            hitbox: 1
+            duration: 1
+            hitbox: 2
           - frame: 28
             duration: 4
-            hitbox: 2
+            hitbox: 1
           - frame: 29
-            duration: 4
-            hitbox: 3
+            duration: 2
+            hitbox: 1
           - frame: 30
-            duration: 4
-            hitbox: 3
+            duration: 1
+            hitbox: 1
           - frame: 31
-            duration: 4
-            hitbox: 3
+            duration: 2
+            hitbox: 1
+          - frame: 30
+            duration: 1
+            hitbox: 1
         loop: 2
+      - name: impact
+        poses:
+          - frame: 33
+            duration: 2
+            hitbox: 0
+          - frame: 34
+            duration: 2
+            hitbox: 0
+          - frame: 35
+            duration: 2
+            hitbox: 0
+          - frame: 36
+            duration: 8
+            hitbox: 0
+          - frame: 37
+            duration: 4
+            hitbox: 0
+  - name: charge_x1_lv3
+    hitboxes:
+      - [0, 0, 0, 0]
+      - [0, -6, 12, 12]
+      - [0, -7, 14, 14]
+    anims:
+      - name: shot
+        poses:
+          - frame: 38
+            duration: 4
+            hitbox: 1
+          - frame: 39
+            duration: 8
+            hitbox: 2
+          - frame: 40
+            duration: 4
+            hitbox: 2
+          - frame: 41
+            duration: 4
+            hitbox: 2
+          - frame: 42
+            duration: 4
+            hitbox: 2
+        loop: 2
+      - name: impact
+        poses:
+          - frame: 45
+            duration: 6
+            hitbox: 0
+          - frame: 46
+            duration: 8
+            hitbox: 0
+          - frame: 47
+            duration: 8
+            hitbox: 0
+          - frame: 48
+            duration: 8
+            hitbox: 0

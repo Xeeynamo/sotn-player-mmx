@@ -2834,27 +2834,30 @@ bool MmxPerformAttack(void) {
     switch (g_ChargeLevel) {
     case CHARGE_NONE:
         // we can spawn a maximum of 3 concurrent lemons
-        if (GetEntityCountByEntityID(E_W_LEMON) >= 3) {
+        if (GetEntityCountByEntityID(E_W_BUSTER) >= 3) {
             return false;
         }
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_BUSTER, 0)) {
             return false;
         }
         break;
     case CHARGE_MMX1_LV1:
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_CUCUMBER, 0)) {
+        if (!RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_W_BUSTER_CHARGE_LV1, 0)) {
             return false;
         }
         MmxResetChargeWeapon();
         break;
     case CHARGE_MMX1_LV2:
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+        if (!RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_W_BUSTER_CHARGE_X1_LV2, 0)) {
             return false;
         }
         MmxResetChargeWeapon();
         break;
     case CHARGE_MMX1_LV3:
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+        if (!RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_W_BUSTER_CHARGE_X1_LV3, 0)) {
             return false;
         }
         MmxResetChargeWeapon();

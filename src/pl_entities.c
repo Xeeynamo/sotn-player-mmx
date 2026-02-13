@@ -4,28 +4,30 @@
 static SubweaponDef weapons[] = {
     // dummy
     {0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0},
-    // lemon
+    // buster
     {1, 0, ELEMENT_HIT, 0, 4, 4, 0, 20, 2, 0x81, 0, 0, 0},
-    // cucumber
+    // buster charge LV1
     {2, 0, ELEMENT_HIT, 0, 4, 4, 0, 21, 2, 0x81, 0, 0, 0},
-    // charjelly
+    // buster charge X1 LV2
     {3, 0, ELEMENT_HIT, 0, 4, 4, 0, 22, 2, 0x81, 0, 0, 0},
+    // buster charge X1 LV3
+    {4, 0, ELEMENT_HIT, 0, 4, 4, 0, 22, 2, 0x81, 0, 0, 0},
     // shotgun ice
-    {1, 0, ELEMENT_ICE, 0, 4, 4, 0, 23, 2, 0x81, 0, 0, 0},
+    {1, 1, ELEMENT_ICE, 0, 4, 4, 0, 23, 2, 0x81, 0, 0, 0},
     // electric spark
-    {1, 0, ELEMENT_THUNDER, 0, 4, 4, 0, 24, 2, 0x81, 0, 0, 0},
+    {1, 1, ELEMENT_THUNDER, 0, 4, 4, 0, 24, 2, 0x81, 0, 0, 0},
     // rolling shield
-    {1, 0, ELEMENT_STONE, 0, 4, 4, 0, 25, 2, 0x81, 0, 0, 0},
+    {1, 1, ELEMENT_STONE, 0, 4, 4, 0, 25, 2, 0x81, 0, 0, 0},
     // homing torpedo
-    {1, 0, ELEMENT_DARK, 0, 4, 4, 0, 26, 2, 0x81, 0, 0, 0},
+    {1, 1, ELEMENT_DARK, 0, 4, 4, 0, 26, 2, 0x81, 0, 0, 0},
     // boomerang cutter
-    {1, 0, ELEMENT_CUT, 0, 4, 4, 0, 27, 2, 0x81, 0, 0, 0},
+    {1, 1, ELEMENT_CUT, 0, 4, 4, 0, 27, 2, 0x81, 0, 0, 0},
     // chameleon sting
-    {0, 0, ELEMENT_POISON, 0, 4, 4, 0, 28, 2, 0x81, 0, 0, 0},
+    {0, 1, ELEMENT_POISON, 0, 4, 4, 0, 28, 2, 0x81, 0, 0, 0},
     // storm tornado
-    {1, 0, ELEMENT_WATER, 0, 4, 4, 0, 29, 2, 0x81, 0, 0, 0},
+    {1, 1, ELEMENT_WATER, 0, 4, 4, 0, 29, 2, 0x81, 0, 0, 0},
     // fire wave
-    {1, 0, ELEMENT_FIRE, 0, 4, 4, 0, 30, 2, 0x81, 0, 0, 0},
+    {1, 1, ELEMENT_FIRE, 0, 4, 4, 0, 30, 2, 0x81, 0, 0, 0},
     // hadouken
     {32, 0, ELEMENT_HOLY, 0, 4, 4, 0, 31, 2, 0x81, 0, 0, 0},
 };
@@ -72,7 +74,7 @@ static void SetWeaponParams(Entity* e, int weaponId) {
 }
 
 #include "assets/anims_buster.inc"
-void EntityLemon(Entity* self) {
+void EntityBuster(Entity* self) {
     const int Width = 8;
     Collider col;
     s32 sensorX;
@@ -86,7 +88,7 @@ void EntityLemon(Entity* self) {
         self->posX.i.hi += self->facingLeft ? -16 : 16;
         self->posY.i.hi += 5;
         self->zPriority++;
-        SetWeaponParams(self, W_LEMON);
+        SetWeaponParams(self, W_BUSTER);
         RicSetSpeedX(FIX(5));
         g_api.PlaySfx(SFX_WEAPON_SWISH_C);
         self->step++;
@@ -125,13 +127,7 @@ void EntityLemon(Entity* self) {
 }
 
 #include "assets/anims_charge_lv1.inc"
-void EntityCucumber(Entity* self) {
-    // PLAYER.anim = mmx_anims[PL_A_STAND_W];
-    // PLAYER.poseTimer = 0;
-    // PLAYER.pose = 1;
-    // if (!(g_pads[0].tapped & PAD_DOWN)) {
-    //     return;
-    // }
+void EntityBusterChargeLv1(Entity* self) {
     switch (self->step) {
     case 0:
         self->animSet = ANIMSET_OVL(0x11);
@@ -141,7 +137,7 @@ void EntityCucumber(Entity* self) {
         self->posX.i.hi += self->facingLeft ? -16 : 16;
         self->posY.i.hi += 5;
         self->zPriority++;
-        SetWeaponParams(self, W_CUCUMBER);
+        SetWeaponParams(self, W_BUSTER_CHARGE_LV1);
         g_api.PlaySfx(SFX_WEAPON_SWISH_C);
         self->step++;
         break;
@@ -184,7 +180,52 @@ void EntityCucumber(Entity* self) {
     g_api.PlayAnimation((s8*)charge_lv1_hitboxes, charge_lv1_anims);
 }
 
-void EntityCharjelly(Entity* self) { DestroyEntity(self); }
+#include "assets/anims_charge_x1_lv2.inc"
+void EntityBusterChargeX1Lv2(Entity* self) {
+    switch (self->step) {
+    case 0:
+        self->animSet = ANIMSET_OVL(0x11);
+        self->ext.player.anim = ChargeX1Lv2_Shot;
+        self->drawFlags = 0;
+        self->flags |= FLAG_POS_CAMERA_LOCKED;
+        self->posX.i.hi += self->facingLeft ? -16 : 16;
+        self->posY.i.hi += 5;
+        self->zPriority++;
+        SetWeaponParams(self, W_BUSTER_CHARGE_X1_LV2);
+        g_api.PlaySfx(SFX_WEAPON_SWISH_C);
+        self->step++;
+        break;
+    case 1:
+        // in the first two anim frames, the projectile does not move
+        if (self->pose == 2) {
+            RicSetSpeedX(FIX(8));
+            self->step++;
+        }
+        // fall back to case 2 as we still want to check for collisions
+    case 2:
+        self->posX.val += self->velocityX;
+        if (self->hitFlags == 1 || self->hitFlags == 2) {
+            // if hitting an enemy, and it's not dead yet, dissolve the bullet
+            if (self->unkB8 && self->unkB8->enemyId &&
+                self->unkB8->hitPoints > 0) {
+                // TODO implement impact animation
+                DestroyEntity(self);
+            }
+            // otherwise the projectile will pass through
+        }
+        break;
+    case 3:
+        if (self->poseTimer < 0) {
+            DestroyEntity(self);
+            return;
+        }
+        break;
+    }
+    g_api.PlayAnimation((s8*)charge_x1_lv2_hitboxes, charge_x1_lv2_anims);
+}
+
+void EntityBusterChargeX1Lv3(Entity* self) { DestroyEntity(self); }
+
 void EntityShotgunIce(Entity* self) { DestroyEntity(self); }
 void EntityElectricSpark(Entity* self) { DestroyEntity(self); }
 void EntityRollingShield(Entity* self) { DestroyEntity(self); }

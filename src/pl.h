@@ -192,9 +192,10 @@ enum MmxEntities {
     E_DUMMY_66,                      // RicEntityDummy
     NUM_RIC_ENTITIES,
     E_SMOKE_PUFF_WHEN_SLIDING = 68,
-    E_W_LEMON,
-    E_W_CUCUMBER,
-    E_W_CHARJELLY,
+    E_W_BUSTER,
+    E_W_BUSTER_CHARGE_LV1,
+    E_W_BUSTER_CHARGE_X1_LV2,
+    E_W_BUSTER_CHARGE_X1_LV3,
     E_W_SHOTGUN_ICE,
     E_W_ELECTRIC_SPARK,
     E_W_ROLLING_SHIELD,
@@ -303,9 +304,10 @@ enum RicBlueprints {
     B_P_DASH, // particles used when dashing
     B_P_WALL, // particle used when sliding to a wall
     B_P_JUMP_FROM_WALL,
-    B_W_LEMON,
-    B_W_CUCUMBER,
-    B_W_CHARJELLY,
+    B_W_BUSTER,
+    B_W_BUSTER_CHARGE_LV1,
+    B_W_BUSTER_CHARGE_X1_LV2,
+    B_W_BUSTER_CHARGE_X1_LV3,
     B_W_SHOTGUN_ICE,
     B_W_ELECTRIC_SPARK,
     B_W_ROLLING_SHIELD,
@@ -331,9 +333,10 @@ enum RicBlueprints {
 
 enum MmxWeapons {
     W_DUMMY,
-    W_LEMON,
-    W_CUCUMBER,
-    W_CHARJELLY,
+    W_BUSTER,
+    W_BUSTER_CHARGE_LV1,
+    W_BUSTER_CHARGE_X1_LV2,
+    W_BUSTER_CHARGE_X1_LV3,
     W_SHOTGUN_ICE,
     W_ELECTRIC_SPARK,
     W_ROLLING_SHIELD,
