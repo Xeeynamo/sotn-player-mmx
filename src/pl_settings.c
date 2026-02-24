@@ -27,10 +27,10 @@ static FactoryBlueprint blueprints[] = {
     B_MAKE(E_SMOKE_PUFF, 5, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF_WHEN_SLIDING, 1, 1, true, true, 2, 0, 0, 0),
     B_MAKE(E_SMOKE_PUFF, 1, 1, true, true, 2, 0, 0, 0),
-    B_MAKE(E_W_LEMON, 1, 1, false, true, 1, B_WEAPON, 0, 0),
-    B_MAKE(E_W_CUCUMBER, 1, 1, false, true, 1, B_WEAPON, 0, 0),
-    B_MAKE(E_W_CHARJELLY, 1, 1, false, true, 1, B_WEAPON, 0, 0),
-    // TODO: add here lv3 projectile
+    B_MAKE(E_W_BUSTER, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_BUSTER_CHARGE_LV1, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_BUSTER_CHARGE_X1_LV2, 1, 1, false, true, 1, B_WEAPON, 0, 0),
+    B_MAKE(E_W_BUSTER_CHARGE_X1_LV3, 1, 1, false, true, 1, B_WEAPON, 0, 0),
     B_MAKE(E_W_SHOTGUN_ICE, 1, 1, false, true, 1, B_WEAPON, 0, 0),
     B_MAKE(E_W_ELECTRIC_SPARK, 1, 1, false, true, 1, B_WEAPON, 0, 0),
     B_MAKE(E_W_ROLLING_SHIELD, 1, 1, false, true, 1, B_WEAPON, 0, 0),
@@ -53,6 +53,14 @@ static FactoryBlueprint blueprints[] = {
     B_MAKE(E_DEATH_PARTICLE, 32, 8, true, true, 64, B_WEAPON_CHILDREN, 0, 0),
     B_MAKE(
         E_DEATH_SCREEN_HANDLER, 1, 1, false, true, 1, B_WEAPON_CHILDREN, 0, 0),
+    B_MAKE(E_BUSTER_CHARGE_X1_LV3_SHOT, 4, 4, true, true, 1, B_WEAPON_CHILDREN,
+           0, 0),
+    B_MAKE(E_SHOTGUN_ICE_SHARD, 5, 5, true, true, 1, B_WEAPON_CHILDREN, 0, 0),
+    B_MAKE(E_SHOTGUN_ICE_TRAIL, 1, 1, true, true, 1, B_WEAPON_CHILDREN, 0, 0),
+    B_MAKE(E_W_CHAMELEON_STING_EXPLOSION, 1, 1, true, true, 1,
+           B_WEAPON_CHILDREN, 0, 0),
+    B_MAKE(E_W_CHAMELEON_STING_PROJECTILE, 1, 3, true, true, 1,
+           B_WEAPON_CHILDREN, 0, 0),
 };
 STATIC_ASSERT(
     LEN(blueprints) == (NUM_BLUEPRINTS - B_DUMMY), "bp array wrong size");
@@ -104,9 +112,10 @@ void RicEntityTeleport(Entity* self);
 void RicEntityDummy(Entity* self);
 
 void RicEntitySmokePuffWhenSliding(Entity* self);
-void EntityLemon(Entity* self);
-void EntityCucumber(Entity* self);
-void EntityCharjelly(Entity* self);
+void EntityBuster(Entity* self);
+void EntityBusterChargeLv1(Entity* self);
+void EntityBusterChargeX1Lv2(Entity* self);
+void EntityBusterChargeX1Lv3(Entity* self);
 void EntityShotgunIce(Entity* self);
 void EntityElectricSpark(Entity* self);
 void EntityRollingShield(Entity* self);
@@ -127,6 +136,11 @@ void EntityHeartTank(Entity* self);
 void EntityEnergyTank(Entity* self);
 void EntityDeathParticle(Entity* self);
 void EntityDeathScreenHandler(Entity* self);
+void EntityBusterChargeX1Lv3Shot(Entity* self);
+void EntityShotgunIceShard(Entity* self);
+void EntityShotgunIceTrail(Entity* self);
+void EntityChameleonStingExplosion(Entity* self);
+void EntityChameleonStingProjectile(Entity* self);
 
 static PfnEntityUpdate entity_functions[] = {
     RicEntityDummy,
@@ -199,9 +213,10 @@ static PfnEntityUpdate entity_functions[] = {
     RicEntityDummy,
 
     RicEntitySmokePuffWhenSliding,
-    EntityLemon,
-    EntityCucumber,
-    EntityCharjelly,
+    EntityBuster,
+    EntityBusterChargeLv1,
+    EntityBusterChargeX1Lv2,
+    EntityBusterChargeX1Lv3,
     EntityShotgunIce,
     EntityElectricSpark,
     EntityRollingShield,
@@ -221,7 +236,12 @@ static PfnEntityUpdate entity_functions[] = {
     EntityHeartTank,
     EntityEnergyTank,
     EntityDeathParticle,
-    EntityDeathScreenHandler};
+    EntityDeathScreenHandler,
+    EntityBusterChargeX1Lv3Shot,
+    EntityShotgunIceShard,
+    EntityShotgunIceTrail,
+    EntityChameleonStingExplosion,
+    EntityChameleonStingProjectile};
 STATIC_ASSERT(LEN(entity_functions) == NUM_ENTITIES, "entity array wrong size");
 
 void InitSettings() {

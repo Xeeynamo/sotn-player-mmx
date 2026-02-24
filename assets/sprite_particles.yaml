@@ -1,0 +1,520 @@
+tpage: 25
+quadrant: 0
+palette: PAL_PARTICLES
+sprites:
+  - name: particles/buster_0.png
+    cx: -4
+    cy: -3
+    pal: PAL_HUD
+  - name: particles/buster_1.png
+    cx: -6
+    cy: -6
+    pal: PAL_HUD
+  - name: particles/buster_2.png
+    cx: -7
+    cy: -7
+    pal: PAL_HUD
+  - name: particles/buster_3.png
+    cx: -8
+    cy: -8
+    pal: PAL_HUD
+  - name: particles/charging_type1_0.png
+    cx: -1
+    cy: -1
+    pal: PAL_PLAYER
+  - name: particles/charging_type1_1.png
+    cx: -1
+    cy: -1
+    pal: PAL_PLAYER
+  - name: particles/charging_type2_0.png
+    cx: -1
+    cy: -1
+    pal: PAL_HUD
+  - name: particles/charging_type2_1.png
+    cx: -1
+    cy: -1
+    pal: PAL_HUD
+  - name: particles/charging_type2_2.png
+    cx: -2
+    cy: -2
+    pal: PAL_HUD
+  - name: particles/charging_type2_3.png
+    cx: -2
+    cy: -2
+    pal: PAL_HUD
+  - name: particles/charging_type3_0.png
+    cx: -1
+    cy: -1
+    pal: PAL_HUD
+  - name: particles/charging_type3_1.png
+    cx: -1
+    cy: -1
+    pal: PAL_HUD
+  - name: particles/charging_type3_2.png
+    cx: -2
+    cy: -2
+    pal: PAL_HUD
+  - name: particles/charging_type3_3.png
+    cx: -2
+    cy: -2
+    pal: PAL_HUD
+  - name: particles/charge_lv1_0.png
+    cx: -4
+    cy: -7
+  - name: particles/charge_lv1_1.png
+    cx: -4
+    cy: -12
+  - name: particles/charge_lv1_2.png
+    cx: -4
+    cy: -6
+  - name: particles/charge_lv1_3.png
+    cx: -4
+    cy: -4
+  - name: particles/charge_lv1_4.png
+    cx: -2
+    cy: -6
+  - name: particles/charge_lv1_5.png
+    cy: -11
+  - name: particles/charge_lv1_6.png
+    cx: -4
+    cy: -11
+  - name: particles/charge_lv1_7.png
+  - name: particles/charge_lv1_8.png
+  - name: particles/charge_lv1_9.png
+  - name: particles/charge_lv1_10.png
+  - name: particles/charge_lv1_11.png
+  - name: particles/charge_x1_lv2_0.png
+    cx: -8
+    cy: -10
+  - name: particles/charge_x1_lv2_1.png
+    cx: -8
+    cy: -8
+  - name: particles/charge_x1_lv2_2.png
+    cx: -20
+    cy: -16
+  - name: particles/charge_x1_lv2_3.png
+    cx: -16
+    cy: -12
+  - name: particles/charge_x1_lv2_4.png
+    cx: -22
+    cy: -16
+  - name: particles/charge_x1_lv2_5.png
+    cx: -11
+    cy: -11
+  - name: particles/charge_x1_lv2_6.png
+    cx: -14
+    cy: -14
+  - name: particles/charge_x1_lv2_7.png
+    cx: -13
+    cy: -13
+  - name: particles/charge_x1_lv2_8.png
+    cx: -15
+    cy: -15
+  - name: particles/charge_x1_lv2_9.png
+    cx: -16
+    cy: -16
+  - name: particles/charge_x1_lv2_10.png
+    cx: -16
+    cy: -16
+  - name: particles/charge_x1_lv2_0.png
+    flipx: true
+  - name: particles/charge_x1_lv3_0.png
+    cx: -1
+    cy: -23
+  - name: particles/charge_x1_lv3_1.png
+    cx: -11
+    cy: -26
+  - name: particles/charge_x1_lv3_2.png
+    cx: -30
+    cy: -31
+  - name: particles/charge_x1_lv3_3.png
+    cx: -40
+    cy: -31
+  - name: particles/charge_x1_lv3_4.png
+    cx: -39
+    cy: -29
+  - name: particles/charge_x1_lv3_5.png
+    cx: -39
+    cy: -22
+  - name: particles/charge_x1_lv3_6.png
+    cx: -8
+    cy: -7
+  - name: particles/charge_x1_lv3_7.png
+    cx: -7
+    cy: -6
+  - name: particles/charge_x1_lv3_8.png
+    cx: -6
+    cy: -5
+  - name: particles/charge_x1_lv3_9.png
+    cx: -4
+    cy: -3
+  - name: particles/charge_x1_lv3_10.png
+    cx: -6
+    cy: -5
+  - name: particles/charge_x1_lv3_11.png
+    cx: -7
+    cy: -7
+  - name: particles/charge_x1_lv3_12.png
+    cx: -6
+    cy: -6
+  - name: particles/sub_shotgun_ice_shot.png
+    cx: -6
+    cy: -6
+    pal: PAL_W_SHOTGUN_ICE
+  - name: particles/sub_shotgun_ice_shard.png
+    cx: -3
+    cy: -3
+    pal: PAL_W_SHOTGUN_ICE
+  - name: particles/sub_shotgun_ice_trail_0.png
+    cx: -4
+    cy: -4
+    pal: PAL_W_SHOTGUN_ICE
+  - name: particles/sub_shotgun_ice_trail_1.png
+    cx: -4
+    cy: -3
+    pal: PAL_W_SHOTGUN_ICE
+  - name: particles/sub_shotgun_ice_trail_2.png
+    cx: -4
+    cy: -2
+    pal: PAL_W_SHOTGUN_ICE
+  - name: particles/sub_shotgun_ice_trail_3.png
+    cx: -3
+    cy: -2
+    pal: PAL_W_SHOTGUN_ICE
+  - name: particles/sub_homing_torpedo_shot.png
+    cx: -8
+    cy: -5
+    pal: PAL_W_HOMING_TORPEDO
+  - name: particles/sub_chameleon_sting_0.png
+    cx: -6
+    cy: -2
+    pal: PAL_W_CHAMELEON_STING
+  - name: particles/sub_chameleon_sting_1.png
+    cx: -3
+    cy: -13
+    pal: PAL_W_CHAMELEON_STING
+  - name: particles/sub_chameleon_sting_2.png
+    cx: -5
+    cy: -5
+    pal: PAL_W_CHAMELEON_STING
+  - name: particles/sub_chameleon_sting_3.png
+    cx: -7
+    cy: -7
+    pal: PAL_W_CHAMELEON_STING
+  - name: particles/sub_chameleon_sting_4.png
+    cx: -8
+    cy: -8
+    pal: PAL_W_CHAMELEON_STING
+  - name: particles/sub_chameleon_sting_5.png
+    cx: -14
+    cy: -14
+    pal: PAL_W_CHAMELEON_STING
+  - name: particles/sub_chameleon_sting_6.png
+    cx: -16
+    cy: -16
+    pal: PAL_W_CHAMELEON_STING
+animations:
+  - name: buster
+    hitboxes:
+      - [0, 0, 0, 0]
+      - [0, 0, 4, 3]
+    anims:
+      - name: shot
+        poses:
+          - frame: 1
+            duration: 64
+            hitbox: 1
+      - name: impact
+        poses:
+          - frame: 2
+            duration: 2
+            hitbox: 0
+          - frame: 3
+            duration: 2
+            hitbox: 0
+          - frame: 4
+            duration: 2
+            hitbox: 0
+  - name: charging
+    hitboxes:
+      - [0, 0, 0, 0]
+    anims:
+      - name: charging_type1
+        poses:
+          - frame: 5
+            duration: 8
+            hitbox: 0
+          - frame: 6
+            duration: 8
+            hitbox: 0
+      - name: charging_type2
+        poses:
+          - frame: 10
+            duration: 4
+            hitbox: 0
+          - frame: 8
+            duration: 4
+            hitbox: 0
+          - frame: 9
+            duration: 4
+            hitbox: 0
+          - frame: 10
+            duration: 4
+            hitbox: 0
+      - name: charging_type3
+        poses:
+          - frame: 11
+            duration: 4
+            hitbox: 0
+          - frame: 12
+            duration: 4
+            hitbox: 0
+          - frame: 13
+            duration: 4
+            hitbox: 0
+          - frame: 14
+            duration: 4
+            hitbox: 0
+  - name: charge_lv1
+    hitboxes:
+      - [0, 0, 0, 0]
+      - [20, 0, 14, 6]
+      - [3, 0, 7, 7]
+      - [7, 0, 11, 11]
+      - [13, 0, 9, 5]
+      - [15, 0, 11, 5]
+    anims:
+      - name: shot
+        poses:
+          - frame: 15
+            duration: 2
+            hitbox: 2
+          - frame: 16
+            duration: 2
+            hitbox: 3
+          - frame: 17
+            duration: 2
+            hitbox: 4
+          - frame: 18
+            duration: 4
+            hitbox: 5
+          - frame: 19
+            duration: 1
+            hitbox: 1
+          - frame: 20
+            duration: 1
+            hitbox: 1
+          - frame: 21
+            duration: 2
+            hitbox: 1
+          - frame: 20
+            duration: 2
+            hitbox: 1
+          - frame: 19
+            duration: 2
+            hitbox: 1
+      - name: impact
+        poses:
+          - frame: 15
+            duration: 2
+            hitbox: 0
+          - frame: 16
+            duration: 4
+            hitbox: 0
+          - frame: 15
+            duration: 4
+            hitbox: 0
+  - name: charge_x1_lv2
+    hitboxes:
+      - [0, 0, 0, 0]
+      - [2, 0, 8, 8]
+      - [0, 0, 4, 8]
+    anims:
+      - name: shot
+        poses:
+          - frame: 27
+            duration: 1
+            hitbox: 2
+          - frame: 28
+            duration: 4
+            hitbox: 1
+          - frame: 29
+            duration: 2
+            hitbox: 1
+          - frame: 30
+            duration: 1
+            hitbox: 1
+          - frame: 31
+            duration: 2
+            hitbox: 1
+          - frame: 30
+            duration: 1
+            hitbox: 1
+        loop: 2
+      - name: impact
+        poses:
+          - frame: 33
+            duration: 2
+            hitbox: 0
+          - frame: 34
+            duration: 2
+            hitbox: 0
+          - frame: 35
+            duration: 2
+            hitbox: 0
+          - frame: 36
+            duration: 8
+            hitbox: 0
+          - frame: 37
+            duration: 4
+            hitbox: 0
+  - name: charge_x1_lv3
+    hitboxes:
+      - [0, 0, 0, 0]
+      - [0, 0, 8, 8]
+      - [0, 0, 7, 7]
+      - [0, 0, 6, 6]
+      - [0, 0, 4, 4]
+    anims:
+      - name: shot
+        poses:
+          - frame: 45
+            duration: 4
+            hitbox: 1
+        loop: 0
+      - name: impact
+        poses:
+          - frame: 45
+            duration: 6
+            hitbox: 0
+          - frame: 46
+            duration: 8
+            hitbox: 0
+          - frame: 47
+            duration: 8
+            hitbox: 0
+          - frame: 48
+            duration: 8
+            hitbox: 0
+      - name: trail_m
+        poses:
+          - frame: 46
+            duration: 4
+            hitbox: 2
+      - name: trail_s
+        poses:
+          - frame: 47
+            duration: 4
+            hitbox: 3
+      - name: trail_xs
+        poses:
+          - frame: 48
+            duration: 4
+            hitbox: 4
+      - name: backblast
+        poses:
+          - frame: 39
+            duration: 1
+            hitbox: 0
+          - frame: 40
+            duration: 2
+            hitbox: 0
+          - frame: 41
+            duration: 3
+            hitbox: 0
+          - frame: 42
+            duration: 3
+            hitbox: 0
+          - frame: 43
+            duration: 2
+            hitbox: 0
+          - frame: 44
+            duration: 1
+            hitbox: 0
+        loop: 0
+  - name: chameleon_sting
+    hitboxes:
+      - [0, 0, 0, 0]
+      - [10, 1, 14, 3]
+      - [0, 0, 8, 8]
+      - [11, -6, 12, 5]
+    anims:
+      - name: shot
+        poses:
+          - frame: 59
+            duration: 4
+            hitbox: 1
+      - name: shot_diag
+        poses:
+          - frame: 60
+            duration: 4
+            hitbox: 3
+      - name: impact
+        poses:
+          - frame: 61
+            duration: 2
+            hitbox: 2
+          - frame: 62
+            duration: 2
+            hitbox: 2
+          - frame: 63
+            duration: 2
+            hitbox: 2
+          - frame: 64
+            duration: 2
+            hitbox: 2
+          - frame: 65
+            duration: 2
+            hitbox: 2
+          - frame: 64
+            duration: 2
+            hitbox: 0
+          - frame: 63
+            duration: 2
+            hitbox: 0
+          - frame: 62
+            duration: 2
+            hitbox: 0
+          - frame: 61
+            duration: 2
+            hitbox: 0
+  - name: shotgun_ice
+    hitboxes:
+      - [0, 0, 0, 0]
+      - [0, 0, 6, 6]
+      - [1, 1, 4, 4]
+    anims:
+      - name: shot
+        poses:
+          - frame: 52
+            duration: 4
+            hitbox: 1
+      - name: shard
+        poses:
+          - frame: 53
+            duration: 4
+            hitbox: 2
+      - name: trail
+        poses:
+          - frame: 54
+            duration: 4
+            hitbox: 0
+          - frame: 55
+            duration: 4
+            hitbox: 0
+          - frame: 56
+            duration: 4
+            hitbox: 0
+          - frame: 57
+            duration: 4
+            hitbox: 0
+        loop: 0
+  - name: homing_torpedo
+    hitboxes:
+      - [0, 0, 7, 5]
+    anims:
+      - name: shot
+        poses:
+          - frame: 58
+            duration: 4
+            hitbox: 0

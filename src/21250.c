@@ -1112,17 +1112,17 @@ void RicEntityHitByDark(Entity* entity) {
         entity->palette = 0x819F;
 
         if (D_80174FFC & 1) {
-            entity->drawMode = DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE;
+            entity->blendMode = BLEND_TRANSP | BLEND_QUARTER;
         } else {
-            entity->drawMode = DRAW_TPAGE;
+            entity->blendMode = BLEND_TRANSP;
         }
         entity->scaleX = 0x40;
         entity->scaleY = 0x40;
         entity->anim = anim_smoke_dark;
         D_80174FFC++;
         entity->opacity = 0xFF;
-        entity->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY |
-                            FLAG_DRAW_UNK10 | FLAG_DRAW_UNK20;
+        entity->drawFlags =
+            ENTITY_SCALEX | ENTITY_SCALEY | ENTITY_MASK_R | ENTITY_MASK_G;
         posX = 10;
         posY = 15;
         entity->posY.i.hi = entity->posY.i.hi - posY + (rand() % 35);

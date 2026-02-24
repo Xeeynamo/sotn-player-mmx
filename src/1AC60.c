@@ -47,6 +47,7 @@ static void MmxHandleDash(void);
 static void MmxHandleDashAir(void);
 static void MmxSetWall(void);
 static void MmxHandleWall(void);
+static void MmxHandleDoor(void);
 void DisableAfterImage(s32 resetAnims, s32 arg1);
 void RicSetInvincibilityFrames(s32 kind, s16 invincibilityFrames);
 void RicHandleHit(s32 damageEffect, u32 damageKind, s16 prevStep);
@@ -120,6 +121,38 @@ static void func_8015CC70(s16 arg0) {
     MmxSetAnimation(PL_A_STAND);
 }
 
+static u16 GetPaletteNormal() {
+    switch (g_CurrentWeapon) {
+    case W_BUSTER:
+        return PAL_PLAYER | 0x8000;
+    case W_SHOTGUN_ICE:
+        return PAL_MMX1_SHOTGUN_ICE | 0x8000;
+    case W_HOMING_TORPEDO:
+        return PAL_MMX1_HOMING_TORPEDO | 0x8000;
+    case W_CHAMELEON_STING:
+        return PAL_MMX1_CHAMELEON_STING | 0x8000;
+    }
+    return 0x8000; // BUG! should be caught by the compiler
+}
+static void SetPaletteState(enum MmxPaletteState state) {
+    switch (state) {
+    case PAL_STATE_NORMAL:
+        PLAYER.palette = GetPaletteNormal();
+        break;
+    case PAL_STATE_HURT:
+        PLAYER.palette = g_Player.damagePalette;
+        break;
+    case PAL_STATE_CHARGING:
+        PLAYER.palette =
+            (g_ChargeTimer & 3) >= 2 ? PAL_MMX1_CHARGE_LV1 : GetPaletteNormal();
+        break;
+    case PAL_STATE_CHARGING_SUPER:
+        PLAYER.palette =
+            (g_ChargeTimer & 3) >= 2 ? PAL_MMX1_CHARGE_LV3 : GetPaletteNormal();
+        break;
+    }
+}
+
 // Duplicate of DRA func_80109594
 void RicInit(u16 isPrologue) {
     Entity* e;
@@ -136,7 +169,7 @@ void RicInit(u16 isPrologue) {
     PLAYER.posX.val = FIX(32);
     PLAYER.posY.val = FIX(32);
     PLAYER.animSet = ANIMSET_OVL(0x10);
-    PLAYER.palette = PAL_PLAYER | 0x8000;
+    SetPaletteState(PAL_STATE_NORMAL);
     PLAYER.scaleX = 0x100;
     PLAYER.scaleY = 0x100;
     PLAYER.facingLeft = 0;
@@ -166,7 +199,7 @@ void RicInit(u16 isPrologue) {
     spriteptr = g_api.o.spriteBanks;
     spriteptr += 0x10;
     *spriteptr++ = (SpriteParts*)g_MmxPlSprites;
-    *spriteptr++ = (SpriteParts*)g_SpritesWeapons;
+    *spriteptr++ = (SpriteParts*)sprite_particles;
     *spriteptr++ = (SpriteParts*)g_SpritesItems;
     *spriteptr++ = (SpriteParts*)D_801541A8;
     for (e = &g_Entities[1], i = 0; i < 3; i++, e++) {
@@ -563,6 +596,68 @@ void func_80158B04(s32 arg0) {
     }
 }
 
+static void SelectWeapon(enum MmxWeapons w) {
+    switch (w) {
+    case W_BUSTER:
+        PLAYER.palette = PAL_PLAYER | 0x8000;
+        break;
+    case W_SHOTGUN_ICE:
+        PLAYER.palette = PAL_MMX1_SHOTGUN_ICE | 0x8000;
+        break;
+    case W_HOMING_TORPEDO:
+        PLAYER.palette = PAL_MMX1_HOMING_TORPEDO | 0x8000;
+        break;
+    case W_CHAMELEON_STING:
+        PLAYER.palette = PAL_MMX1_CHAMELEON_STING | 0x8000;
+        break;
+    default:
+        return;
+    }
+    g_CurrentWeapon = w;
+}
+
+// Check if any weapon projectiles are present in entity slots 32-48
+static int WeaponProjectilesPresent(void) {
+    int i;
+    for (i = 32; i < 48; i++) {
+        Entity* e = &g_Entities[i];
+        // Check if entity is initialized (entityId != 0)
+        if (e->entityId != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void CheckChangeWeaponInput() {
+    int i;
+
+    // Cannot change weapon while projectiles are on screen
+    if (WeaponProjectilesPresent()) {
+        return;
+    }
+
+    if (g_pads[0].tapped & PAD_L2) {
+        for (i = 0; i < (int)LEN(g_SelectableWeapons); i++) {
+            if (g_SelectableWeapons[i] == g_CurrentWeapon) {
+                i = (i + (int)LEN(g_SelectableWeapons) - 1) %
+                    (int)LEN(g_SelectableWeapons);
+                SelectWeapon(g_SelectableWeapons[i]);
+                break;
+            }
+        }
+    }
+    if (g_pads[0].tapped & PAD_R2) {
+        for (i = 0; i < (int)LEN(g_SelectableWeapons); i++) {
+            if (g_SelectableWeapons[i] == g_CurrentWeapon) {
+                i = (i + 1) % (int)LEN(g_SelectableWeapons);
+                SelectWeapon(g_SelectableWeapons[i]);
+                break;
+            }
+        }
+    }
+}
+
 static void RicHandleStand(void) {
     s32 var_s0;
 
@@ -735,7 +830,7 @@ static void MmxSetWall(void) {
     MmxSetAnimation(PL_A_WALL);
     g_api.PlaySfx(SFX_STOMP_SOFT_A);
     RicSetStep(PL_S_WALL);
-    g_CurrentEntity->velocityY = MMX_WALL_SPEED;
+    g_CurrentEntity->velocityY = 0; // stick to wall initially
     g_WallSlideTimer = 0;
     g_DashAirUsed = false;
 }
@@ -743,11 +838,27 @@ static void MmxSetWall(void) {
 static void MmxHandleWall(void) {
     if (!MmxIsHuggingWall()) {
         g_CurrentEntity->facingLeft = !g_CurrentEntity->facingLeft;
-        // MmxPrepareFall();
         MmxSetAnimation(PL_A_FALL);
         RicSetStep(PL_S_FALL);
         return;
     }
+
+    // Wall kick dash: jump + dash + away from wall in same frame
+    if ((g_Player.padTapped & PAD_CROSS) && (g_Player.padPressed & PAD_DASH)) {
+        bool awayFromWall;
+        if (PLAYER.facingLeft) {
+            awayFromWall = g_Player.padPressed & PAD_LEFT;
+        } else {
+            awayFromWall = g_Player.padPressed & PAD_RIGHT;
+        }
+        if (awayFromWall) {
+            MmxSetJump(JUMP_WITH_DASH | JUMP_FROM_WALL);
+            RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_P_JUMP_FROM_WALL, 0);
+            return;
+        }
+    }
+
     if (RicCheckInput(
             CHECK_JUMP | CHECK_GROUND | CHECK_ATTACK | CHECK_GRAVITY_JUMP)) {
         if (PLAYER.step == PL_S_JUMP) {
@@ -756,11 +867,27 @@ static void MmxHandleWall(void) {
         }
         return;
     }
-    if (++g_WallSlideTimer == 4) {
-        g_WallSlideTimer = 0;
+
+    g_WallSlideTimer++;
+
+    // Wall stick: no vertical movement for the first few frames
+    if (g_WallSlideTimer < MMX_WALL_STICK_FRAMES) {
+        g_CurrentEntity->velocityY = 0;
+        return;
+    }
+
+    // Spawn wall slide particles every 4 frames after stick period
+    if (((g_WallSlideTimer - MMX_WALL_STICK_FRAMES) & 3) == 0) {
         RicCreateEntFactoryFromEntity(g_CurrentEntity, B_P_WALL, 0);
     }
     g_CurrentEntity->velocityY = MMX_WALL_SPEED;
+}
+
+// Door state: player walks through a door (input disabled, walk anim)
+// External code controls velocity and facing direction
+static void MmxHandleDoor(void) {
+    // Just play walk animation; SOTN door entity handles the transition
+    MmxSetAnimation(PL_A_WALK);
 }
 
 static void RicHandleRun(void) {
@@ -1001,7 +1128,7 @@ void func_80159BC8(void) {
     PLAYER.pose = 0;
     g_Player.unk44 = 0;
     g_Player.unk46 = 0;
-    PLAYER.drawFlags &= ~FLAG_DRAW_ROTATE;
+    PLAYER.drawFlags &= ~ENTITY_ROTATE;
 }
 
 void func_80159C04(void) {
@@ -1451,7 +1578,11 @@ void RicHandleDead(s32 damageEffects, s32 arg1, s32 arg2, s32 arg3) {
     switch (PLAYER.step_s) {
     case 0:
         MmxSetAnimation(PL_A_DEAD);
+        PLAYER.velocityX = 0;
+        PLAYER.velocityY = 0;
+        g_unkGraphicsStruct.unk20 = 3;
         PLAYER.step_s++;
+        break;
     case 1:
         if (PLAYER.poseTimer == -1) {
             RicCreateEntFactoryFromEntity(
@@ -1575,7 +1706,7 @@ static void RicHandleDeadPrologue(void) {
         }
         break;
     case 1:
-        PLAYER.drawFlags = FLAG_DRAW_ROTATE;
+        PLAYER.drawFlags = ENTITY_ROTATE;
         D_801545AA += 64;
         PLAYER.rotate = (rsin(D_801545AA) >> 0xA) + 256;
         if (D_801545AC != 0) {
@@ -2047,7 +2178,7 @@ static void func_8015C6D4(void) {
         g_Entities[entNum].posX.i.hi = prim->x0;
         g_Entities[entNum].posY.i.hi = prim->y0;
         g_Entities[entNum].animCurFrame = prim->x1;
-        g_Entities[entNum].drawMode = prim->y1;
+        g_Entities[entNum].blendMode = prim->y1;
         g_Entities[entNum].facingLeft = prim->x2;
         g_Entities[entNum].palette = prim->y2;
         g_Entities[entNum].zPriority = PLAYER.zPriority - 2;
@@ -2249,7 +2380,7 @@ static void UpdateTimers() {
         case PL_T_INVINCIBLE:
             break;
         case PL_T_2:
-            PLAYER.palette = g_Player.damagePalette;
+            SetPaletteState(PAL_STATE_HURT);
             break;
         case PL_T_4: {
             s32 temp_s0 = (g_GameTimer & 0xF) << 8;
@@ -2278,7 +2409,7 @@ static void UpdateTimers() {
         case PL_T_POISON:
             break;
         case PL_T_2:
-            PLAYER.palette = 0x8120;
+            SetPaletteState(PAL_STATE_NORMAL);
             break;
         case PL_T_4:
             playerDraw->enableColorBlend = 0;
@@ -2331,6 +2462,7 @@ void MmxMain(void) {
     damageKind = 0;
     damageEffects = 0;
     playerStep = PLAYER.step;
+    playerStepS = 0;
     if (PLAYER.step != PL_S_DEAD) {
         // Reuse the i variable here even though we aren't iterating
         i = GetTeleportToOtherCastle();
@@ -2342,6 +2474,7 @@ void MmxMain(void) {
             if (g_DebugPlayer && RicDebug()) {
                 return;
             }
+            CheckChangeWeaponInput();
             if (g_Player.unk60 >= 2) {
                 goto check_input_combo;
             }
@@ -2455,6 +2588,9 @@ skip_input_combo:
     case PL_S_DASH_AIR:
         MmxHandleDashAir();
         break;
+    case PL_S_DOOR:
+        MmxHandleDoor();
+        break;
     case PL_S_INIT:
         func_8015BCD0();
         break;
@@ -2520,6 +2656,7 @@ skip_input_combo:
         }
         break;
     case PL_S_WALL:
+    case PL_S_DOOR:
         newStatus = NO_AFTERIMAGE;
         break;
     }
@@ -2547,7 +2684,6 @@ skip_input_combo:
     // should be able to charge at any time, hence why not in RicCheckInput
     if (g_Player.padHeld & PAD_SQUARE) {
         u32 effectTimerStart = g_ChargeTimer - CHARGE_TIMER_LV1;
-        bool changePalette = (effectTimerStart & 3) >= 2;
         g_ChargeTimer++;
         if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
             if (!(effectTimerStart & 31)) {
@@ -2557,13 +2693,13 @@ skip_input_combo:
         }
         if (g_ChargeTimer >= CHARGE_TIMER_LV3) {
             g_ChargeLevel = CHARGE_MMX1_LV3;
-            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV3 : PAL_PLAYER;
+            SetPaletteState(PAL_STATE_CHARGING);
         } else if (g_ChargeTimer >= CHARGE_TIMER_LV2) {
             g_ChargeLevel = CHARGE_MMX1_LV2;
-            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV2 : PAL_PLAYER;
+            SetPaletteState(PAL_STATE_CHARGING);
         } else if (g_ChargeTimer >= CHARGE_TIMER_LV1) {
             g_ChargeLevel = CHARGE_MMX1_LV1;
-            PLAYER.palette = changePalette ? PAL_MMX1_CHARGE_LV1 : PAL_PLAYER;
+            SetPaletteState(PAL_STATE_CHARGING_SUPER);
         }
     } else {
         // do not reset the charge until the projectile is thrown
@@ -2582,7 +2718,7 @@ skip_input_combo:
             } else {
                 RicSetInvincibilityFrames(1, 16);
                 g_Player.timers[PL_T_4] = 0x10;
-                PLAYER.palette = 0x8120;
+                SetPaletteState(PAL_STATE_NORMAL);
             }
         }
     }
@@ -2748,9 +2884,16 @@ void MmxSetJump(int jumpDash) {
         return;
     }
     if (PLAYER.step == PL_S_WALL) {
-        RicSetSpeedX(
-            PLAYER.facingLeft ? MMX_WALL_JUMP_FORCE : -MMX_WALL_JUMP_FORCE);
-        g_Player.unk44 = jumpDash ? IS_DASHING : 0;
+        s32 xForce;
+        if (jumpDash & JUMP_WITH_DASH) {
+            // Wall kick dash: use dash speed
+            xForce = MMX_DASH_SPEED;
+        } else {
+            xForce = MMX_WALL_JUMP_FORCE;
+        }
+        // Wall jump sends player away from wall (opposite of facing direction)
+        RicSetSpeedX(PLAYER.facingLeft ? xForce : -xForce);
+        g_Player.unk44 = (jumpDash & JUMP_WITH_DASH) ? IS_DASHING : 0;
     } else if (RicCheckFacing() != 0 || PLAYER.step == Player_Slide) {
         RicSetSpeedX(jumpDash ? MMX_DASH_SPEED : MMX_WALK_SPEED);
         g_Player.unk44 = jumpDash ? IS_DASHING : 0;
@@ -2786,7 +2929,7 @@ s32 RicCheckSubwpnChainLimit(s16 subwpnId, s16 limit) {
     s32 nEmpty;
     s32 i;
     // Iterate through entities 32-48 (which hold subweapons)
-    // Any that match the proposed ID increments the count.
+    // Any that match the proposfed ID increments the count.
     // If at any point the count reaches the limit, return -1.
     entity = &g_Entities[32];
     for (i = 0, nFound = 0, nEmpty = 0; i < 16; i++, entity++) {
@@ -2820,41 +2963,80 @@ static int GetEntityCountByEntityID(enum MmxEntities id) {
     }
     return count;
 }
+
 void MmxResetChargeWeapon(void) {
     g_ChargeTimer = 0;
     g_ChargeLevel = CHARGE_NONE;
-    PLAYER.palette = PAL_PLAYER;
+    SetPaletteState(PAL_STATE_NORMAL);
+}
+static u32 GetWeaponBlueprint(enum MmxWeapons w) {
+    switch (w) {
+    case W_SHOTGUN_ICE:
+        return B_W_SHOTGUN_ICE;
+    case W_HOMING_TORPEDO:
+        return B_W_HOMING_TORPEDO;
+    case W_CHAMELEON_STING:
+        return B_W_CHAMELEON_STING;
+    default:
+        return 0;
+    }
 }
 bool MmxPerformAttack(void) {
-    s32 i;
-
-    for (i = 16; i < 31; i++) {
-        DestroyEntity(&g_Entities[i]);
-    }
     switch (g_ChargeLevel) {
     case CHARGE_NONE:
-        // we can spawn a maximum of 3 concurrent lemons
-        if (GetEntityCountByEntityID(E_W_LEMON) >= 3) {
-            return false;
-        }
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
-            return false;
+        if (g_CurrentWeapon != W_BUSTER) {
+            // fire selected subweapon
+            u32 bp = GetWeaponBlueprint(g_CurrentWeapon);
+            if (!bp) {
+                return false;
+            }
+            // Shotgun ice can only be shot once at a time
+            if (g_CurrentWeapon == W_SHOTGUN_ICE &&
+                (GetEntityCountByEntityID(E_W_SHOTGUN_ICE) >= 1 ||
+                 GetEntityCountByEntityID(E_SHOTGUN_ICE_SHARD) >= 1)) {
+                return false;
+            }
+            // Homing torpedo can have up to 2 concurrent shots
+            if (g_CurrentWeapon == W_HOMING_TORPEDO &&
+                GetEntityCountByEntityID(E_W_HOMING_TORPEDO) >= 1) {
+                return false;
+            }
+            // Chameleon sting can only be shot once at a time
+            if (g_CurrentWeapon == W_CHAMELEON_STING &&
+                GetEntityCountByEntityID(E_W_CHAMELEON_STING) >= 1) {
+                return false;
+            }
+            if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, bp, 0)) {
+                return false;
+            }
+        } else {
+            // we can spawn a maximum of 3 concurrent lemons
+            if (GetEntityCountByEntityID(E_W_BUSTER) >= 3) {
+                return false;
+            }
+            if (!RicCreateEntFactoryFromEntity(
+                    g_CurrentEntity, B_W_BUSTER, 0)) {
+                return false;
+            }
         }
         break;
     case CHARGE_MMX1_LV1:
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_CUCUMBER, 0)) {
+        if (!RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_W_BUSTER_CHARGE_LV1, 0)) {
             return false;
         }
         MmxResetChargeWeapon();
         break;
     case CHARGE_MMX1_LV2:
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+        if (!RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_W_BUSTER_CHARGE_X1_LV2, 0)) {
             return false;
         }
         MmxResetChargeWeapon();
         break;
     case CHARGE_MMX1_LV3:
-        if (!RicCreateEntFactoryFromEntity(g_CurrentEntity, B_W_LEMON, 0)) {
+        if (!RicCreateEntFactoryFromEntity(
+                g_CurrentEntity, B_W_BUSTER_CHARGE_X1_LV3, 0)) {
             return false;
         }
         MmxResetChargeWeapon();

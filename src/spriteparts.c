@@ -253,279 +253,105 @@ s16* g_MmxPlSprites[] = {
     D_80153A58, D_80153A60, D_80153A68, D_80153A70, D_80153A78, D_80153A80,
     D_80153A88, D_80153A90, D_80153A98};
 
-static int D_80153AF4[] = {0x00300001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00000000, 0x00180018, 0x00000000};
-static int D_80153B10[] = {0x00200001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00000018, 0x00180030, 0x00000000};
-static int D_80153B2C[] = {0x00200001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00000030, 0x00180048, 0x00000000};
-static int D_80153B48[] = {0x00200001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00000048, 0x00180060, 0x00000000};
-static int D_80153B64[] = {0x00100001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00180000, 0x00300018, 0x00000000};
-static int D_80153B80[] = {0x00230001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00000048, 0x00180060, 0x00000000};
-static int D_80153B9C[] = {0x00230001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00000030, 0x00180048, 0x00000000};
-static int D_80153BB8[] = {0x00230001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00000018, 0x00180030, 0x00000000};
-static int D_80153BD4[] = {0x00000001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00180018, 0x00300030, 0x00000000};
-static int D_80153BF0[] = {0x00000001, 0xFFF5FFF5, 0x00180018, 0x00000001,
-                           0x00180018, 0x00300030, 0x00000000};
-static int D_80153C0C[] = {0x00000001, 0xFFF5FFF5, 0x00180018, 0x00000000,
-                           0x00180030, 0x00300048, 0x00000000};
-static int D_80153C28[] = {0x00000001, 0xFFF5FFF5, 0x00180018, 0x00000001,
-                           0x00180030, 0x00300048, 0x00000000};
-static int D_80153C44[] = {0x00100001, 0xFFF9FFF9, 0x00100010, 0x00190000,
-                           0x00400000, 0x00500010, 0x00000000};
-static int D_80153C60[] = {0x00000001, 0xFFF9FFF9, 0x00100010, 0x00190000,
-                           0x00400010, 0x00500020, 0x00000000};
-static int D_80153C7C[] = {0x00100001, 0xFFF9FFF9, 0x00100010, 0x00190000,
-                           0x00500000, 0x00600010, 0x00000000};
-static int D_80153C98[] = {0x00000001, 0xFFF9FFF9, 0x00100010, 0x00190000,
-                           0x00500010, 0x00600020, 0x00000000};
-static int D_80153CB4[] = {0x00040001, 0xFFF9FFF9, 0x00100010, 0x00190000,
-                           0x00400070, 0x00500080, 0x00000000};
-static int D_80153CD0[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00190000,
-                           0x00300070, 0x00380078, 0x00000000};
-static int D_80153CEC[] = {0x00040001, 0xFFFDFFFD, 0x00080008, 0x00190000,
-                           0x00300078, 0x00380080, 0x00000000};
-static int D_80153D08[] = {0x00000001, 0xFFFDFFFD, 0x00080008, 0x00190000,
-                           0x00380070, 0x00400078, 0x00000000};
-
-static u16 sprt_lemon[] = {
-    1, // count
-    0, -4, -3, 8, 6, PAL_HUD, PAGE(0x19, 3), 48, 1, 56, 7,
-};
-static u16 sprt_lemon_impact1[] = {
-    1, // count
-    0, -6, -8, 12, 16, PAL_HUD, PAGE(0x19, 3), 2, 0, 14, 16,
-};
-static u16 sprt_lemon_impact2[] = {
-    1, // count
-    0, -8, -8, 16, 16, PAL_HUD, PAGE(0x19, 3), 16, 0, 32, 16,
-};
-static u16 sprt_lemon_impact3[] = {
-    1, // count
-    0, -8, -8, 16, 16, PAL_HUD, PAGE(0x19, 3), 32, 0, 48, 16,
-};
-static u16 sprt_charge_mmx1_lv1_1[] = {
-    1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 6, 58, 8,
-};
-static u16 sprt_charge_mmx1_lv1_2[] = {
-    1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 4, 58, 6,
-};
-static u16 sprt_charge_mmx1_lv2_1[] = {
-    1, // count
-    0, -2, -2, 4, 4, PAL_HUD, PAGE(0x19, 3), 48, 8, 52, 12,
-};
-static u16 sprt_charge_mmx1_lv2_2[] = {
-    1, // count
-    0, -1, -1, 3, 3, PAL_HUD, PAGE(0x19, 3), 52, 8, 55, 11,
-};
-static u16 sprt_charge_mmx1_lv2_3[] = {
-    1, // count
-    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 3), 48, 14, 50, 16,
-};
-static u16 sprt_charge_mmx1_lv2_4[] = {
-    1, // count
-    0, -1, -1, 2, 2, PAL_HUD, PAGE(0x19, 3), 48, 12, 50, 14,
-};
-static u16 sprt_charge_mmx1_lv3_1[] = {
-    1, // count
-    0, -2, -2, 4, 4, PAL_PARTICLES, PAGE(0x19, 3), 56, 8, 60, 12,
-};
-static u16 sprt_charge_mmx1_lv3_2[] = {
-    1, // count
-    0, -1, -1, 3, 3, PAL_PARTICLES, PAGE(0x19, 3), 60, 8, 63, 11,
-};
-static u16 sprt_charge_mmx1_lv3_3[] = {
-    1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 14, 58, 16,
-};
-static u16 sprt_charge_mmx1_lv3_4[] = {
-    1, // count
-    0, -1, -1, 2, 2, PAL_PARTICLES, PAGE(0x19, 3), 56, 12, 58, 14,
-};
-static u16 sprt_cucumber_1[] = {
-    1, // count
-    0, -4, -7, 16, 14, PAL_PARTICLES, PAGE(0x19, 3), 0, 17, 16, 31,
-};
-static u16 sprt_cucumber_2[] = {
-    1, // count
-    0, -4, -12, 24, 24, PAL_PARTICLES, PAGE(0x19, 3), 64, 0, 88, 24,
-};
-static u16 sprt_cucumber_3[] = {
-    1, // count
-    0, -4, -6, 28, 12, PAL_PARTICLES, PAGE(0x19, 3), 88, 2, 116, 14,
-};
-static u16 sprt_cucumber_4[] = {
-    1, // count
-    0, -4, -4, 32, 8, PAL_PARTICLES, PAGE(0x19, 3), 56, 24, 88, 32,
-};
-static u16 sprt_cucumber_5[] = {
-    2, // count at 0,37
-    0, -4, -11, 24, 20, PAL_PARTICLES, PAGE(0x19, 3), 0,  33, 24, 53,
-    0, 20, -7,  16, 14, PAL_PARTICLES, PAGE(0x19, 3), 24, 37, 40, 51,
-};
-static u16 sprt_cucumber_6[] = {
-    1, // count at 16,18
-    0, -2, -6, 38, 12, PAL_PARTICLES, PAGE(0x19, 3), 16, 18, 54, 30,
-};
-static u16 sprt_cucumber_7[] = {
-    2, // draw as two different small frames to avoid drawing transparent pixels
-    0, 23, -11, 13, 22, PAL_PARTICLES, PAGE(0x19, 3), 112, 16, 125, 38,
-    0, 0,  -8,  23, 16, PAL_PARTICLES, PAGE(0x19, 3), 89,  19, 112, 35,
-};
-
-SpriteParts* g_SpritesWeapons[] = {
-    NULL,
-
-    (SpriteParts*)sprt_lemon,
-    (SpriteParts*)sprt_lemon_impact1,
-    (SpriteParts*)sprt_lemon_impact2,
-    (SpriteParts*)sprt_lemon_impact3,
-    (SpriteParts*)sprt_charge_mmx1_lv1_1,
-    (SpriteParts*)sprt_charge_mmx1_lv1_2,
-    (SpriteParts*)sprt_charge_mmx1_lv2_1,
-    (SpriteParts*)sprt_charge_mmx1_lv2_2,
-    (SpriteParts*)sprt_charge_mmx1_lv2_3,
-    (SpriteParts*)sprt_charge_mmx1_lv2_4,
-    (SpriteParts*)sprt_charge_mmx1_lv3_1,
-    (SpriteParts*)sprt_charge_mmx1_lv3_2,
-    (SpriteParts*)sprt_charge_mmx1_lv3_3,
-    (SpriteParts*)sprt_charge_mmx1_lv3_4,
-    (SpriteParts*)sprt_cucumber_1,
-    (SpriteParts*)sprt_cucumber_2,
-    (SpriteParts*)sprt_cucumber_3,
-    (SpriteParts*)sprt_cucumber_4,
-    (SpriteParts*)sprt_cucumber_5,
-    (SpriteParts*)sprt_cucumber_6,
-    (SpriteParts*)sprt_cucumber_7,
-
-    (SpriteParts*)D_80153AF4,
-    (SpriteParts*)D_80153B10,
-    (SpriteParts*)D_80153B2C,
-    (SpriteParts*)D_80153B48,
-    (SpriteParts*)D_80153B64,
-    (SpriteParts*)D_80153B80,
-    (SpriteParts*)D_80153B9C,
-    (SpriteParts*)D_80153BB8,
-    (SpriteParts*)D_80153BD4,
-    (SpriteParts*)D_80153BF0,
-    (SpriteParts*)D_80153C0C,
-    (SpriteParts*)D_80153C28,
-    (SpriteParts*)D_80153C44,
-    (SpriteParts*)D_80153C60,
-    (SpriteParts*)D_80153C7C,
-    (SpriteParts*)D_80153C98,
-    (SpriteParts*)D_80153CB4,
-    (SpriteParts*)D_80153CD0,
-    (SpriteParts*)D_80153CEC,
-    (SpriteParts*)D_80153D08};
-
 static u16 sprt_item_power_capsule_small_closed[] = {
     1, // count
-    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 4, 8, 12, 16,
+    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 2), 4, 8, 12, 16,
 };
 static u16 sprt_item_power_capsule_small_1[] = {
     1, // count
-    0, -5, -8, 10, 8, PAL_HUD, PAGE(0x19, 1), 19, 8, 29, 16,
+    0, -5, -8, 10, 8, PAL_HUD, PAGE(0x19, 2), 19, 8, 29, 16,
 };
 static u16 sprt_item_power_capsule_small_2[] = {
     1, // count
-    0, -5, -8, 10, 8, PAL_HUD, PAGE(0x19, 1), 35, 8, 45, 16,
+    0, -5, -8, 10, 8, PAL_HUD, PAGE(0x19, 2), 35, 8, 45, 16,
 };
 static u16 sprt_item_power_capsule_small_3[] = {
     1, // count
-    0, -5, -8, 10, 8, PAL_HUD, PAGE(0x19, 1), 51, 8, 61, 16,
+    0, -5, -8, 10, 8, PAL_HUD, PAGE(0x19, 2), 51, 8, 61, 16,
 };
 static u16 sprt_item_power_capsule_big_closed[] = {
     1, // count
-    0, -7, -12, 14, 12, PAL_HUD, PAGE(0x19, 1), 113, 4, 127, 16,
+    0, -7, -12, 14, 12, PAL_HUD, PAGE(0x19, 2), 113, 4, 127, 16,
 };
 static u16 sprt_item_power_capsule_big_1[] = {
     1, // count
-    0, -8, -12, 16, 12, PAL_HUD, PAGE(0x19, 1), 80, 4, 96, 16,
+    0, -8, -12, 16, 12, PAL_HUD, PAGE(0x19, 2), 80, 4, 96, 16,
 };
 static u16 sprt_item_power_capsule_big_2[] = {
     1, // count
-    0, -8, -12, 16, 12, PAL_HUD, PAGE(0x19, 1), 96, 4, 112, 16,
+    0, -8, -12, 16, 12, PAL_HUD, PAGE(0x19, 2), 96, 4, 112, 16,
 };
 static u16 sprt_item_power_capsule_big_3[] = {
     1, // count
-    0, -8, -12, 16, 12, PAL_HUD, PAGE(0x19, 1), 64, 4, 80, 16,
+    0, -8, -12, 16, 12, PAL_HUD, PAGE(0x19, 2), 64, 4, 80, 16,
 };
 static u16 sprt_item_energy_capsule_small_1[] = {
     1, // count
-    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 4, 24, 12, 32,
+    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 2), 4, 24, 12, 32,
 };
 static u16 sprt_item_energy_capsule_small_2[] = {
     1, // count
-    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 20, 24, 28, 32,
+    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 2), 20, 24, 28, 32,
 };
 static u16 sprt_item_energy_capsule_small_3[] = {
     1, // count
-    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 1), 36, 24, 44, 32,
+    0, -4, -8, 8, 8, PAL_HUD, PAGE(0x19, 2), 36, 24, 44, 32,
 };
 static u16 sprt_item_energy_capsule_big_1[] = {
     1, // count
-    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 1), 81, 17, 95, 31,
+    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 2), 81, 17, 95, 31,
 };
 static u16 sprt_item_energy_capsule_big_2[] = {
     1, // count
-    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 1), 97, 17, 111, 31,
+    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 2), 97, 17, 111, 31,
 };
 static u16 sprt_item_energy_capsule_big_3[] = {
     1, // count
-    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 1), 113, 17, 127, 31,
+    0, -7, -14, 14, 14, PAL_HUD, PAGE(0x19, 2), 113, 17, 127, 31,
 };
 static u16 sprt_item_life_up_1[] = {
     1, // count
-    0, -8, -16, 16, 16, PAL_PLAYER, PAGE(0x19, 1), 48, 16, 64, 32,
+    0, -8, -16, 16, 16, PAL_PLAYER, PAGE(0x19, 2), 48, 16, 64, 32,
 };
 static u16 sprt_item_life_up_2[] = {
     1, // count
-    0, -8, -16, 16, 16, PAL_PLAYER, PAGE(0x19, 1), 64, 16, 80, 32,
+    0, -8, -16, 16, 16, PAL_PLAYER, PAGE(0x19, 2), 64, 16, 80, 32,
 };
 static u16 sprt_item_heart_tank_1[] = {
     1, // count
-    0, -7, -15, 14, 15, PAL_HEART, PAGE(0x19, 1), 1, 33, 15, 48,
+    0, -7, -15, 14, 15, PAL_HEART, PAGE(0x19, 2), 1, 33, 15, 48,
 };
 static u16 sprt_item_heart_tank_2[] = {
     1, // count
-    0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 1), 18, 33, 30, 48,
+    0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 2), 18, 33, 30, 48,
 };
 static u16 sprt_item_heart_tank_3[] = {
     1, // count
-    0, -5, -15, 10, 15, PAL_HEART, PAGE(0x19, 1), 35, 33, 45, 48,
+    0, -5, -15, 10, 15, PAL_HEART, PAGE(0x19, 2), 35, 33, 45, 48,
 };
 static u16 sprt_item_heart_tank_4[] = {
     1, // count
-    0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 1), 50, 33, 62, 48,
+    0, -6, -15, 12, 15, PAL_HEART, PAGE(0x19, 2), 50, 33, 62, 48,
 };
 static u16 sprt_death_particle_1[] = {
     1, // count
-    0, -3, -3, 6, 6, PAL_PLAYER, PAGE(0x19, 1), 90, 112, 96, 118,
+    0, -3, -3, 6, 6, PAL_PLAYER, PAGE(0x19, 2), 90, 112, 96, 118,
 };
 static u16 sprt_death_particle_2[] = {
     1, // count
-    0, -4, -4, 8, 8, PAL_PLAYER, PAGE(0x19, 1), 88, 119, 96, 127,
+    0, -4, -4, 8, 8, PAL_PLAYER, PAGE(0x19, 2), 88, 119, 96, 127,
 };
 static u16 sprt_death_particle_3[] = {
     1, // count
-    0, -5, -5, 9, 9, PAL_PLAYER, PAGE(0x19, 1), 80, 112, 89, 121,
+    0, -5, -5, 9, 9, PAL_PLAYER, PAGE(0x19, 2), 80, 112, 89, 121,
 };
 static u16 sprt_death_particle_4[] = {
     1, // count
-    0, -6, -6, 11, 11, PAL_PLAYER, PAGE(0x19, 1), 96, 112, 107, 123,
+    0, -6, -6, 11, 11, PAL_PLAYER, PAGE(0x19, 2), 96, 112, 107, 123,
 };
 static u16 sprt_death_particle_5[] = {
     1, // count
-    0, -8, -8, 15, 15, PAL_PLAYER, PAGE(0x19, 1), 112, 112, 127, 127,
+    0, -8, -8, 15, 15, PAL_PLAYER, PAGE(0x19, 2), 112, 112, 127, 127,
 };
 
 SpriteParts* g_SpritesItems[] = {

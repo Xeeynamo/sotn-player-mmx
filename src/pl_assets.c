@@ -4,7 +4,7 @@
 #include "lz4/lz4.h"
 
 static unsigned short palette[][16] = {
-#include "assets/pal.inc"
+#include "assets/palettes.inc"
 };
 
 static unsigned char img_hud[] = {
@@ -13,8 +13,11 @@ static unsigned char img_hud[] = {
 static unsigned char img_items[] = {
 #include "assets/items.png.inc"
 };
-static unsigned char img_particles[] = {
-#include "assets/particles.png.inc"
+static unsigned char img_particles_0[] = {
+#include "assets/sprite_particles.png.inc"
+};
+static unsigned char img_particles_1[] = {
+#include "assets/sprite_particles_1.png.inc"
 };
 
 #define G_MAKE(x, y, data) {data, sizeof(data), x, y}
@@ -24,10 +27,10 @@ struct GraphicsInit {
     unsigned short vramX, vramY;
 };
 struct GraphicsInit gfx_init[] = {
-    G_MAKE(512 + 64, 256, img_hud),
-    G_MAKE(512 + 96, 256, img_items),
-    // G_MAKE(512 + 64, 384, RESERVED_FOR_FUTURE_USE),
-    G_MAKE(512 + 96, 384, img_particles),
+    G_MAKE(512 + 64, 256 + 0, img_particles_0), // PAGE(0x19, 0)
+    G_MAKE(512 + 96, 256 + 0, img_particles_1), // PAGE(0x19, 1)
+    G_MAKE(512 + 64, 256 + 128, img_items),     // PAGE(0x19, 2)
+    G_MAKE(512 + 96, 256 + 128, img_hud),       // PAGE(0x19, 3)
 };
 
 static bool DecompressData(void* dst, void* src, size_t srcLen, size_t dstLen) {

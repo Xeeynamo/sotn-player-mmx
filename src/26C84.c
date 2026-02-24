@@ -1083,5 +1083,5 @@ void func_80165DD8(
 
 void func_80166024() {
     PLAYER.palette = 0x815E;
-    PLAYER.drawMode = DRAW_UNK_40 | DRAW_TPAGE2 | DRAW_TPAGE;
+    PLAYER.blendMode = BLEND_TRANSP | BLEND_QUARTER;
 }
