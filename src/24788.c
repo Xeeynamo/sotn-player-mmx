@@ -82,8 +82,8 @@ void RicEntitySmokePuff(Entity* self) {
         self->anim = anim_smoke_puff;
         self->zPriority = PLAYER.zPriority + 2;
         self->flags = FLAG_POS_CAMERA_LOCKED | FLAG_UNK_100000 | FLAG_UNK_10000;
-        self->drawMode = DRAW_TPAGE2 | DRAW_TPAGE;
-        self->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY | FLAG_DRAW_UNK40;
+        self->blendMode = BLEND_TRANSP | BLEND_ADD;
+        self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY | ENTITY_MASK_B;
         self->opacity = 0x60;
         posX = pos_x_80154C50[paramsLo];
         if (paramsHi == 0) {
@@ -475,7 +475,7 @@ void func_80161C2C(Entity* self) {
         if (paramsHi == 1) {
             self->scaleX = 0xC0;
             self->scaleY = 0xC0;
-            self->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY;
+            self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY;
             self->animSet = ANIMSET_DRA(2);
             self->anim = anim_80154E04;
         }
@@ -485,7 +485,7 @@ void func_80161C2C(Entity* self) {
                 self->anim = anim_80154DC8;
                 self->scaleX = 0x120;
                 self->scaleY = 0x120;
-                self->drawFlags = FLAG_DRAW_SCALEX | FLAG_DRAW_SCALEY;
+                self->drawFlags = ENTITY_SCALEX | ENTITY_SCALEY;
                 self->animSet = ANIMSET_DRA(2);
             } else {
                 self->animSet = ANIMSET_DRA(5);
@@ -520,14 +520,14 @@ void func_80161C2C(Entity* self) {
         self->posY.val += self->velocityY;
         self->posX.val += self->velocityX;
         if ((self->pose == 8) && (self->anim != anim_smoke_puff)) {
-            self->drawMode = DRAW_TPAGE;
+            self->blendMode = BLEND_TRANSP;
             if (!(params & 1) && (self->poseTimer == step)) {
                 RicCreateEntFactoryFromEntity(self, FACTORY(BP_EMBERS, 4), 0);
             }
         }
 
         if ((self->pose == 16) && (self->anim == anim_smoke_puff)) {
-            self->drawMode = DRAW_TPAGE;
+            self->blendMode = BLEND_TRANSP;
         }
 
         if (self->poseTimer < 0) {

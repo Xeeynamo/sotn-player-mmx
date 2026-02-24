@@ -459,7 +459,7 @@ void EntityShotgunIceTrail(Entity* self) {
     case 0:
         self->animSet = ANIMSET_OVL(0x11);
         self->ext.player.anim = ShotgunIce_Trail;
-        self->drawFlags |= FLAG_DRAW_OPACITY;
+        self->drawFlags |= ENTITY_OPACITY;
         self->opacity = 0xFF;
         self->flags = FLAG_UNK_2000 | FLAG_UNK_00200000 | FLAG_NOT_AN_ENEMY |
                       FLAG_POS_CAMERA_LOCKED;
@@ -580,7 +580,7 @@ void EntityHomingTorpedo(Entity* self) {
         }
 
         // Rotate sprite toward movement direction
-        self->drawFlags = FLAG_DRAW_ROTATE;
+        self->drawFlags = ENTITY_ROTATE;
         s32 angle =
             (-ratan2(-self->velocityY >> 8, self->velocityX >> 8)) & 0xFFF;
         // Fix rotation when facing left - flip the angle

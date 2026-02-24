@@ -1128,7 +1128,7 @@ void func_80159BC8(void) {
     PLAYER.pose = 0;
     g_Player.unk44 = 0;
     g_Player.unk46 = 0;
-    PLAYER.drawFlags &= ~FLAG_DRAW_ROTATE;
+    PLAYER.drawFlags &= ~ENTITY_ROTATE;
 }
 
 void func_80159C04(void) {
@@ -1706,7 +1706,7 @@ static void RicHandleDeadPrologue(void) {
         }
         break;
     case 1:
-        PLAYER.drawFlags = FLAG_DRAW_ROTATE;
+        PLAYER.drawFlags = ENTITY_ROTATE;
         D_801545AA += 64;
         PLAYER.rotate = (rsin(D_801545AA) >> 0xA) + 256;
         if (D_801545AC != 0) {
@@ -2178,7 +2178,7 @@ static void func_8015C6D4(void) {
         g_Entities[entNum].posX.i.hi = prim->x0;
         g_Entities[entNum].posY.i.hi = prim->y0;
         g_Entities[entNum].animCurFrame = prim->x1;
-        g_Entities[entNum].drawMode = prim->y1;
+        g_Entities[entNum].blendMode = prim->y1;
         g_Entities[entNum].facingLeft = prim->x2;
         g_Entities[entNum].palette = prim->y2;
         g_Entities[entNum].zPriority = PLAYER.zPriority - 2;
