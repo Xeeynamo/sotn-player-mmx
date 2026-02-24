@@ -48,6 +48,7 @@ u32 g_WallSlideTimer = 0;
 u32 g_DashTimer = 0;
 u32 g_DashAirUsed = 0;
 enum MmxChargeLevel g_ChargeLevel = CHARGE_NONE;
+enum MmxWeapons g_CurrentWeapon = W_BUSTER;
 
 static void InitSpritesheet(u8** ptr, size_t num) {
 #ifdef VERSION_PC
@@ -299,10 +300,6 @@ void PlayerMain() {
 //     }
 // }
 #endif
-    if (g_pads[0].pressed & PAD_L2) {
-        PLAYER.hitParams = 33;
-        PLAYER.unkB8 = &g_Entities[128 + 17];
-    }
     // MmxHudHandler();
     AdjustHealthAndDamage();
     OverrideStageEntities();

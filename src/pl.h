@@ -10,7 +10,8 @@
 #define MMX_DASH_SPEED FIX(3.45703125)
 #define MMX_JUMP_SPEED FIX(4.5)
 #define MMX_FALL_SPEED FIX(2.0)
-#define MMX_WALL_SPEED FIX(1.46875)
+#define MMX_WALL_SPEED FIX(2.0)
+#define MMX_WALL_STICK_FRAMES 8
 #define MMX_WALL_JUMP_FORCE FIX(1.46875)
 #define MMX_FALL_MAX_VELOCITY FIX(6.875)
 #define MMX_MAX_HEALTH 320
@@ -62,7 +63,7 @@ enum MmxSteps {
     PL_S_CROUCH,
     PL_S_FALL,
     PL_S_JUMP,
-    PL_S_5, // unused
+    PL_S_DOOR,
     PL_S_6, // unused
     PL_S_7, // unused
     PL_S_HIGHJUMP,
@@ -216,6 +217,11 @@ enum MmxEntities {
     E_ENERGY_TANK,
     E_DEATH_PARTICLE,
     E_DEATH_SCREEN_HANDLER,
+    E_BUSTER_CHARGE_X1_LV3_SHOT,
+    E_SHOTGUN_ICE_SHARD,
+    E_SHOTGUN_ICE_TRAIL,
+    E_W_CHAMELEON_STING_EXPLOSION,
+    E_W_CHAMELEON_STING_PROJECTILE,
     NUM_ENTITIES,
 };
 
@@ -328,6 +334,11 @@ enum RicBlueprints {
     B_ENERGY_TANK,
     B_P_DEATH_PARTICLES,
     B_DEATH_SCREEN_HANDLER,
+    B_BUSTER_CHARGE_X1_LV3_SHOT,
+    B_W_SHOTGUN_ICE_SHARD,
+    B_W_SHOTGUN_ICE_TRAIL,
+    B_W_CHAMELEON_STING_EXPLOSION,
+    B_W_CHAMELEON_STING_PROJECTILE,
     NUM_BLUEPRINTS,
 };
 
@@ -406,6 +417,13 @@ enum MmxChargeLevel {
     CHARGE_MMX1_LV3,
 };
 
+enum MmxPaletteState {
+    PAL_STATE_NORMAL,
+    PAL_STATE_HURT,
+    PAL_STATE_CHARGING,
+    PAL_STATE_CHARGING_SUPER,
+};
+
 extern unsigned char* pl_sprites[197];
 extern AnimationFrame* mmx_anims[];
 extern u32 g_PadReleased;
@@ -414,6 +432,14 @@ extern u32 g_WallSlideTimer;
 extern u32 g_DashTimer;
 extern u32 g_DashAirUsed;
 extern enum MmxChargeLevel g_ChargeLevel;
+extern enum MmxWeapons g_CurrentWeapon;
+
+static const enum MmxWeapons g_SelectableWeapons[] = {
+    W_BUSTER,
+    W_SHOTGUN_ICE,
+    W_HOMING_TORPEDO,
+    W_CHAMELEON_STING,
+};
 
 // END OF MMX STUFF
 
